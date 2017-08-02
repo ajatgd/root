@@ -295,6 +295,9 @@ TMVA::Results* TMVA::DataSet::GetResults( const TString & resultsName,
    case Types::kNoAnalysisType:
       newresults = new ResultsClassification(fdsi,resultsName);
       break;
+   case Types::kUnsupervised:
+      //newresults = new ResultUnsupervised(fdsi, resultsName);
+      break;
    case Types::kMaxAnalysisType:
       //Log() << kINFO << " GetResults("<<info<<") can't create new one." << Endl;
       return 0;
@@ -754,4 +757,3 @@ TTree* TMVA::DataSet::GetTree( Types::ETreeType type )
 
    return tree;
 }
-

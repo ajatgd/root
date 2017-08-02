@@ -128,7 +128,8 @@ namespace TMVA {
        kRegression,
        kMulticlass,
        kNoAnalysisType,
-       kMaxAnalysisType
+       kMaxAnalysisType,
+       kUnsupervised
      };
 
      enum ESBType {

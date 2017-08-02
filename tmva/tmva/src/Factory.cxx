@@ -168,6 +168,7 @@ TMVA::Factory::Factory( TString jobName, TFile* theTargetFile, TString theOption
    AddPreDefVal(TString("Classification"));
    AddPreDefVal(TString("Regression"));
    AddPreDefVal(TString("Multiclass"));
+   AddPreDefVal(TString("Unsupervised"));
    AddPreDefVal(TString("Auto"));
 
    ParseOptions();
@@ -185,7 +186,7 @@ TMVA::Factory::Factory( TString jobName, TFile* theTargetFile, TString theOption
    else if( analysisType == "regression" )     fAnalysisType = Types::kRegression;
    else if( analysisType == "multiclass" )     fAnalysisType = Types::kMulticlass;
    else if( analysisType == "auto" )           fAnalysisType = Types::kNoAnalysisType;
-
+   else if (analysisType == "unsupervised")    fAnalysisType = Types::kUnsupervised;
 //   Greetings();
 }
 
@@ -246,7 +247,7 @@ TMVA::Factory::Factory( TString jobName, TString theOption )
    AddPreDefVal(TString("Regression"));
    AddPreDefVal(TString("Multiclass"));
    AddPreDefVal(TString("Auto"));
-
+   AddPreDefVal(TString("Unsupervised"));
    ParseOptions();
    CheckForUnusedOptions();
 
@@ -811,14 +812,14 @@ Double_t TMVA::Factory::GetROCIntegral(TString datasetname, TString theMethodNam
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Argument iClass specifies the class to generate the ROC curve in a 
+/// Argument iClass specifies the class to generate the ROC curve in a
 /// multiclass setting. It is ignored for binary classification.
-/// 
+///
 /// Returns a ROC graph for a given method, or nullptr on error.
 ///
-/// Note: Evaluation of the given method must have been run prior to ROC 
+/// Note: Evaluation of the given method must have been run prior to ROC
 /// generation through Factory::EvaluateAllMetods.
-/// 
+///
 /// NOTE: The ROC curve is 1 vs. all where the given class is considered signal
 /// and the others considered background. This is ok in binary classification
 /// but in in multi class classification, the ROC surface is an N dimensional
@@ -830,14 +831,14 @@ TGraph* TMVA::Factory::GetROCCurve(DataLoader *loader, TString theMethodName, Bo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Argument iClass specifies the class to generate the ROC curve in a 
+/// Argument iClass specifies the class to generate the ROC curve in a
 /// multiclass setting. It is ignored for binary classification.
-/// 
+///
 /// Returns a ROC graph for a given method, or nullptr on error.
 ///
-/// Note: Evaluation of the given method must have been run prior to ROC 
+/// Note: Evaluation of the given method must have been run prior to ROC
 /// generation through Factory::EvaluateAllMetods.
-/// 
+///
 /// NOTE: The ROC curve is 1 vs. all where the given class is considered signal
 /// and the others considered background. This is ok in binary classification
 /// but in in multi class classification, the ROC surface is an N dimensional
@@ -849,7 +850,7 @@ TGraph* TMVA::Factory::GetROCCurve(TString datasetname, TString theMethodName, B
       Log() << kERROR << Form("DataSet = %s not found in methods map.", datasetname.Data()) << Endl;
       return nullptr;
    }
-   
+
    if ( ! this->HasMethod(datasetname, theMethodName) ) {
       Log() << kERROR << Form("Method = %s not found with Dataset = %s ", theMethodName.Data(), datasetname.Data()) << Endl;
       return nullptr;
@@ -884,10 +885,10 @@ TGraph* TMVA::Factory::GetROCCurve(TString datasetname, TString theMethodName, B
 ////////////////////////////////////////////////////////////////////////////////
 /// Generate a collection of graphs, for all methods for a given class. Suitable
 /// for comparing method performance.
-/// 
-/// Argument iClass specifies the class to generate the ROC curve in a 
+///
+/// Argument iClass specifies the class to generate the ROC curve in a
 /// multiclass setting. It is ignored for binary classification.
-/// 
+///
 /// NOTE: The ROC curve is 1 vs. all where the given class is considered signal
 /// and the others considered background. This is ok in binary classification
 /// but in in multi class classification, the ROC surface is an N dimensional
@@ -901,10 +902,10 @@ TMultiGraph* TMVA::Factory::GetROCCurveAsMultiGraph(DataLoader *loader, UInt_t i
 ////////////////////////////////////////////////////////////////////////////////
 /// Generate a collection of graphs, for all methods for a given class. Suitable
 /// for comparing method performance.
-/// 
-/// Argument iClass specifies the class to generate the ROC curve in a 
+///
+/// Argument iClass specifies the class to generate the ROC curve in a
 /// multiclass setting. It is ignored for binary classification.
-/// 
+///
 /// NOTE: The ROC curve is 1 vs. all where the given class is considered signal
 /// and the others considered background. This is ok in binary classification
 /// but in in multi class classification, the ROC surface is an N dimensional
@@ -923,14 +924,14 @@ TMultiGraph* TMVA::Factory::GetROCCurveAsMultiGraph(TString datasetname, UInt_t 
 
       TString methodName = method->GetMethodName();
       UInt_t nClasses = method->DataInfo().GetNClasses();
-      
+
       if ( this->fAnalysisType == Types::kMulticlass && iClass >= nClasses ) {
          Log() << kERROR << Form("Given class number (iClass = %i) does not exist. There are %i classes in dataset.", iClass, nClasses) << Endl;
          continue;
       }
 
       TString className = method->DataInfo().GetClassInfo(iClass)->GetName();
-      
+
       TGraph *graph = this->GetROCCurve(datasetname, methodName, false, iClass);
       graph->SetTitle(methodName);
 
@@ -950,12 +951,12 @@ TMultiGraph* TMVA::Factory::GetROCCurveAsMultiGraph(TString datasetname, UInt_t 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Draws ROC curves for all methods booked with the factory for a given class 
+/// Draws ROC curves for all methods booked with the factory for a given class
 /// onto a canvas.
-/// 
-/// Argument iClass specifies the class to generate the ROC curve in a 
+///
+/// Argument iClass specifies the class to generate the ROC curve in a
 /// multiclass setting. It is ignored for binary classification.
-/// 
+///
 /// NOTE: The ROC curve is 1 vs. all where the given class is considered signal
 /// and the others considered background. This is ok in binary classification
 /// but in in multi class classification, the ROC surface is an N dimensional
@@ -968,10 +969,10 @@ TCanvas * TMVA::Factory::GetROCCurve(TMVA::DataLoader *loader, UInt_t iClass)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Draws ROC curves for all methods booked with the factory for a given class.
-/// 
-/// Argument iClass specifies the class to generate the ROC curve in a 
+///
+/// Argument iClass specifies the class to generate the ROC curve in a
 /// multiclass setting. It is ignored for binary classification.
-/// 
+///
 /// NOTE: The ROC curve is 1 vs. all where the given class is considered signal
 /// and the others considered background. This is ok in binary classification
 /// but in in multi class classification, the ROC surface is an N dimensional
@@ -1393,7 +1394,12 @@ void TMVA::Factory::EvaluateAllMethods( void )
 
         nmeth_used[0]++;
         mname[0].push_back(theMethod->GetMethodName());
-     } else {
+      }
+      else if (theMethod->Unsupervised())
+      {
+          // Design here the evaluation for the autoencoder...
+      }
+      else {
 
         Log() << kHEADER << "Evaluate classifier: " << theMethod->GetMethodName() << Endl << Endl;
         isel = (theMethod->GetMethodTypeName().Contains("Variable")) ? 1 : 0;
@@ -2431,4 +2437,3 @@ TH1F* TMVA::Factory::GetImportance(const int nbits,std::vector<Double_t> importa
 //   vih1->Draw("B");
   return vih1;
 }
-
