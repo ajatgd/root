@@ -75,6 +75,7 @@ namespace TMVA {
       void AddEvent        ( const TString& className, Types::ETreeType tt, const std::vector<Double_t>& event, Double_t weight );
       Bool_t UserAssignEvents(UInt_t clIndex);
       TTree* CreateEventAssignTrees( const TString& name );
+      TTree* CreateEventAssignUnsupervisedTrees( const TString& name );
 
       DataSetInfo& AddDataSet( DataSetInfo& );
       DataSetInfo& AddDataSet( const TString&  );

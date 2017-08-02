@@ -237,6 +237,49 @@ void TMVA::DataLoader::AddSignalTrainingEvent( const std::vector<Double_t>& even
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// the next functions are to assign events directly
+
+////////////////////////////////////////////////////////////////////////////////
+/// create the data assignment tree (for event-wise data assignment by user)
+
+TTree* TMVA::DataLoader::CreateEventAssignUnsupervisedTrees( const TString& name )
+{
+   TTree * assignTree = new TTree( name, name );
+   assignTree->SetDirectory(0);
+   assignTree->Branch( "type",   &fATreeType,   "ATreeType/I" );
+   assignTree->Branch( "weight", &fATreeWeight, "ATreeWeight/F" );
+
+   std::vector<VariableInfo>& vars = DefaultDataSetInfo().GetVariableInfos();
+   //std::vector<VariableInfo>& tgts = DefaultDataSetInfo().GetTargetInfos();
+   //std::vector<VariableInfo>& spec = DefaultDataSetInfo().GetSpectatorInfos();
+
+   if (fATreeEvent.size()==0) fATreeEvent.resize(vars.size());
+   // add variables
+   for (UInt_t ivar=0; ivar<vars.size(); ivar++) {
+      TString vname = vars[ivar].GetExpression();
+      assignTree->Branch( vname, &fATreeEvent[ivar], vname + "/F" );
+   }
+   /*// add targets
+   for (UInt_t itgt=0; itgt<tgts.size(); itgt++) {
+      TString vname = tgts[itgt].GetExpression();
+      assignTree->Branch( vname, &fATreeEvent[vars.size()+itgt], vname + "/F" );
+   }
+   // add spectators
+   for (UInt_t ispc=0; ispc<spec.size(); ispc++) {
+      TString vname = spec[ispc].GetExpression();
+      assignTree->Branch( vname, &fATreeEvent[vars.size()+tgts.size()+ispc], vname + "/F" );
+   }*/
+   return assignTree;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// add signal training event
+
+void TMVA::DataLoader::AddSignalTrainingEvent( const std::vector<Double_t>& event, Double_t weight )
+{
+   AddEvent( "Signal", Types::kTraining, event, weight );
+}
+////////////////////////////////////////////////////////////////////////////////
 /// add signal testing event
 
 void TMVA::DataLoader::AddSignalTestEvent( const std::vector<Double_t>& event, Double_t weight )
@@ -279,7 +322,7 @@ void TMVA::DataLoader::AddTestEvent( const TString& className, const std::vector
 ////////////////////////////////////////////////////////////////////////////////
 /// add event
 /// vector event : the order of values is: variables + targets + spectators
-
+// for Unsupervised stuff it should only be input variables
 void TMVA::DataLoader::AddEvent( const TString& className, Types::ETreeType tt,
                                  const std::vector<Double_t>& event, Double_t weight )
 {
