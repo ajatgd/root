@@ -251,7 +251,6 @@ public:
     *  matrix \p A and scale the result by reciprocal of \p p. */
    static void Dropout(TMatrixT<AReal> & A, AReal dropoutProbability);
 
-   ///@}
    //____________________________________________________________________________
    //
    // AutoEncoder Propagation
@@ -304,11 +303,6 @@ public:
                                   TMatrixT<AReal> &fBiases,
                                   AReal learningRate,
                                   size_t fBatchSize);
-
-   static void Transform(TMatrixT<AReal> &input,
-                         TMatrixT<AReal> &transformed,
-                         TMatrixT<AReal> &fWeights,
-                         TMatrixT<AReal> &fBiases);
 
 };
 
