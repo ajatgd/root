@@ -11,7 +11,7 @@
  *      Logistic Regression Layer                                                 *
  *                                                                                *
  * Authors (alphabetical):                                                        *
- *      Akshay Vashistha <akshayvashistha1995@gmail.com>  - CERN, Switzerland     *
+ *      Akshay Vashistha <akshayvashistha1995@gmail.com>  - JSSATE, Noida, India  *
  *                                                                                *
  * Copyright (c) 2005-2015:                                                       *
  *      CERN, Switzerland                                                         *

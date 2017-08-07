@@ -4,14 +4,14 @@
 /**********************************************************************************
  * Project: TMVA - a Root-integrated toolkit for multivariate data analysis       *
  * Package: TMVA                                                                  *
- * Class  : TCorruptionLayer                                                                  *
+ * Class  : TCorruptionLayer                                                      *
  * Web    : http://tmva.sourceforge.net                                           *
  *                                                                                *
  * Description:                                                                   *
- *      Corruption Layer for DeepAutoEncoders                                      *
+ *      Corruption Layer for DeepAutoEncoders                                     *
  *                                                                                *
  * Authors (alphabetical):                                                        *
- *      Akshay Vashistha <akshayvashistha1995@gmail.com>  - CERN, Switzerland     *
+ *      Akshay Vashistha <akshayvashistha1995@gmail.com>  - JSSATE, Noida, India  *
  *                                                                                *
  * Copyright (c) 2005-2015:                                                       *
  *      CERN, Switzerland                                                         *
