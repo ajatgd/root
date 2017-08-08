@@ -115,6 +115,7 @@ namespace TMVA {
        kDecorrelated,
        kNormalized,
        kPCA,
+       kAUTOENCODER,
        kRearranged,
        kGauss,
        kUniform,

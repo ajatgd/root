@@ -33,6 +33,7 @@
 #pragma link C++ class TMVA::VariableIdentityTransform+;
 #pragma link C++ class TMVA::VariableDecorrTransform+;
 #pragma link C++ class TMVA::VariablePCATransform+;
+#pragma link C++ class TMVA::VariableAutoEncoderTransform+;
 #pragma link C++ class TMVA::VariableGaussTransform+;
 #pragma link C++ class TMVA::VariableNormalizeTransform+;
 #pragma link C++ class TMVA::VariableRearrangeTransform+;

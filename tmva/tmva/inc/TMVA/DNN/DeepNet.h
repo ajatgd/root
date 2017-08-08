@@ -31,7 +31,6 @@
 #include "TString.h"
 
 #include "TMVA/DNN/Functions.h"
-#include "TMVA/DNN/TensorDataLoader.h"
 
 #include "TMVA/DNN/GeneralLayer.h"
 

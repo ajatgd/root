@@ -43,7 +43,7 @@
 #include <iomanip>
 #include <stdexcept>
 #include <algorithm>
-
+/*
 ClassImp(TMVA::VariableAutoEncoderTransform);
 
  ////////////////////////////////////////////////////////////////////////////////
@@ -77,33 +77,33 @@ void TMVA::VariableAutoEncoderTransform::Initialize()
 }
 
 //______________________________________________________________________________
-Bool_t TMVA::VariableAutoEncoderTransform::PrepareTransformation (const std::vector<Event*>& events)
-{
+//Bool_t TMVA::VariableAutoEncoderTransform::PrepareTransformation (const std::vector<Event*>& events)
+//{
 
-}
-
-//______________________________________________________________________________
-
-const TMVA::Event* TMVA::VariableAutoEncoderTransform::Transform( const Event* const ev, Int_t cls ) const
-{
-
-}
+//}
 
 //______________________________________________________________________________
 
-const TMVA::Event* TMVA::VariableAutoEncoderTransform::InverseTransform( const Event* const ev, Int_t cls ) const
-{
-}
+//const TMVA::Event* TMVA::VariableAutoEncoderTransform::Transform( const Event* const ev, Int_t cls ) const
+//{
+
+//}
 
 //______________________________________________________________________________
 
-void TMVA::VariableAutoEncoderTransform::CalculatePrincipalComponents( const std::vector< Event*>& events )
-{
+//const TMVA::Event* TMVA::VariableAutoEncoderTransform::InverseTransform( const Event* const ev, Int_t cls ) const
+//{
+//}
 
-}
 //______________________________________________________________________________
 
 void TMVA::VariableAutoEncoderTransform::CalculatePrincipalComponents( const std::vector< Event*>& events )
+{
+
+}
+//______________________________________________________________________________
+
+//void TMVA::VariableAutoEncoderTransform::CalculatePrincipalComponents( const std::vector< Event*>& events )
 {
 }
 //______________________________________________________________________________
@@ -141,5 +141,5 @@ void TMVA::VariableAutoEncoderTransform::ReadTransformationFromStream( std::istr
 void TMVA::VariableAutoEncoderTransform::MakeFunction( std::ostream& fout, const TString& fcncName,
                                                Int_t part, UInt_t trCounter, Int_t )
 {}
-
+*/
 //______________________________________________________________________________

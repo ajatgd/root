@@ -38,7 +38,7 @@
 using namespace TMVA::DNN;
 using namespace TMVA::DNN::DAE;
 
-template <typename Architecture> auto constructDeepAutoEncoderNet(TDeepNet<Architecture> &net)
+template <typename Architecture> auto constructDeepAutoEncoderNet(TDeepAutoEncoder<Architecture> &net)
 -> void
 {
    using Scalar_t = typename Architecture::Scalar_t;
@@ -124,7 +124,7 @@ template <typename Architecture> auto testNet()
 {
    using Scalar_t = typename Architecture::Scalar_t;
    using Matrix_t = typename Architecture::Matrix_t;
-   using Net_t = TDeepNet<Architecture>;
+   using Net_t = TDeepAutoEncoder<Architecture>;
    size_t batchSize = 6;
    Net_t convNet(batchSize, 1, 1, 1, 1, 1, 1,
                  ELossFunction::kMeanSquaredError, EInitialization::kGauss);
