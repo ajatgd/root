@@ -43,8 +43,11 @@
 #include "TMVA/DNN/DAE/ReconstructionLayer.h"
 #include "TMVA/DNN/DeepNet.h"
 
-namespace TMVA {
+using namespace TMVA::DNN;
+using namespace TMVA::DNN::DAE;
 
+namespace TMVA {
+   template <typename Architecture_t>
    class VariableDAETransform : public VariableTransformBase {
 
    public:

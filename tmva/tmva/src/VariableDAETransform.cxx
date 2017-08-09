@@ -26,7 +26,7 @@
 
 /*! \class TMVA::VariableDAETransform
 \ingroup TMVA
-Linear interpolation class
+
 */
 
 #include "TMVA/VariableDAETransform.h"
@@ -46,6 +46,7 @@ Linear interpolation class
 #include "TMVA/DNN/Architectures/Reference.h"
 #include "TMVA/DNN/Architectures/Reference.h"
 #include "TMVA/DNN/Functions.h"
+#include "TMVA/DNN/GeneralLayer.h"
 
 
 #include <iostream>
@@ -57,16 +58,16 @@ ClassImp(TMVA::VariableDAETransform);
 
 ////////////////////////////////////////////////////////////////////////////////
 /// constructor
-
-TMVA::VariableDAETransform::VariableDAETransform( DataSetInfo& dsi )
+template <typename Architecture_t>
+TMVA::VariableDAETransform<Architecture_t>::VariableDAETransform( DataSetInfo& dsi )
 : VariableTransformBase( dsi, Types::kDAETransform, "DAETransform" )
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// destructor
-
-TMVA::VariableDAETransform::~VariableDAETransform()
+template <typename Architecture_t>
+TMVA::VariableDAETransform<Architecture_t>::~VariableDAETransform()
 {
    for (UInt_t i=0; i<fMeanValues.size(); i++) {
       if (fMeanValues.at(i)   != 0) delete fMeanValues.at(i);
@@ -81,7 +82,8 @@ TMVA::VariableDAETransform::~VariableDAETransform()
 /// only after the creation of the DataSet which might be later.
 
 //template <typename Architecture_t>
-void TMVA::VariableDAETransform::Initialize()
+template <typename Architecture_t>
+void TMVA::VariableDAETransform<Architecture_t>::Initialize()
 {
    //fEncoder(batchSize, visibleUnits, hiddenUnits, dropoutProb, activationFunc, weights, biases);
    // has to be used like this
@@ -98,8 +100,8 @@ void TMVA::VariableDAETransform::Initialize()
 ////////////////////////////////////////////////////////////////////////////////
 /// calculate the principal components using the ROOT class TPrincipal
 /// and the normalization
-
-Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Event*>& events)
+template <typename Architecture_t>
+Bool_t TMVA::VariableDAETransform<Architecture_t>::PrepareTransformation (const std::vector<Event*>& events)
 {
    Initialize();
 
@@ -136,8 +138,8 @@ Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Even
 
 ////////////////////////////////////////////////////////////////////////////////
 /// apply the principal component analysis
-
-const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev, Int_t cls ) const
+template <typename Architecture_t>
+const TMVA::Event* TMVA::VariableDAETransform<Architecture_t>::Transform( const Event* const ev, Int_t cls ) const
 {
    if (!IsCreated()) return 0;
 
@@ -185,8 +187,8 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 /// apply the principal component analysis
 /// TODO: implementation of inverse transformation
 ///    Log() << kFATAL << "Inverse transformation for PCA transformation not yet implemented. Hence, this transformation cannot be applied together with regression. Please contact the authors if necessary." << Endl;
-
-const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* const ev, Int_t cls ) const
+template <typename Architecture_t>
+const TMVA::Event* TMVA::VariableDAETransform<Architecture_t>::InverseTransform( const Event* const ev, Int_t cls ) const
 {
    if (!IsCreated()) return 0;
    //   const Int_t inputSize = fGet.size();
@@ -215,8 +217,8 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
 ////////////////////////////////////////////////////////////////////////////////
 /// calculate the principal components for the signal and the background data
 /// it uses the MakePrincipal method of ROOT's TPrincipal class
-
-void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>& events )
+template <typename Architecture_t>
+void TMVA::VariableDAETransform<Architecture_t>::TrainOnExampleData( const std::vector< Event*>& events )
 {
    UInt_t nvars = 0, ntgts = 0, nspcts = 0;
    CountVariableTypes( nvars, ntgts, nspcts );
@@ -291,8 +293,8 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 /// x, and return it in p (function extracted from TPrincipal::X2P)
 /// It's the users responsibility to make sure that both x and p are
 /// of the right size (i.e., memory must be allocated for p)
-
-void TMVA::VariableDAETransform::X2P( std::vector<Float_t>& pc, const std::vector<Float_t>& x, Int_t cls ) const
+template <typename Architecture_t>
+void TMVA::VariableDAETransform<Architecture_t>::X2P( std::vector<Float_t>& pc, const std::vector<Float_t>& x, Int_t cls ) const
 {
    const Int_t nInput = x.size();
    pc.assign(nInput,0);
@@ -310,8 +312,8 @@ void TMVA::VariableDAETransform::X2P( std::vector<Float_t>& pc, const std::vecto
 /// pc, and return x
 /// It's the users responsibility to make sure that both x and pc are
 /// of the right size (i.e., memory must be allocated for p)
-
-void TMVA::VariableDAETransform::P2X( std::vector<Float_t>& x, const std::vector<Float_t>& pc, Int_t cls ) const
+template <typename Architecture_t>
+void TMVA::VariableDAETransform<Architecture_t>::P2X( std::vector<Float_t>& x, const std::vector<Float_t>& pc, Int_t cls ) const
 {
    const Int_t nInput = pc.size();
    x.assign(nInput,0);
@@ -326,8 +328,8 @@ void TMVA::VariableDAETransform::P2X( std::vector<Float_t>& x, const std::vector
 
 ////////////////////////////////////////////////////////////////////////////////
 /// write mean values to stream
-
-void TMVA::VariableDAETransform::WriteTransformationToStream( std::ostream& o ) const
+template <typename Architecture_t>
+void TMVA::VariableDAETransform<Architecture_t>::WriteTransformationToStream( std::ostream& o ) const
 {
    for (Int_t sbType=0; sbType<2; sbType++) {
       o << "# PCA mean values " << std::endl;
@@ -357,8 +359,8 @@ void TMVA::VariableDAETransform::WriteTransformationToStream( std::ostream& o ) 
 
 ////////////////////////////////////////////////////////////////////////////////
 /// create XML description of PCA transformation
-
-void TMVA::VariableDAETransform::AttachXMLTo(void* parent) {
+template <typename Architecture_t>
+void TMVA::VariableDAETransform<Architecture_t>::AttachXMLTo(void* parent) {
    void* trfxml = gTools().AddChild(parent, "Transform");
    gTools().AddAttr(trfxml, "Name", "PCA");
 
@@ -395,8 +397,8 @@ void TMVA::VariableDAETransform::AttachXMLTo(void* parent) {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Read the transformation matrices from the xml node
-
-void TMVA::VariableDAETransform::ReadFromXML( void* trfnode )
+template <typename Architecture_t>
+void TMVA::VariableDAETransform<Architecture_t>::ReadFromXML( void* trfnode )
 {
    Int_t nrows, ncols;
    UInt_t clsIdx;
@@ -461,8 +463,8 @@ void TMVA::VariableDAETransform::ReadFromXML( void* trfnode )
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Read mean values from input stream
-
-void TMVA::VariableDAETransform::ReadTransformationFromStream( std::istream& istr, const TString& classname )
+template <typename Architecture_t>
+void TMVA::VariableDAETransform<Architecture_t>::ReadTransformationFromStream( std::istream& istr, const TString& classname )
 {
    char buf[512];
    istr.getline(buf,512);
@@ -542,8 +544,8 @@ void TMVA::VariableDAETransform::ReadTransformationFromStream( std::istream& ist
 
 ////////////////////////////////////////////////////////////////////////////////
 /// creates C++ code fragment of the PCA transform for inclusion in standalone C++ class
-
-void TMVA::VariableDAETransform::MakeFunction( std::ostream& fout, const TString& fcncName,
+template <typename Architecture_t>
+void TMVA::VariableDAETransform<Architecture_t>::MakeFunction( std::ostream& fout, const TString& fcncName,
                                                Int_t part, UInt_t trCounter, Int_t )
 {
    UInt_t nvar = fEigenVectors[0]->GetNrows();
