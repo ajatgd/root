@@ -52,8 +52,6 @@
 namespace TMVA {
    //namespace DNN {
 
-namespace TMVA {
-   template <typename Architecture_t>
    class VariableDAETransform : public VariableTransformBase {
 
    public:

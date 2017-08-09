@@ -40,6 +40,7 @@
 #pragma link C++ class TMVA::VarTransformHandler+;
 #pragma link C++ class TMVA::ROCCalc+;
 #pragma link C++ class TMVA::ROCCurve+;
+#pragma link C++ class TMVA::VariableDAETransform+;
 
 #pragma link C++ function TMVA::CreateVariableTransform;
 #pragma link C++ function TMVA::DataLoaderCopy;
