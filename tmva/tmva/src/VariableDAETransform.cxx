@@ -75,6 +75,7 @@ TMVA::VariableDAETransform::~VariableDAETransform()
       if (fMeanValues.at(i)   != 0) delete fMeanValues.at(i);
       if (fEigenVectors.at(i) != 0) delete fEigenVectors.at(i);
    }
+   delete fAutoEncoder; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +90,29 @@ void TMVA::VariableDAETransform::Initialize()
    //size_t batchSize, visibleUnits, hiddenUnits;
    //Double_t dropoutProb; 
 
-   std::vector<Matrix_t> input; 
+   // Transforming the events into a vector of Matrix_t to feed into the AutoEncoder 
+
+
+   // Construction of the TDeepAutoEncoder 
+
+   size_t BatchSize = 50;
+   size_t InputDepth = 50; 
+   size_t InputHeight = 50; 
+   size_t InputWidth = 50; 
+   size_t BatchDepth = 3; 
+   size_t BatchHeight = 4; 
+   size_t BatchWidth = 5; 
+   DNN::ELossFunction fJ = DNN::ELossFunction::kCrossEntropy; 
+   DNN::EInitialization fI = DNN::EInitialization::kZero; 
+   DNN::ERegularization fR = DNN::ERegularization::kNone; 
+   Scalar_t fWeightDecay = 0.0; 
+   bool isTraining = false; 
+
+   fAutoEncoder = new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(BatchSize, InputDepth, InputHeight, InputWidth, BatchDepth,
+            BatchHeight, BatchWidth, fJ, fI,
+            fR, fWeightDecay, isTraining); 
+
+   //std::vector<Matrix_t> input; 
    std::vector<size_t> numHiddenUnitsPerLayer; 
    Scalar_t learningRate = 0.1; 
    Scalar_t corruptionLevel = 0.3; 
