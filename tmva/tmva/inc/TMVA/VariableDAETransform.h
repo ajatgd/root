@@ -11,11 +11,8 @@
  *      Principal value composition of input variables                            *
  *                                                                                *
  * Authors (alphabetical):                                                        *
- *      Andreas Hoecker <Andreas.Hocker@cern.ch> - CERN, Switzerland              *
- *      Peter Speckmayer <Peter.Speckmayer@cern.ch> - CERN, Switzerland           *
- *      Joerg Stelzer   <Joerg.Stelzer@cern.ch>  - CERN, Switzerland              *
- *      Helge Voss      <Helge.Voss@cern.ch>     - MPI-K Heidelberg, Germany      *
- *      Marc Huwiler    <marc.huwiler@windowslive.com> - CERN, Switzerland        *
+ *    Marc Huwiler    <marc.huwiler@windowslive.com> - CERN, Switzerland          *
+ *    Akshay Vashistha <akshayvashistha1995@gmail.com> - JSSATE, Noida, India     *
  *                                                                                *
  * Copyright (c) 2017:                                                            *
  *      CERN, Switzerland                                                         *
@@ -34,14 +31,17 @@
 //                                                                      //
 // VariableDAETransform                                                 //
 //                                                                      //
-// Linear interpolation class                                           //
+//                                                                      //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
 //#include "TPrincipal.h"
 
 #include "TMVA/VariableTransformBase.h"
-#include "TMVA/DNN/DAE2/CompressionLayer.h"
+#include "TMVA/DNN/DAE/CompressionLayer.h"
+#include "TMVA/DNN/DAE/CorruptionLayer.h"
+#include "TMVA/DNN/DAE/ReconstructionLayer.h"
+#include "TMVA/DNN/DeepNet.h"
 
 namespace TMVA {
 
@@ -74,7 +74,7 @@ namespace TMVA {
       void X2P( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
       void P2X( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
 
-      TCompressionLayer fEncoder; 
+      TCompressionLayer fEncoder;
 
       // store relevant parts of PCA locally
       std::vector<TVectorD*> fMeanValues;   // mean values
@@ -85,5 +85,4 @@ namespace TMVA {
 
 } // namespace TMVA
 
-#endif 
-
+#endif

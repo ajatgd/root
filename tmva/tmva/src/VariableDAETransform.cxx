@@ -1,5 +1,5 @@
 // @(#)root/tmva $Id$
-// Author: Andreas Hoecker, Joerg Stelzer, Helge Voss, Eckhard von Toerne
+// Author:
 
 /**********************************************************************************
  * Project: TMVA - a Root-integrated toolkit for multivariate data analysis       *
@@ -11,12 +11,8 @@
  *      Implementation (see header for description)                               *
  *                                                                                *
  * Authors (alphabetical):                                                        *
- *      Andreas Hoecker <Andreas.Hocker@cern.ch> - CERN, Switzerland              *
- *      Peter Speckmayer <Peter.Speckmayer@cern.ch> - CERN, Switzerland           *
- *      Joerg Stelzer   <Joerg.Stelzer@cern.ch>  - CERN, Switzerland              *
- *      Eckhard v. Toerne     <evt@uni-bonn.de>     - U of Bonn, Germany          *
- *      Helge Voss      <Helge.Voss@cern.ch>     - MPI-K Heidelberg, Germany      *
  *      Marc Huwiler    <marc.huwiler@windowslive.com> - CERN, Switzerland        *
+ *      Akshay Vashistha <akshayvashistha1995@gmail.com> - JSSATE, Noida, India   *
  *                                                                                *
  * Copyright (c) 2005-2011:                                                       *
  *      CERN, Switzerland                                                         *
@@ -87,8 +83,16 @@ TMVA::VariableDAETransform::~VariableDAETransform()
 //template <typename Architecture_t>
 void TMVA::VariableDAETransform::Initialize()
 {
-   //fEncoder(batchSize, visibleUnits, hiddenUnits, dropoutProb, activationFunc, weights, biases); 
-
+   //fEncoder(batchSize, visibleUnits, hiddenUnits, dropoutProb, activationFunc, weights, biases);
+   // has to be used like this
+   using Net_t = TDeepAutoEncoder<Architecture>;
+   Net_t deepNet(batchSize, 1, 1, 1, 1, 1, 1,
+                 ELossFunction::kMeanSquaredError, EInitialization::kGauss);
+   deepNet.PreTrain(input,
+                    numHiddenUnitsPerLayer,
+                    learningRate, corruptionLevel,
+                    dropoutProbability, epochs,
+                    EActivationFunction::kSigmoid, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
