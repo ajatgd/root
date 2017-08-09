@@ -84,10 +84,11 @@ namespace TMVA {
       void X2P( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
       void P2X( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
 
-      DNN::TDeepAutoEncoder<Architecture_t>* fAutoEncoder; 
+      std::vector<DNN::TDeepAutoEncoder<Architecture_t>* > fAutoEncoder; 
       //TCompressionLayer fEncoder; 
 
       std::vector<Matrix_t> input; 
+      std::vector<Matrix_t> output; 
 
       // store relevant parts of PCA locally
       std::vector<TVectorD*> fMeanValues;   // mean values

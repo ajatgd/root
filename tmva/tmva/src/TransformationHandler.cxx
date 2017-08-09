@@ -49,6 +49,7 @@ Class that contains all the data information.
 #include "TMVA/VariableIdentityTransform.h"
 #include "TMVA/VariableNormalizeTransform.h"
 #include "TMVA/VariablePCATransform.h"
+#include "TMVA/VariableDAETransform.h"
 #include "TMVA/VariableRearrangeTransform.h"
 #include "TMVA/VariableTransformBase.h"
 
@@ -896,6 +897,10 @@ void TMVA::TransformationHandler::ReadFromXML( void* trfsnode )
       }
       else if (trfname == "Rearrange" ) {
          newtrf = new VariableRearrangeTransform(fDataSetInfo);
+      }
+      else if (trfname == "DAE") 
+      {
+         newtrf = new VariableDAETransform(fDataSetInfo); 
       }
       else if (trfname != "None") {
       }

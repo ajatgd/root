@@ -75,7 +75,10 @@ TMVA::VariableDAETransform::~VariableDAETransform()
       if (fMeanValues.at(i)   != 0) delete fMeanValues.at(i);
       if (fEigenVectors.at(i) != 0) delete fEigenVectors.at(i);
    }
-   delete fAutoEncoder; 
+   for (size_t i = 0; i<fAutoEncoder.size(); i++) 
+   {
+      delete fAutoEncoder[i]; 
+   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,47 +90,7 @@ TMVA::VariableDAETransform::~VariableDAETransform()
 //template <typename Architecture_t>
 void TMVA::VariableDAETransform::Initialize()
 {
-   //size_t batchSize, visibleUnits, hiddenUnits;
-   //Double_t dropoutProb; 
-
-   // Transforming the events into a vector of Matrix_t to feed into the AutoEncoder 
-
-
-   // Construction of the TDeepAutoEncoder 
-
-   size_t BatchSize = 50;
-   size_t InputDepth = 50; 
-   size_t InputHeight = 50; 
-   size_t InputWidth = 50; 
-   size_t BatchDepth = 3; 
-   size_t BatchHeight = 4; 
-   size_t BatchWidth = 5; 
-   DNN::ELossFunction fJ = DNN::ELossFunction::kCrossEntropy; 
-   DNN::EInitialization fI = DNN::EInitialization::kZero; 
-   DNN::ERegularization fR = DNN::ERegularization::kNone; 
-   Scalar_t fWeightDecay = 0.0; 
-   bool isTraining = false; 
-
-   fAutoEncoder = new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(BatchSize, InputDepth, InputHeight, InputWidth, BatchDepth,
-            BatchHeight, BatchWidth, fJ, fI,
-            fR, fWeightDecay, isTraining); 
-
-   //std::vector<Matrix_t> input; 
-   std::vector<size_t> numHiddenUnitsPerLayer; 
-   Scalar_t learningRate = 0.1; 
-   Scalar_t corruptionLevel = 0.3; 
-   Scalar_t dropoutProbability = 0.2; 
-   size_t epochs = 50; 
-   DNN::EActivationFunction activation; 
-   bool applyDropout = false; 
-
-   numHiddenUnitsPerLayer.push_back(50); 
-   activation = DNN::EActivationFunction::kSoftSign; 
-
-   fAutoEncoder->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
-
-   //fEncoder(batchSize, visibleUnits, hiddenUnits, dropoutProb, activationFunc, weights, biases); 
-
+   
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +99,9 @@ void TMVA::VariableDAETransform::Initialize()
 
 Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Event*>& events)
 {
+   
    Initialize();
+
 
    if (!IsEnabled() || IsCreated()) return kTRUE;
 
@@ -253,10 +218,33 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
 
 void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>& events )
 {
+   size_t BatchSize = 50;
+   size_t InputDepth = 1;     // Just put 1 here
+   size_t InputHeight = 1; 
+   size_t InputWidth = 1; 
+   size_t BatchDepth = 1; 
+   size_t BatchHeight = 1; 
+   size_t BatchWidth = 1; 
+   DNN::ELossFunction fJ = DNN::ELossFunction::kCrossEntropy; 
+   DNN::EInitialization fI = DNN::EInitialization::kGauss; 
+   DNN::ERegularization fR = DNN::ERegularization::kNone; 
+   Scalar_t fWeightDecay = 0.0; 
+   bool isTraining = false; 
+
+   std::vector<size_t> numHiddenUnitsPerLayer; 
+   Scalar_t learningRate = 0.1; 
+   Scalar_t corruptionLevel = 0.3; 
+   Scalar_t dropoutProbability = 0.2; 
+   size_t epochs = 50; 
+   DNN::EActivationFunction activation; 
+   bool applyDropout = false; 
+
+   numHiddenUnitsPerLayer.push_back(50); 
+   activation = DNN::EActivationFunction::kSoftSign; 
    UInt_t nvars = 0, ntgts = 0, nspcts = 0;
    CountVariableTypes( nvars, ntgts, nspcts );
    if( nvars>0  && ntgts>0 )
-      Log() << kFATAL << "Variables and targets cannot be mixed in PCA transformation." << Endl;
+      Log() << kFATAL << "Variables and targets cannot be mixed in DeepAutoEncoder transformation." << Endl;
 
 
 
@@ -264,25 +252,48 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    // if we have more than one class, add another PCA analysis which combines all classes
    const UInt_t nCls = GetNClasses();
-   const UInt_t maxPCA = (nCls<=1) ? nCls : nCls+1;
+   const UInt_t numDAE = (nCls<=1) ? nCls : nCls+1;
+// ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
    // PCA [signal/background/class x/class y/... /all classes]
-   std::vector<TPrincipal*> pca(maxPCA);
-   for (UInt_t i=0; i<maxPCA; i++) pca[i] = new TPrincipal(nvars,"");
+   //std::vector<DNN::TDeepAutoEncoder<Architecture_t>* > DAE(numDAE);
+   for (UInt_t i=0; i<numDAE; i++) fAutoEncoder.push_back( new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(BatchSize, InputDepth, InputHeight, InputWidth, 
+                                       BatchDepth, BatchHeight, BatchWidth, fJ, fI, fR, fWeightDecay, isTraining) ); 
 
    // !! Not normalizing and not storing input data, for performance reasons. Should perhaps restore normalization.
    // But this can be done afterwards by adding a normalisation transformation (user defined)
 
-   Long64_t ievt, entries = events.size();
-   Double_t *dvec = new Double_t[inputSize];
+   //std::vector<Matrix_t> inputs; // We already have this in the class. 
 
-   std::vector<Float_t> input;
+   size_t visibleUnits = events[0]->GetValues().size(); 
+   size_t numEvents = events.size(); 
+
+   
+
+   size_t hiddenUnits = 100; 
+
+   for (unsigned int i=0; i<numEvents; i++) 
+   {
+      output.emplace_back(hiddenUnits, 1); 
+   }
+
+
+   std::vector<Float_t> bareinput;
    std::vector<Char_t>  mask;
-   for (ievt=0; ievt<entries; ievt++) {
-      const Event* ev = events[ievt];
+
+   for ( unsigned int i = 0; i<numEvents; i++ ) 
+   {
+      input.emplace_back(visibleUnits, 1); 
+      for ( int j = 0; j < visibleUnits; j++) 
+      {
+         input[i](j, 0) = events[i]->GetValues()[j]; 
+      }
+
+   
+      const Event* ev = events[i];        // Why this? Can't we just pass events[i] in the function?
       UInt_t cls = ev->GetClass();
 
-      Bool_t hasMaskedEntries = GetInput( ev, input, mask );
+      Bool_t hasMaskedEntries = GetInput( ev, bareinput, mask );
       if (hasMaskedEntries){
          Log() << kWARNING << "Print event which triggers an error" << Endl;
          std::ostringstream oss;
@@ -291,34 +302,30 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
          Log() << kFATAL << "Masked entries found in event read in when calculating the principal components for the PCA transformation." << Endl;
       }
 
-      UInt_t iinp = 0;
-      for( std::vector<Float_t>::iterator itInp = input.begin(), itInpEnd = input.end(); itInp != itInpEnd; ++itInp )
+      /*UInt_t iinp = 0;
+      for( std::vector<Float_t>::iterator itInp = bareinput.begin(), itInpEnd = bareinput.end(); itInp != itInpEnd; ++itInp )
          {
             Float_t value = (*itInp);
             dvec[iinp] = (Double_t)value;
             ++iinp;
-         }
+         }*/
 
-      pca.at(cls)->AddRow( dvec );
-      if (nCls > 1) pca.at(maxPCA-1)->AddRow( dvec );
+      //DAE.at(cls)->AddRow( dvec );
+      //if (nCls > 1) DAE.at(numDAE-1)->AddRow( dvec );
    }
 
    // delete possible leftovers
    for (UInt_t i=0; i<fMeanValues.size(); i++)   if (fMeanValues[i]   != 0) delete fMeanValues[i];
    for (UInt_t i=0; i<fEigenVectors.size(); i++) if (fEigenVectors[i] != 0) delete fEigenVectors[i];
-   fMeanValues.resize(maxPCA,0);
-   fEigenVectors.resize(maxPCA,0);
+   fMeanValues.resize(numDAE,0);
+   fEigenVectors.resize(numDAE,0);
 
-   for (UInt_t i=0; i<maxPCA; i++ ) {
-      pca.at(i)->MakePrincipals();
-
-      // retrieve mean values, eigenvectors and sigmas
-      fMeanValues[i]   = new TVectorD( *(pca.at(i)->GetMeanValues()) ); // need to copy since we want to own
-      fEigenVectors[i] = new TMatrixD( *(pca.at(i)->GetEigenVectors()) );
+   for (UInt_t i=0; i<numDAE; i++ ) {
+      fAutoEncoder.at(i)->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
    }
 
-   for (UInt_t i=0; i<maxPCA; i++) delete pca.at(i);
-   delete [] dvec;
+   //for (UInt_t i=0; i<numDAE; i++) delete DAE.at(i);
+   //delete [] dvec;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
