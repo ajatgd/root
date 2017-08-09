@@ -38,19 +38,27 @@
 //#include "TPrincipal.h"
 
 #include "TMVA/VariableTransformBase.h"
+//#include "TMVA/DNN/DAE2/CompressionLayer.h"
+#include "TMVA/DNN/DeepNet.h"
+#include "TMVA/DNN/Architectures/Reference.h"
 #include "TMVA/DNN/DAE/CompressionLayer.h"
 #include "TMVA/DNN/DAE/CorruptionLayer.h"
 #include "TMVA/DNN/DAE/ReconstructionLayer.h"
 #include "TMVA/DNN/DeepNet.h"
 
-using namespace TMVA::DNN;
-using namespace TMVA::DNN::DAE;
+//using namespace TMVA::DNN;
+//using namespace TMVA::DNN::DAE;
+
+namespace TMVA {
+   //namespace DNN {
 
 namespace TMVA {
    template <typename Architecture_t>
    class VariableDAETransform : public VariableTransformBase {
 
    public:
+      using Architecture_t = DNN::TReference<Double_t>;
+      using Matrix_t = typename Architecture_t::Matrix_t;
 
       VariableDAETransform( DataSetInfo& dsi );
       virtual ~VariableDAETransform( void );
@@ -77,7 +85,8 @@ namespace TMVA {
       void X2P( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
       void P2X( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
 
-      TCompressionLayer fEncoder;
+      DNN::TDeepAutoEncoder<Architecture_t>* fAutoEncoder; 
+      //TCompressionLayer fEncoder; 
 
       // store relevant parts of PCA locally
       std::vector<TVectorD*> fMeanValues;   // mean values
@@ -85,6 +94,8 @@ namespace TMVA {
 
       ClassDef(VariableDAETransform,0); // Variable transformation: Principal Value Composition
    };
+
+  //} // namespace DNN 
 
 } // namespace TMVA
 
