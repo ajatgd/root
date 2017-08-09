@@ -66,6 +66,8 @@ namespace TMVA {
       //template <typename Architecture_t> void   Initialize();
       Bool_t PrepareTransformation (const std::vector<Event*>&);
 
+      void TransformInputDataset(const std::vector<Event*>&, std::vector<Matrix_t>&); 
+
       virtual const Event* Transform(const Event* const, Int_t cls ) const;
       virtual const Event* InverseTransform(const Event* const, Int_t cls ) const;
 

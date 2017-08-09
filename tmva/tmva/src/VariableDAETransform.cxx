@@ -268,7 +268,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    size_t visibleUnits = events[0]->GetValues().size(); 
    size_t numEvents = events.size(); 
 
-   
+   TransformInputDataset(events, input); 
 
    size_t hiddenUnits = 100; 
 
@@ -283,13 +283,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    for ( unsigned int i = 0; i<numEvents; i++ ) 
    {
-      input.emplace_back(visibleUnits, 1); 
-      for ( int j = 0; j < visibleUnits; j++) 
-      {
-         input[i](j, 0) = events[i]->GetValues()[j]; 
-      }
-
-   
+      
       const Event* ev = events[i];        // Why this? Can't we just pass events[i] in the function?
       UInt_t cls = ev->GetClass();
 
@@ -326,6 +320,20 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    //for (UInt_t i=0; i<numDAE; i++) delete DAE.at(i);
    //delete [] dvec;
+}
+
+void TMVA::VariableDAETransform::TransformInputDataset( const std::vector< Event*>& localEvents, std::vector<Matrix_t>& localInputs) 
+{
+   size_t visibleUnits = localEvents[0]->GetValues().size(); 
+   size_t numEvents = localEvents.size(); 
+   for ( unsigned int i = 0; i<numEvents; i++ ) 
+   {
+      input.emplace_back(visibleUnits, 1); 
+      for (unsigned int j = 0; j < visibleUnits; j++) 
+      {
+         localInputs[i](j, 0) = localEvents[i]->GetValues()[j]; 
+      }
+   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
