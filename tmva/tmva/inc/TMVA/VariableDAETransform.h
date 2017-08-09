@@ -57,6 +57,7 @@ namespace TMVA {
    public:
       using Architecture_t = DNN::TReference<Double_t>;
       using Matrix_t = typename Architecture_t::Matrix_t;
+      using Scalar_t = typename Architecture_t::Scalar_t;
 
       VariableDAETransform( DataSetInfo& dsi );
       virtual ~VariableDAETransform( void );

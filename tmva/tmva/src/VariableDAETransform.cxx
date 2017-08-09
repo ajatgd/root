@@ -86,6 +86,23 @@ TMVA::VariableDAETransform::~VariableDAETransform()
 //template <typename Architecture_t>
 void TMVA::VariableDAETransform::Initialize()
 {
+   //size_t batchSize, visibleUnits, hiddenUnits;
+   //Double_t dropoutProb; 
+
+   std::vector<Matrix_t> input; 
+   std::vector<size_t> numHiddenUnitsPerLayer; 
+   Scalar_t learningRate = 0.1; 
+   Scalar_t corruptionLevel = 0.3; 
+   Scalar_t dropoutProbability = 0.2; 
+   size_t epochs = 50; 
+   DNN::EActivationFunction activation; 
+   bool applyDropout = false; 
+
+   numHiddenUnitsPerLayer.push_back(50); 
+   activation = DNN::EActivationFunction::kSoftSign; 
+
+   fAutoEncoder->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
+
    //fEncoder(batchSize, visibleUnits, hiddenUnits, dropoutProb, activationFunc, weights, biases); 
 
 }
