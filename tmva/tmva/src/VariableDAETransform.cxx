@@ -90,48 +90,7 @@ TMVA::VariableDAETransform::~VariableDAETransform()
 //template <typename Architecture_t>
 void TMVA::VariableDAETransform::Initialize()
 {
-   //size_t batchSize, visibleUnits, hiddenUnits;
-   //Double_t dropoutProb; 
-
-   // Transforming the events into a vector of Matrix_t to feed into the AutoEncoder 
-
-
-   // Construction of the TDeepAutoEncoder 
-
-   size_t BatchSize = 50;
-   size_t InputDepth = 1;     // Just put 1 here
-   size_t InputHeight = 1; 
-   size_t InputWidth = 1; 
-   size_t BatchDepth = 1; 
-   size_t BatchHeight = 1; 
-   size_t BatchWidth = 1; 
-   DNN::ELossFunction fJ = DNN::ELossFunction::kCrossEntropy; 
-   DNN::EInitialization fI = DNN::EInitialization::kGauss; 
-   DNN::ERegularization fR = DNN::ERegularization::kNone; 
-   Scalar_t fWeightDecay = 0.0; 
-   bool isTraining = false; 
-
    
-
-   fAutoEncoder.push_back(new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(BatchSize, InputDepth, InputHeight, InputWidth, 
-                                       BatchDepth, BatchHeight, BatchWidth, fJ, fI, fR, fWeightDecay, isTraining) ); 
-
-   //std::vector<Matrix_t> input; 
-   std::vector<size_t> numHiddenUnitsPerLayer; 
-   Scalar_t learningRate = 0.1; 
-   Scalar_t corruptionLevel = 0.3; 
-   Scalar_t dropoutProbability = 0.2; 
-   size_t epochs = 50; 
-   DNN::EActivationFunction activation; 
-   bool applyDropout = false; 
-
-   numHiddenUnitsPerLayer.push_back(50); 
-   activation = DNN::EActivationFunction::kSoftSign; 
-
-   fAutoEncoder[0]->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
-
-   //fEncoder(batchSize, visibleUnits, hiddenUnits, dropoutProb, activationFunc, weights, biases); 
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,20 +99,7 @@ void TMVA::VariableDAETransform::Initialize()
 
 Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Event*>& events)
 {
-   UInt_t nvars = 0, ntgts = 0, nspcts = 0;
-   CountVariableTypes( nvars, ntgts, nspcts );
-   if( nvars>0  && ntgts>0 )
-      Log() << kFATAL << "Variables and targets cannot be mixed in DeepAutoEncoder transformation." << Endl;
-
-
-
-   //const Int_t inputSize = fGet.size();
-
-   // if we have more than one class, add another PCA analysis which combines all classes
-   const UInt_t nCls = GetNClasses();
-   const UInt_t numDAE = (nCls<=1) ? nCls : nCls+1;
-
-
+   
    Initialize();
 
 
@@ -193,7 +139,7 @@ Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Even
 
 const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev, Int_t cls ) const
 {
-   if (!IsCreated()) return 0;
+   /*if (!IsCreated()) return 0;
 
    //   const Int_t inputSize = fGet.size();
    //   const UInt_t nCls = GetNClasses();
@@ -234,7 +180,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 
    //BackTransformOutputData(transformedEvent, localInput); 
    X2P( principalComponents, localInput, cls );
-   SetOutput( fTransformedEvent, localInput, mask, ev );
+   SetOutput( fTransformedEvent, localInput, mask, ev ); */
 
    return fTransformedEvent;
 }
@@ -385,7 +331,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    size_t visibleUnits = events[0]->GetValues().size(); 
    size_t numEvents = events.size(); 
 
-   TransformInputDataset(events, input); 
+   //TransformInputDataset(events, input); 
 
    size_t hiddenUnits = 100; 
 
@@ -393,13 +339,17 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    std::vector<Float_t> bareinput;
    std::vector<Char_t>  mask;
 
+   input.clear(); 
+
    for ( unsigned int i = 0; i<numEvents; i++ ) 
    {
+      input.emplace_back(visibleUnits, 1);
       
       const Event* ev = events[i];        // Why this? Can't we just pass events[i] in the function?
       UInt_t cls = ev->GetClass();
 
       Bool_t hasMaskedEntries = GetInput( ev, bareinput, mask );
+
       if (hasMaskedEntries){
          Log() << kWARNING << "Print event which triggers an error" << Endl;
          std::ostringstream oss;
@@ -418,8 +368,10 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
       //DAE.at(cls)->AddRow( dvec );
       //if (nCls > 1) DAE.at(numDAE-1)->AddRow( dvec );
+      TransformInputData(bareinput, input[i]); 
    }
-
+   
+   
    // delete possible leftovers
    for (UInt_t i=0; i<fMeanValues.size(); i++)   if (fMeanValues[i]   != 0) delete fMeanValues[i];
    for (UInt_t i=0; i<fEigenVectors.size(); i++) if (fEigenVectors[i] != 0) delete fEigenVectors[i];
@@ -434,7 +386,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    //delete [] dvec;
 }
 
-Bool_t TMVA::VariableDAETransform::GetEventValues( const Event* event, Matrix_t& input, std::vector<Char_t>& mask, Bool_t backTransformation ) const
+/*Bool_t TMVA::VariableDAETransform::GetEventValues( const Event* event, Matrix_t& input, std::vector<Char_t>& mask, Bool_t backTransformation ) const
 {
    ItVarTypeIdxConst itEntry;
    ItVarTypeIdxConst itEntryEnd;
@@ -477,14 +429,14 @@ Bool_t TMVA::VariableDAETransform::GetEventValues( const Event* event, Matrix_t&
          }
          mask.push_back(kFALSE);
       }
-      catch(std::out_of_range& /* excpt */ ){ // happens when an event is transformed which does not yet have the targets calculated (in the application phase)
+      catch(std::out_of_range& /* excpt * ){ // happens when an event is transformed which does not yet have the targets calculated (in the application phase)
          input(idx, 1) = 0.f; 
          mask.push_back(kTRUE);
          hasMaskedEntries = kTRUE;
       }
    }
    return hasMaskedEntries;
-}
+}*/
 
 void TMVA::VariableDAETransform::TransformInputDataset( const std::vector< Event*>& localEvents, std::vector<Matrix_t>& localInputs) 
 {
@@ -500,6 +452,18 @@ void TMVA::VariableDAETransform::TransformInputDataset( const std::vector< Event
    }
 }
 
+void TMVA::VariableDAETransform::TransformInputData( const std::vector<Float_t>& localEvent, Matrix_t& remoteInput) 
+{
+   //std::cout << "Starting conversion from vector<Float_t> to Matrix_t " << std::endl; 
+   size_t numVar = localEvent.size(); 
+   Matrix_t localInput(numVar, 1); 
+   for ( unsigned int i = 0; i<2/*numVar*/; i++ ) 
+   {
+      localInput(i, 0) = localEvent[i]; 
+   }
+   remoteInput = localInput; 
+}
+
 void TMVA::VariableDAETransform::BackTransformOutputData( const Matrix_t& autoencoderOutput, std::vector<Float_t>& vec) 
 {
    /*for (unsigned int i=0; i<numEvents; i++) 
@@ -510,7 +474,7 @@ void TMVA::VariableDAETransform::BackTransformOutputData( const Matrix_t& autoen
    if (autoencoderOutput.GetNcols()<2) 
    {
       for (unsigned int i=0; i< autoencoderOutput.GetNrows(); i++)
-         outputVector.push_back(autoencoderOutput(i, 1)); 
+         outputVector.push_back(autoencoderOutput(i, 0)); 
    }
 
 }

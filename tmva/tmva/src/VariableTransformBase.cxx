@@ -93,6 +93,8 @@ TMVA::VariableTransformBase::VariableTransformBase( DataSetInfo& dsi,
    }
    for (UInt_t ispct = 0; ispct < fDsi.GetNSpectators(); ispct++) {
       fTargets.push_back( VariableInfo( fDsi.GetSpectatorInfo(ispct) ) );
+      
+#pragma("Is this really meant to be fTargets?"); 
    }
 }
 

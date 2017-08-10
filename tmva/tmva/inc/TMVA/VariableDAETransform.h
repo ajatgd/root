@@ -66,7 +66,7 @@ namespace TMVA {
       //template <typename Architecture_t> void   Initialize();
       Bool_t PrepareTransformation (const std::vector<Event*>&);
 
-      Bool_t GetEventValues( const Event* event, Matrix_t& input, std::vector<Char_t>& mask, Bool_t backTransform = kFALSE  ) const;; 
+      //Bool_t GetEventValues( const Event* event, Matrix_t& input, std::vector<Char_t>& mask, Bool_t backTransform = kFALSE  ) const;; 
 
       virtual const Event* Transform(const Event* const, Int_t cls ) const;
       virtual const Event* InverseTransform(const Event* const, Int_t cls ) const;
@@ -85,6 +85,7 @@ namespace TMVA {
       void TrainOnExampleData( const std::vector< Event*>& );
 
       void TransformInputDataset(const std::vector<Event*>&, std::vector<Matrix_t>&);     //Maybe rename into Convert  
+      void TransformInputData( const std::vector<Float_t>& localEvent, Matrix_t& remoteInputs); 
       void BackTransformOutputData(const Matrix_t&, std::vector<Float_t>&); 
 
       void X2P( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;

@@ -33,6 +33,7 @@
 #include "TMVA/VariablePCATransform.h"
 #include "TMVA/VariableGaussTransform.h"
 #include "TMVA/VariableNormalizeTransform.h"
+#include "TMVA/VariableDAETransform.h"
 
 #include "TMVA/Config.h"
 #include "TMVA/DataSetInfo.h"
@@ -135,35 +136,47 @@ void CreateVariableTransforms( const TString& trafoDefinitionIn,
         }
 
         VariableTransformBase* transformation = NULL;
-        if      (trName == "I" || trName == "Ident" || trName == "Identity") {
+        if      (trName == "I" || trName == "Ident" || trName == "Identity") 
+        {
             if (variables.Length() == 0) variables = "_V_";
             transformation = new VariableIdentityTransform( dataInfo);
         }
-        else if (trName == "D" || trName == "Deco" || trName == "Decorrelate") {
+        else if (trName == "D" || trName == "Deco" || trName == "Decorrelate") 
+        {
             if (variables.Length() == 0) variables = "_V_";
             transformation = new VariableDecorrTransform( dataInfo);
         }
-        else if (trName == "P" || trName == "PCA") {
+        else if (trName == "P" || trName == "PCA") 
+        {
             if (variables.Length() == 0) variables = "_V_";
             transformation = new VariablePCATransform   ( dataInfo);
         }
-        else if (trName == "U" || trName == "Uniform") {
+        else if (trName == "U" || trName == "Uniform") 
+        {
             if (variables.Length() == 0) variables = "_V_,_T_";
             transformation = new VariableGaussTransform ( dataInfo, "Uniform" );
         }
-        else if (trName == "G" || trName == "Gauss") {
+        else if (trName == "G" || trName == "Gauss") 
+        {
             if (variables.Length() == 0) variables = "_V_";
             transformation = new VariableGaussTransform ( dataInfo);
         }
-        else if (trName == "N" || trName == "Norm" || trName == "Normalise" || trName == "Normalize") {
+        else if (trName == "N" || trName == "Norm" || trName == "Normalise" || trName == "Normalize") 
+        {
             if (variables.Length() == 0) variables = "_V_,_T_";
             transformation = new VariableNormalizeTransform( dataInfo);
+        }
+        else if (trName == "A" || trName == "Autoencoder" || trName == "DAETransform" || trName == "DAE") 
+        {
+            if (variables.Length() == 0) variables = "_V_";
+            transformation = new VariableDAETransform( dataInfo);
         }
         else log << kFATAL <<Form("Dataset[%s] : ",dataInfo.GetName())<< "<ProcessOptions> Variable transform '"
                      << trName << "' unknown." << Endl;
 
 
-        if (transformation) {
+        if (transformation) 
+        {
             ClassInfo* clsInfo = dataInfo.GetClassInfo(idxCls);
              if (clsInfo )
         log << kHEADER <<Form("[%s] : ",dataInfo.GetName())
