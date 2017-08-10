@@ -16,13 +16,13 @@ set(headers1 Configurable.h Factory.h  MethodBase.h MethodCompositeBase.h
 	     MethodKNN.h MethodCFMlpANN.h MethodCFMlpANN_Utils.h MethodLikelihood.h
 	     MethodHMatrix.h MethodPDERS.h MethodBDT.h MethodDT.h MethodSVM.h MethodBayesClassifier.h
 	     MethodFDA.h MethodMLP.h MethodBoost.h
-	     MethodPDEFoam.h MethodLD.h MethodCategory.h MethodDNN.h)
-set(headers2 TSpline2.h TSpline1.h PDF.h BinaryTree.h BinarySearchTreeNode.h BinarySearchTree.h 
-	     Timer.h RootFinder.h CrossEntropy.h DecisionTree.h DecisionTreeNode.h MisClassificationError.h 
-	     Node.h SdivSqrtSplusB.h SeparationBase.h RegressionVariance.h Tools.h Reader.h 
-	     GeneticAlgorithm.h GeneticGenes.h GeneticPopulation.h GeneticRange.h GiniIndex.h 
+	     MethodPDEFoam.h MethodLD.h MethodCategory.h MethodDNN.h Parsing.h MethodDAE.h)
+set(headers2 TSpline2.h TSpline1.h PDF.h BinaryTree.h BinarySearchTreeNode.h BinarySearchTree.h
+	     Timer.h RootFinder.h CrossEntropy.h DecisionTree.h DecisionTreeNode.h MisClassificationError.h
+	     Node.h SdivSqrtSplusB.h SeparationBase.h RegressionVariance.h Tools.h Reader.h
+	     GeneticAlgorithm.h GeneticGenes.h GeneticPopulation.h GeneticRange.h GiniIndex.h
 	     GiniIndexWithLaplace.h SimulatedAnnealing.h QuickMVAProbEstimator.h)
-set(headers3 Config.h KDEKernel.h Interval.h LogInterval.h FitterBase.h MCFitter.h GeneticFitter.h 
+set(headers3 Config.h KDEKernel.h Interval.h LogInterval.h FitterBase.h MCFitter.h GeneticFitter.h
          SimulatedAnnealingFitter.h MinuitFitter.h MinuitWrapper.h IFitterTarget.h
          PDEFoam.h PDEFoamDecisionTree.h PDEFoamDensityBase.h PDEFoamDiscriminantDensity.h
          PDEFoamEventDensity.h PDEFoamTargetDensity.h PDEFoamDecisionTreeDensity.h PDEFoamMultiTarget.h
@@ -33,8 +33,8 @@ set(headers3 Config.h KDEKernel.h Interval.h LogInterval.h FitterBase.h MCFitter
 set(headers4 NeuralNet.h TNeuron.h TSynapse.h TActivationChooser.h TActivation.h TActivationSigmoid.h TActivationIdentity.h
          TActivationTanh.h TActivationRadial.h TActivationReLU.h TNeuronInputChooser.h TNeuronInput.h TNeuronInputSum.h
 	     TNeuronInputSqSum.h TNeuronInputAbs.h Types.h Ranking.h RuleFit.h RuleFitAPI.h IMethod.h MsgLogger.h
-	     VariableTransformBase.h VariableIdentityTransform.h VariableDecorrTransform.h VariablePCATransform.h 
-	     VariableGaussTransform.h VariableNormalizeTransform.h VariableRearrangeTransform.h VariableTransform.h ROCCalc.h ROCCurve.h VariableDAETransform.h) 
+	     VariableTransformBase.h VariableIdentityTransform.h VariableDecorrTransform.h VariablePCATransform.h
+	     VariableGaussTransform.h VariableNormalizeTransform.h VariableRearrangeTransform.h VariableTransform.h ROCCalc.h ROCCurve.h VariableDAETransform.h)
 
 set(headers5 Envelope.h VariableImportance.h CrossValidation.h HyperParameterOptimisation.h Event.h Results.h ResultsClassification.h ResultsRegression.h ResultsMulticlass.h VariableInfo.h ClassInfo.h DataLoader.h DataSet.h DataSetInfo.h DataInputHandler.h DataSetManager.h DataSetFactory.h LossFunction.h)
 
@@ -85,10 +85,10 @@ ROOT_LINKER_LIBRARY(TMVA *.cxx G__TMVA.cxx ${DNN_FILES} ${DNN_CPU_FILES}
 ROOT_INSTALL_HEADERS(${installoptions})
 
 if(NOT gnuinstall)
-  install(DIRECTORY test DESTINATION tmva 
-  FILES_MATCHING PATTERN "*.C" 
-                 PATTERN "*.gif" 
-                 PATTERN "*.png" 
+  install(DIRECTORY test DESTINATION tmva
+  FILES_MATCHING PATTERN "*.C"
+                 PATTERN "*.gif"
+                 PATTERN "*.png"
                  PATTERN "README"
                  PATTERN "data" EXCLUDE)
 endif()
