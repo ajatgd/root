@@ -85,8 +85,8 @@ namespace TMVA {
       void TrainOnExampleData( const std::vector< Event*>& );
 
       void TransformInputDataset(const std::vector<Event*>&, std::vector<Matrix_t>&);     //Maybe rename into Convert  
-      void TransformInputData( const std::vector<Float_t>& localEvent, Matrix_t& remoteInputs); 
-      void BackTransformOutputData(const Matrix_t&, std::vector<Float_t>&); 
+      void TransformInputData( const std::vector<Float_t>& localEvent, Matrix_t& remoteInputs) const; 
+      void BackTransformOutputData(const Matrix_t&, std::vector<Float_t>&) const; 
 
       void X2P( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
       void P2X( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
@@ -97,6 +97,7 @@ namespace TMVA {
       std::vector<Matrix_t> input; 
       std::vector<Matrix_t> output; 
 
+      
       // store relevant parts of PCA locally
       std::vector<TVectorD*> fMeanValues;   // mean values
       std::vector<TMatrixD*> fEigenVectors; // eigenvectors

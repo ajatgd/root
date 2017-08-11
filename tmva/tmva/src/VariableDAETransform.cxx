@@ -141,7 +141,7 @@ Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Even
 
 const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev, Int_t cls ) const
 {
-   /*if (!IsCreated()) return 0;
+   if (!IsCreated()) return 0;
 
    //   const Int_t inputSize = fGet.size();
    //   const UInt_t nCls = GetNClasses();
@@ -181,8 +181,10 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 
 
    //BackTransformOutputData(transformedEvent, localInput); 
+   TransformInputData(localInput, transformedEvent); 
+
    X2P( principalComponents, localInput, cls );
-   SetOutput( fTransformedEvent, localInput, mask, ev ); */
+   SetOutput( fTransformedEvent, localInput, mask, ev ); 
 
    return fTransformedEvent;
 }
@@ -302,7 +304,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    DNN::EActivationFunction activation; 
    bool applyDropout = false; 
 
-   numHiddenUnitsPerLayer.push_back(50); 
+   numHiddenUnitsPerLayer.push_back(2); 
    activation = DNN::EActivationFunction::kSoftSign; 
 
 
@@ -389,7 +391,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    fEigenVectors.resize(numDAE,0);
 
    for (UInt_t i=0; i<numDAE; i++ ) {
-      std::cout << "Training autoencoder " << numDAE << std::endl; 
+      std::cout << "Training autoencoder " << i << std::endl; 
       fAutoEncoder.at(i)->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
    }
 
@@ -465,7 +467,7 @@ void TMVA::VariableDAETransform::TransformInputDataset( const std::vector< Event
    }
 }
 
-void TMVA::VariableDAETransform::TransformInputData( const std::vector<Float_t>& localEvent, Matrix_t& remoteInput) 
+void TMVA::VariableDAETransform::TransformInputData( const std::vector<Float_t>& localEvent, Matrix_t& remoteInput) const 
 {
    //std::cout << "Starting conversion from vector<Float_t> to Matrix_t " << std::endl; 
    size_t numVar = localEvent.size(); 
@@ -477,7 +479,7 @@ void TMVA::VariableDAETransform::TransformInputData( const std::vector<Float_t>&
    remoteInput = localInput; 
 }
 
-void TMVA::VariableDAETransform::BackTransformOutputData( const Matrix_t& autoencoderOutput, std::vector<Float_t>& vec) 
+void TMVA::VariableDAETransform::BackTransformOutputData( const Matrix_t& autoencoderOutput, std::vector<Float_t>& vec) const 
 {
    /*for (unsigned int i=0; i<numEvents; i++) 
    {
