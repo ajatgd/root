@@ -402,7 +402,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
       fLayers[fLayers.size() - 1]->Backward(fLayers[fLayers.size() - 2]->GetOutput(), inp1,
                                             fLayers[fLayers.size() - 3]->GetOutput(), input);
    }
-   fLayers.back()->Print();
+   //fLayers.back()->Print();
 
    for (size_t i = 1; i < numOfHiddenLayers; i++) {
 
@@ -442,7 +442,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
                                                fLayers[fLayers.size() - 3]->GetOutput(),
                                                fLayers[fLayers.size() - 5]->GetOutput());
       }
-      fLayers.back()->Print();
+      //fLayers.back()->Print();
    }
 }
 //______________________________________________________________________________
@@ -472,7 +472,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
          fLayers.back()->Backward(inputLabel, inp1, fLayers[fLayers.size() - 2]->GetOutput(), inp2);
       }
       fLayers.back()->Forward(testInput, false);
-      fLayers.back()->Print();
+     // fLayers.back()->Print();
    }
 }
 /*

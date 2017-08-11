@@ -200,7 +200,6 @@ template <typename Architecture_t>
 auto TReconstructionLayer<Architecture_t>::Forward(std::vector<Matrix_t> input, bool applyDropout)
 -> void
 {
-   std::cout<<"Reconstruction Forward starts "<<std::endl;
    for (size_t i = 0; i < this->GetBatchSize(); i++)
    {
       Architecture_t::ReconstructInput(input[i],this->GetOutputAt(i),this->GetWeightsAt(0));
@@ -210,7 +209,6 @@ auto TReconstructionLayer<Architecture_t>::Forward(std::vector<Matrix_t> input, 
       evaluate<Architecture_t>(this->GetOutputAt(i), fF);
 
    }
-   std::cout<<"Reconstruction Forward ends "<<std::endl<<std::endl;
 
 }
 
