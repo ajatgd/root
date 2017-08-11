@@ -78,7 +78,7 @@ template <typename Architecture> auto testNet()
    using Net_t = TDeepAutoEncoder<Architecture>;
    size_t batchSize = 1;
    Net_t convNet(batchSize, 1, 1, 1, 1, 1, 1,
-                 ELossFunction::kMeanSquaredError, EInitialization::kGauss);
+                 ELossFunction::kMeanSquaredError, EInitialization::kZero);
 
    constructDeepAutoEncoderNet(convNet);
  }

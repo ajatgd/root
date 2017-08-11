@@ -49,7 +49,7 @@ template <typename Architecture> auto testLayer(size_t batchSize, size_t visible
 
 
    Matrix_t weights(hiddenUnits,visibleUnits);
-   Matrix_t biases1(visibleUnits,1);
+   Matrix_t biases1(hiddenUnits,1);
    Matrix_t biases2(visibleUnits,1);
    randomMatrix(weights);
    randomMatrix(biases1);
@@ -60,6 +60,15 @@ template <typename Architecture> auto testLayer(size_t batchSize, size_t visible
    Biases.emplace_back(biases1);
    Biases.emplace_back(biases2);
 
+   std::cout<<"weights given"<<std::endl;
+   for(size_t i=0; i<Weights[0].GetNrows(); i++)
+   {
+     for(size_t j=0; j<Weights[0].GetNcols(); j++)
+      {
+         std::cout<<Weights[0](i,j)<<"\t";
+      }
+      std::cout<<std::endl;
+   }
 
    TReconstructionLayer dae(batchSize, visibleUnits, hiddenUnits,0.1, EActivationFunction::kSigmoid,Weights,Biases,0.3,1);
 
@@ -77,7 +86,7 @@ template <typename Architecture> auto testLayer(size_t batchSize, size_t visible
 
 
 
-
+   std::cout<<"a"<<std::endl;
    for(size_t i=0; i<batchSize; i++)
    {
       randomMatrix(inputMatrix);
@@ -87,6 +96,10 @@ template <typename Architecture> auto testLayer(size_t batchSize, size_t visible
       randomMatrix(compressMatrix);
       Architecture::Copy(compressedInput[i],compressMatrix);
    }
+   std::cout<<"b"<<std::endl;
+
+
+
    std::cout<<"Input Batch: "<<std::endl;
    for(size_t i=0; i<batchSize; i++)
    {

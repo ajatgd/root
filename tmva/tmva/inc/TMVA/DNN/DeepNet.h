@@ -372,20 +372,21 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
    AddCorruptionLayer(visibleUnits, numHiddenUnitsPerLayer[0], dropoutProbability, corruptionLevel);
    fLayers.back()->Initialize();
    fLayers.back()->Forward(input, applyDropout);
-   // fLayers.back()->Print();
+   //fLayers.back()->Print();
 
    AddCompressionLayer(visibleUnits, numHiddenUnitsPerLayer[0], dropoutProbability, f, fLayers.back()->GetWeights(),
                        fLayers.back()->GetBiases());
-   fLayers.back()->Initialize();
+   //fLayers.back()->Initialize();
    fLayers.back()->Forward(fLayers[fLayers.size() - 2]->GetOutput(), applyDropout); // as we have to pass corrupt input
-
+   //fLayers.back()->Print();
    AddReconstructionLayer(visibleUnits, numHiddenUnitsPerLayer[0], learningRate, f, fLayers.back()->GetWeights(),
                           fLayers.back()->GetBiases(), corruptionLevel, dropoutProbability);
-   fLayers.back()->Initialize();
+   //fLayers.back()->Initialize();
    fLayers.back()->Forward(fLayers[fLayers.size() - 2]->GetOutput(),
                            applyDropout); // as we have to pass compressed Input
    fLayers.back()->Backward(fLayers[fLayers.size() - 2]->GetOutput(), inp1, fLayers[fLayers.size() - 3]->GetOutput(),
                             input);
+   //fLayers.back()->Print();
    // three layers are added, now pointer is on third layer
    size_t weightsSize = fLayers.back()->GetWeights().size();
    size_t biasesSize = fLayers.back()->GetBiases().size();
@@ -398,6 +399,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
          Architecture_t::Copy(fLayers[fLayers.size() - 2]->GetBiasesAt(j), fLayers.back()->GetBiasesAt(j));
       }
       fLayers[fLayers.size() - 2]->Forward(fLayers[fLayers.size() - 3]->GetOutput(), applyDropout);
+      //fLayers[fLayers.size() - 2]->Print();
       fLayers[fLayers.size() - 1]->Forward(fLayers[fLayers.size() - 2]->GetOutput(), applyDropout);
       fLayers[fLayers.size() - 1]->Backward(fLayers[fLayers.size() - 2]->GetOutput(), inp1,
                                             fLayers[fLayers.size() - 3]->GetOutput(), input);
@@ -410,21 +412,21 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
       fLayers.back()->Initialize();
       fLayers.back()->Forward(fLayers[fLayers.size() - 3]->GetOutput(),
                               applyDropout); // as we have to pass compressed Input
-
+      //fLayers.back()->Print();
       AddCompressionLayer(numHiddenUnitsPerLayer[i - 1], numHiddenUnitsPerLayer[i], dropoutProbability, f,
                           fLayers.back()->GetWeights(), fLayers.back()->GetBiases());
-      fLayers.back()->Initialize();
+      //fLayers.back()->Initialize();
       fLayers.back()->Forward(fLayers[fLayers.size() - 2]->GetOutput(), applyDropout);
-
+      //fLayers.back()->Print();
       AddReconstructionLayer(numHiddenUnitsPerLayer[i - 1], numHiddenUnitsPerLayer[i], learningRate, f,
                              fLayers.back()->GetWeights(), fLayers.back()->GetBiases(), corruptionLevel,
                              dropoutProbability);
-      fLayers.back()->Initialize();
+      //fLayers.back()->Initialize();
       fLayers.back()->Forward(fLayers[fLayers.size() - 2]->GetOutput(),
                               applyDropout); // as we have to pass compressed Input
       fLayers.back()->Backward(fLayers[fLayers.size() - 2]->GetOutput(), inp1, fLayers[fLayers.size() - 3]->GetOutput(),
                                fLayers[fLayers.size() - 5]->GetOutput());
-
+      //fLayers.back()->Print();
       // three layers are added, now pointer is on third layer
       size_t weightsSize = fLayers.back()->GetWeights().size();
       size_t biasesSize = fLayers.back()->GetBiases().size();
