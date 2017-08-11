@@ -335,7 +335,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    //TransformInputDataset(events, input); 
 
-   size_t hiddenUnits = 100; 
+   size_t hiddenUnits = 2; 
 
    
    std::vector<Float_t> bareinput;
