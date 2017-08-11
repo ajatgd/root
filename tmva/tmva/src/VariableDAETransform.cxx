@@ -351,12 +351,11 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    std::vector<Float_t> bareinput;
    std::vector<Char_t>  mask;
 
-   input->clear(); 
-   input = new std::vector<Matrix_t>(numEvents); 
+   input.clear(); 
 
    for ( unsigned int i = 0; i<numEvents; i++ ) 
    {
-      (*input)[i]=(visibleUnits, 1);
+      input.emplace_back(visibleUnits, 1);
       
       const Event* ev = events[i];        // Why this? Can't we just pass events[i] in the function?
       UInt_t cls = ev->GetClass();
@@ -381,13 +380,13 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
       //DAE.at(cls)->AddRow( dvec );
       //if (nCls > 1) DAE.at(numDAE-1)->AddRow( dvec );
-      TransformInputData(bareinput, (*input)[i]); 
+      TransformInputData(bareinput, input[i]); 
    }
-   for (unsigned int i=0; i<input->size(); i++) 
+   for (unsigned int i=0; i<input.size(); i++) 
    {
-      for (int j=0; j<(*input)[i].GetNrows(); j++) 
+      for (int j=0; j<input[i].GetNrows(); j++) 
       {
-         std::cout << (*input)[i](j, 0) << " "; 
+         std::cout << input[i](j, 0) << " "; 
       }
       std::cout << std::endl; 
    }
@@ -401,7 +400,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    for (UInt_t i=0; i<numDAE; i++ ) {
       std::cout << "Training autoencoder " << i << std::endl; 
-      fAutoEncoder[i]->PreTrain((*input), numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
+      fAutoEncoder.at(i)->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
    }
 
    std::cout << std::endl << "Training successful! " << std::endl; 
@@ -468,7 +467,7 @@ void TMVA::VariableDAETransform::TransformInputDataset( const std::vector< Event
    size_t numEvents = localEvents.size(); 
    for ( unsigned int i = 0; i<numEvents; i++ ) 
    {
-      input->emplace_back(visibleUnits, 1); 
+      input.emplace_back(visibleUnits, 1); 
       for (unsigned int j = 0; j < visibleUnits; j++) 
       {
          localInputs[i](j, 0) = localEvents[i]->GetValues()[j]; 

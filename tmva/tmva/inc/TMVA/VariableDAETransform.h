@@ -94,8 +94,8 @@ namespace TMVA {
       std::vector<DNN::TDeepAutoEncoder<Architecture_t>* > fAutoEncoder; 
       //TCompressionLayer fEncoder; 
 
-      std::vector<Matrix_t>* input; 
-      std::vector<Matrix_t>* output; 
+      std::vector<Matrix_t> input; 
+      std::vector<Matrix_t> output; 
 
       
       // store relevant parts of PCA locally
