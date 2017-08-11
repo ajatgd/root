@@ -169,15 +169,19 @@ auto TCompressionLayer<Architecture_t>::Print() const
                << "Input Units: " << this->GetVisibleUnits() << "\n"
                << "Hidden units " << this->GetHiddenUnits() << "\n";
 
-      std::cout<<"Compressed Input: "<<std::endl;
-      for(size_t j=0; j<this->GetWeightsAt(0).GetNrows(); j++)
-      {
-         for(size_t k=0; k<this->GetWeightsAt(0).GetNcols(); k++)
-         {
-            std::cout<<this->GetWeightsAt(0)(j,k)<<"\t";
-         }
-         std::cout<<std::endl;
-      }
+               std::cout<<"Compressed Input: "<<std::endl;
+               for(size_t i=0; i<this->GetBatchSize(); i++)
+               {
+                  for(size_t j=0; j<this->GetOutputAt(i).GetNrows(); j++)
+                  {
+                     for(size_t k=0; k<this->GetOutputAt(i).GetNcols(); k++)
+                        {
+                           std::cout<<this->GetOutputAt(i)(j,k)<<"\t";
+            	    }
+                        std::cout<<std::endl;
+                  }
+                  std::cout<<std::endl;
+               }
 
 }
 //______________________________________________________________________________

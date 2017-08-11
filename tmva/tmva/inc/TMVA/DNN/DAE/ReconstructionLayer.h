@@ -144,7 +144,6 @@ TReconstructionLayer<Architecture_t>::TReconstructionLayer(size_t batchSize, siz
 {
    Architecture_t::Copy(this->GetWeightsAt(0),weights[0]);
    Architecture_t::Copy(this->GetBiasesAt(0),biases[0]);
-
 }
 
 //______________________________________________________________________________
@@ -209,7 +208,6 @@ auto TReconstructionLayer<Architecture_t>::Forward(std::vector<Matrix_t> input, 
       evaluate<Architecture_t>(this->GetOutputAt(i), fF);
 
    }
-
 }
 
 
@@ -232,7 +230,6 @@ auto inline TReconstructionLayer<Architecture_t>::Backward(std::vector<Matrix_t>
                                    this->GetVBiasError(), this->GetHBiasError(),
                                    this->GetLearningRate(), this->GetBatchSize());
    }
-
 }
 //______________________________________________________________________________
 template<typename Architecture_t>
