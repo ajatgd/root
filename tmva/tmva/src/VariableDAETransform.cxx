@@ -178,12 +178,18 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    }
 
    Matrix_t transformedEvent; 
-
+   std::vector<Matrix_t> transformedEvents; 
+   transformedEvents.push_back(transformedEvent); 
 
    //BackTransformOutputData(transformedEvent, localInput); 
-   TransformInputData(localInput, transformedEvent); 
+   TransformInputData(localInput, transformedEvents[0]); 
 
-   X2P( principalComponents, localInput, cls );
+   for (unsigned int i=0; i<fAutoEncoder.size(); i++) 
+   {
+      fAutoEncoder[i]->FineTune(transformedEvents, transformedEvents, transformedEvents, 2, 1, 0.1, 10); 
+   }
+
+   //X2P( principalComponents, localInput, cls );
    SetOutput( fTransformedEvent, localInput, mask, ev ); 
 
    return fTransformedEvent;
@@ -283,7 +289,7 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
 
 void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>& events )
 {
-   size_t BatchSize = 50;
+   size_t BatchSize = 1;
    size_t InputDepth = 1;     // Just put 1 here
    size_t InputHeight = 1; 
    size_t InputWidth = 1; 
@@ -299,7 +305,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    std::vector<size_t> numHiddenUnitsPerLayer; 
    Scalar_t learningRate = 0.1; 
    Scalar_t corruptionLevel = 0.3; 
-   Scalar_t dropoutProbability = 0.2; 
+   Scalar_t dropoutProbability = 1.; 
    size_t epochs = 50; 
    DNN::EActivationFunction activation; 
    bool applyDropout = false; 
@@ -335,6 +341,8 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    size_t visibleUnits = events[0]->GetValues().size(); 
    size_t numEvents = events.size(); 
 
+   BatchSize = numEvents; 
+
    //TransformInputDataset(events, input); 
 
    size_t hiddenUnits = 2; 
@@ -343,11 +351,12 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    std::vector<Float_t> bareinput;
    std::vector<Char_t>  mask;
 
-   input.clear(); 
+   input->clear(); 
+   input = new std::vector<Matrix_t>(numEvents); 
 
    for ( unsigned int i = 0; i<numEvents; i++ ) 
    {
-      input.emplace_back(visibleUnits, 1);
+      (*input)[i]=(visibleUnits, 1);
       
       const Event* ev = events[i];        // Why this? Can't we just pass events[i] in the function?
       UInt_t cls = ev->GetClass();
@@ -372,13 +381,13 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
       //DAE.at(cls)->AddRow( dvec );
       //if (nCls > 1) DAE.at(numDAE-1)->AddRow( dvec );
-      TransformInputData(bareinput, input[i]); 
+      TransformInputData(bareinput, (*input)[i]); 
    }
-   for (unsigned int i=0; i<input.size(); i++) 
+   for (unsigned int i=0; i<input->size(); i++) 
    {
-      for (int j=0; j<input[i].GetNrows(); j++) 
+      for (int j=0; j<(*input)[i].GetNrows(); j++) 
       {
-         std::cout << input[i](j, 0) << " "; 
+         std::cout << (*input)[i](j, 0) << " "; 
       }
       std::cout << std::endl; 
    }
@@ -392,7 +401,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    for (UInt_t i=0; i<numDAE; i++ ) {
       std::cout << "Training autoencoder " << i << std::endl; 
-      fAutoEncoder.at(i)->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
+      fAutoEncoder[i]->PreTrain((*input), numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
    }
 
    std::cout << std::endl << "Training successful! " << std::endl; 
@@ -459,7 +468,7 @@ void TMVA::VariableDAETransform::TransformInputDataset( const std::vector< Event
    size_t numEvents = localEvents.size(); 
    for ( unsigned int i = 0; i<numEvents; i++ ) 
    {
-      input.emplace_back(visibleUnits, 1); 
+      input->emplace_back(visibleUnits, 1); 
       for (unsigned int j = 0; j < visibleUnits; j++) 
       {
          localInputs[i](j, 0) = localEvents[i]->GetValues()[j]; 
