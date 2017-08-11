@@ -129,6 +129,8 @@ Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Even
 
    TrainOnExampleData( events );
 
+   std::cout << "PrepareTransfiormation succeded " << std::endl; 
+
    SetCreated( kTRUE );
 
    return kTRUE;
@@ -370,6 +372,14 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
       //if (nCls > 1) DAE.at(numDAE-1)->AddRow( dvec );
       TransformInputData(bareinput, input[i]); 
    }
+   for (unsigned int i=0; i<input.size(); i++) 
+   {
+      for (int j=0; j<input[i].GetNrows(); j++) 
+      {
+         std::cout << input[i](j, 0) << " "; 
+      }
+      std::cout << std::endl; 
+   }
    
    
    // delete possible leftovers
@@ -379,8 +389,11 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    fEigenVectors.resize(numDAE,0);
 
    for (UInt_t i=0; i<numDAE; i++ ) {
+      std::cout << "Training autoencoder " << numDAE << std::endl; 
       fAutoEncoder.at(i)->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
    }
+
+   std::cout << std::endl << "Training successful! " << std::endl; 
 
    //for (UInt_t i=0; i<numDAE; i++) delete DAE.at(i);
    //delete [] dvec;
@@ -416,13 +429,13 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
       try{
          switch( type ) {
          case 'v':
-            input(idx, 1) = event->GetValue(idx); 
+            input(idx, 0) = event->GetValue(idx); 
             break;
          case 't':
-            input(idx, 1) = event->GetTarget(idx); 
+            input(idx, 0) = event->GetTarget(idx); 
             break;
          case 's':
-            input(idx, 1) = event->GetSpectator(idx); 
+            input(idx, 0) = event->GetSpectator(idx); 
             break;
          default:
             Log() << kFATAL << "VariableTransformBase/GetInput : unknown type '" << type << "'." << Endl;
@@ -430,7 +443,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
          mask.push_back(kFALSE);
       }
       catch(std::out_of_range& /* excpt * ){ // happens when an event is transformed which does not yet have the targets calculated (in the application phase)
-         input(idx, 1) = 0.f; 
+         input(idx, 0) = 0.f; 
          mask.push_back(kTRUE);
          hasMaskedEntries = kTRUE;
       }
