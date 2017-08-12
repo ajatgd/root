@@ -302,7 +302,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    Scalar_t fWeightDecay = 0.0; 
    bool isTraining = false; 
 
-   std::vector<size_t> numHiddenUnitsPerLayer; 
+   std::vector<size_t> numHiddenUnitsPerLayer = {2}; 
    Scalar_t learningRate = 0.1; 
    Scalar_t corruptionLevel = 0.3; 
    Scalar_t dropoutProbability = 1.; 
@@ -310,7 +310,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    DNN::EActivationFunction activation; 
    bool applyDropout = false; 
 
-   numHiddenUnitsPerLayer.push_back(2); 
+   //numHiddenUnitsPerLayer.push_back(2); 
    activation = DNN::EActivationFunction::kSoftSign; 
 
 
@@ -345,7 +345,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    //TransformInputDataset(events, input); 
 
-   size_t hiddenUnits = 2; 
+   //size_t hiddenUnits = 2; 
 
    
    std::vector<Float_t> bareinput;
