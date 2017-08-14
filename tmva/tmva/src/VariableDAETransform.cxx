@@ -186,7 +186,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 
    for (unsigned int i=0; i<fAutoEncoder.size(); i++) 
    {
-      fAutoEncoder[i]->FineTune(transformedEvents, transformedEvents, transformedEvents, 2, 1, 0.1, 10); 
+      //fAutoEncoder[i]->FineTune(transformedEvents, transformedEvents, transformedEvents, 2, 1, 0.1, 10); 
    }
 
    //X2P( principalComponents, localInput, cls );
@@ -310,6 +310,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    DNN::EActivationFunction activation; 
    bool applyDropout = false; 
 
+   numHiddenUnitsPerLayer.clear();
    numHiddenUnitsPerLayer.push_back(2); 
    activation = DNN::EActivationFunction::kSoftSign; 
 
@@ -330,9 +331,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    // PCA [signal/background/class x/class y/... /all classes]
    //std::vector<DNN::TDeepAutoEncoder<Architecture_t>* > DAE(numDAE);
-   for (UInt_t i=0; i<numDAE; i++) fAutoEncoder.push_back( new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(BatchSize, InputDepth, InputHeight, InputWidth, 
-                                       BatchDepth, BatchHeight, BatchWidth, fJ, fI, fR, fWeightDecay, isTraining) ); 
-
+   
    // !! Not normalizing and not storing input data, for performance reasons. Should perhaps restore normalization.
    // But this can be done afterwards by adding a normalisation transformation (user defined)
 
@@ -341,7 +340,11 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    size_t visibleUnits = events[0]->GetValues().size(); 
    size_t numEvents = events.size(); 
 
-   BatchSize = numEvents; 
+   BatchSize = 1; //numEvents; 
+
+   for (UInt_t i=0; i<numDAE; i++) fAutoEncoder.push_back( new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(BatchSize, InputDepth, InputHeight, InputWidth, 
+                                       BatchDepth, BatchHeight, BatchWidth, fJ, fI, fR, fWeightDecay, isTraining) ); 
+
 
    //TransformInputDataset(events, input); 
 
@@ -390,6 +393,26 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
       }
       std::cout << std::endl; 
    }
+
+   for (unsigned int i=0; i<numHiddenUnitsPerLayer.size(); i++) 
+   {
+      std::cout << numHiddenUnitsPerLayer[i] << " "; 
+   }
+   std::cout << std::endl;
+
+   input.clear(); 
+   Matrix_t fakeEvent(4, 1); 
+   fakeEvent(0, 0) = 1.0; 
+   fakeEvent(1, 0) = 1.2; 
+   fakeEvent(2, 0) = 2.0; 
+   fakeEvent(3, 0) = 2.5;  
+   input.emplace_back(fakeEvent); 
+
+   for (unsigned int i=0; i<fakeEvent.GetNrows(); i++) 
+   {
+      std::cout << fakeEvent(i, 0) << " ";
+   }
+   std::cout << std::endl; 
    
    
    // delete possible leftovers
