@@ -309,9 +309,6 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    size_t epochs = 50; 
    DNN::EActivationFunction activation; 
    bool applyDropout = false; 
-
-   numHiddenUnitsPerLayer.clear();
-   numHiddenUnitsPerLayer.push_back(2); 
    activation = DNN::EActivationFunction::kSoftSign; 
 
 
@@ -339,6 +336,10 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    size_t visibleUnits = events[0]->GetValues().size(); 
    size_t numEvents = events.size(); 
+
+   numHiddenUnitsPerLayer.clear();
+   numHiddenUnitsPerLayer.push_back(visibleUnits); 
+   numHiddenUnitsPerLayer.push_back(2); 
 
    BatchSize = 1; //numEvents; 
 
@@ -424,6 +425,8 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    for (UInt_t i=0; i<numDAE; i++ ) {
       std::cout << "Training autoencoder " << i << std::endl; 
       fAutoEncoder.at(i)->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
+      //fAutoEncoder.at(i)->PreTrain(input, std::vector<size_t>{2}, 0.1, 0.2, 0.2, 10, DNN::EActivationFunction::kSoftSign, kFALSE); 
+
    }
 
    std::cout << std::endl << "Training successful! " << std::endl; 
