@@ -187,6 +187,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    std::cout << "Forward Transformation " << std::endl; 
    TransformInputData(localInput, transformedEvents[0]); 
    std::cout << "Forward Tranformation finished " << std::endl; 
+   encodedEvent.ResizeTo(numCompressedUnits, 1); 
 
    for (unsigned int i=0; i<fAutoEncoder.size(); i++) 
    {
@@ -196,13 +197,22 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    }
 
    std::cout << "Backward transformation starts..." << std::endl; 
+   // encodedEvent.ResizeTo(2, 1); 
+   //encodedEvent(0, 0) = 1.2; 
+   //encodedEvent(1, 0) = 2.0;
    BackTransformOutputData(encodedEvent, localOutput); 
    std::cout << "Backward transformation finished " << std::endl; 
    //X2P( principalComponents, localInput, cls );
    for (unsigned int i=numCompressedUnits; i<mask.size(); i++) 
    {
-      mask[i] = kTRUE; 
+      mask[i] = kTRUE; // Workaround for the spare value 
+   } 
+   std::cout << encodedEvent.GetNrows() << " " << localOutput.size() << " " << std::endl; 
+   for (unsigned int i=0; i<localOutput.size(); i++) 
+   {
+      std::cout << encodedEvent(i, 0) << " " << localOutput[i] << " "; 
    }
+   std::cout << std::endl; 
    SetOutput( fTransformedEvent, localOutput, mask, ev ); 
    std::cout << "Setting output succeded. " << std::endl; 
 
@@ -517,10 +527,11 @@ void TMVA::VariableDAETransform::BackTransformOutputData( const Matrix_t& autoen
       output.emplace_back(hiddenUnits, 1); 
    }*/
    std::vector<Float_t> outputVector; 
+   vec.clear(); 
    if (autoencoderOutput.GetNcols()<2) 
    {
       for (unsigned int i=0; i< autoencoderOutput.GetNrows(); i++)
-         outputVector.push_back(autoencoderOutput(i, 0)); 
+         vec.push_back(autoencoderOutput(i, 0)); 
    }
 
 }

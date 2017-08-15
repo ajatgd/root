@@ -375,7 +375,12 @@ void TMVA::VariableTransformBase::SetOutput( Event* event, std::vector<Float_t>&
    std::vector<Char_t>::iterator  itMask   = mask.begin();
 
    if( oldEvent )
-      //event->CopyVarValues( *oldEvent );
+      event->CopyVarValues( *oldEvent );
+
+   //std::cout << "fGet : " << fGet.size() << " fPut : " << fPut.size() << std::endl; 
+   //for (unsigned int i=0; i<mask.size(); i++) {
+   //   std::cout << static_cast<bool>(mask[i]) << " "; 
+   //}
 
    try {
 
@@ -392,9 +397,11 @@ void TMVA::VariableTransformBase::SetOutput( Event* event, std::vector<Float_t>&
       }
 
 
-      for( ; itEntry != itEntryEnd; ++itEntry ) {
+      for( ; itEntry != itEntryEnd; ++itEntry ) 
+      {
 
-         if( (*itMask) ){ // if the value is masked
+         if( (*itMask) )
+         { // if the value is masked
             continue;
          }
 

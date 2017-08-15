@@ -519,12 +519,16 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
    }*/
 
    Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
+   std::cout << "Created output matrix. " << std::endl; 
    Architecture_t::EncodeInput(input,
                                output,
                                GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0));
+   std::cout << "Encoded input. " << std::endl; 
    Architecture_t::AddBiases(output,
                              GetLayerAt(GetLayers().size()-2)->GetBiasesAt(0));
+   std::cout << "Added biases. " << std::endl; 
    evaluate<Architecture_t>(output, DNN::EActivationFunction::kSigmoid);
+   std::cout << "Evaluated " << std::endl; 
    return output;
 }
 /*
