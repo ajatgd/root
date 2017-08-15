@@ -62,7 +62,8 @@ ClassImp(TMVA::VariableDAETransform);
 /// constructor
 
 TMVA::VariableDAETransform::VariableDAETransform( DataSetInfo& dsi )
-: VariableTransformBase( dsi, Types::kDAETransform, "DAETransform" )
+: VariableTransformBase( dsi, Types::kDAETransform, "DAETransform" ), 
+   numCompressedUnits(0)
 {
 }
 
@@ -161,7 +162,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
       fTransformedEvent = new Event();
    }
 
-   std::vector<Float_t> localInput;
+   std::vector<Float_t> localInput, localOutput;
    std::vector<Char_t>  mask;
    std::vector<Float_t> principalComponents;
 
@@ -180,18 +181,30 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    Matrix_t transformedEvent, encodedEvent; 
    std::vector<Matrix_t> transformedEvents; 
    transformedEvents.push_back(transformedEvent); 
+   std::vector<Event*> transformed; 
 
    //BackTransformOutputData(transformedEvent, localInput); 
+   std::cout << "Forward Transformation " << std::endl; 
    TransformInputData(localInput, transformedEvents[0]); 
+   std::cout << "Forward Tranformation finished " << std::endl; 
 
    for (unsigned int i=0; i<fAutoEncoder.size(); i++) 
    {
-      encodedEvent = fAutoEncoder[i]->Predict(transformedEvent); 
+      std::cout << "Starting evaluation " << std::endl; 
+      encodedEvent = fAutoEncoder[i]->Predict(transformedEvents[0]); 
       //fAutoEncoder[i]->FineTune(transformedEvents, transformedEvents, transformedEvents, 2, 1, 0.1, 10); 
    }
 
+   std::cout << "Backward transformation starts..." << std::endl; 
+   BackTransformOutputData(encodedEvent, localOutput); 
+   std::cout << "Backward transformation finished " << std::endl; 
    //X2P( principalComponents, localInput, cls );
-   SetOutput( fTransformedEvent, localInput, mask, ev ); 
+   for (unsigned int i=numCompressedUnits; i<mask.size(); i++) 
+   {
+      mask[i] = kTRUE; 
+   }
+   SetOutput( fTransformedEvent, localOutput, mask, ev ); 
+   std::cout << "Setting output succeded. " << std::endl; 
 
    return fTransformedEvent;
 }
@@ -312,6 +325,8 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    bool applyDropout = false; 
    activation = DNN::EActivationFunction::kSoftSign; 
 
+   numCompressedUnits = numHiddenUnitsPerLayer.back(); 
+
 
    UInt_t nvars = 0, ntgts = 0, nspcts = 0;
    CountVariableTypes( nvars, ntgts, nspcts );
@@ -395,26 +410,6 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
       }
       std::cout << std::endl; 
    }
-
-   for (unsigned int i=0; i<numHiddenUnitsPerLayer.size(); i++) 
-   {
-      std::cout << numHiddenUnitsPerLayer[i] << " "; 
-   }
-   std::cout << std::endl;
-
-   input.clear(); 
-   Matrix_t fakeEvent(4, 1); 
-   fakeEvent(0, 0) = 1.0; 
-   fakeEvent(1, 0) = 1.2; 
-   fakeEvent(2, 0) = 2.0; 
-   fakeEvent(3, 0) = 2.5;  
-   input.emplace_back(fakeEvent); 
-
-   for (unsigned int i=0; i<fakeEvent.GetNrows(); i++) 
-   {
-      std::cout << fakeEvent(i, 0) << " ";
-   }
-   std::cout << std::endl; 
    
    
    // delete possible leftovers

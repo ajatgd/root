@@ -97,6 +97,8 @@ namespace TMVA {
       std::vector<Matrix_t> input; 
       std::vector<Matrix_t> output; 
 
+      Int_t numCompressedUnits; 
+
       
       // store relevant parts of PCA locally
       std::vector<TVectorD*> fMeanValues;   // mean values

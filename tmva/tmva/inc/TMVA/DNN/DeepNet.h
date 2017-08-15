@@ -459,6 +459,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
       }
       //fLayers.back()->Print();
    }
+   wasPretrained = true; 
 }
 //______________________________________________________________________________
 template <typename Architecture_t, typename Layer_t>
@@ -498,9 +499,19 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
   {
     Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
   }
-  size_t outputDim = GetLayerAt(GetLayers().size()-1)->GetOutputAt(0).GetNrows(); 
+  std::vector<Matrix_t> firstInput = std::vector<Matrix_t>{input};
+  std::cout << "Input affected properly " << std::endl; 
+  fLayers[0]->Forward(firstInput); 
+  for (unsigned int i=1; i<fLayers.size(); i++) 
+  {   
+    std::cout << "Forward pass on layer " << i << std::endl; 
+    fLayers[i]->Forward(GetLayerAt(i-1)->GetOutput()); 
+  }
+  //fLayers[fLayers.size() - 2]->Forward(fLayers[fLayers.size() - 3]->GetOutput());
+  //fLayers[fLayers.size() - 1]->Forward(fLayers[fLayers.size() - 2]->GetOutput());
+  size_t outputDim = GetLayerAt(GetLayers().size()-2)->GetOutputAt(0).GetNrows(); 
   Matrix_t output(outputDim, 1);
-  output = GetLayerAt(GetLayers().size()-1)->GetOutput()[0]; 
+  output = GetLayerAt(GetLayers().size()-2)->GetOutput()[0]; 
   /*for (unsigned int i=0; i<outputDim; i++) 
   {
     output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0); 

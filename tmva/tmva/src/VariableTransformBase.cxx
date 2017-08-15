@@ -375,7 +375,7 @@ void TMVA::VariableTransformBase::SetOutput( Event* event, std::vector<Float_t>&
    std::vector<Char_t>::iterator  itMask   = mask.begin();
 
    if( oldEvent )
-      event->CopyVarValues( *oldEvent );
+      //event->CopyVarValues( *oldEvent );
 
    try {
 
