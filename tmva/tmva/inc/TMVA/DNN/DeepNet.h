@@ -520,8 +520,8 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
 
    Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
    Architecture_t::EncodeInput(input,
-                               GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0),
-                               GetLayerAt(GetLayers().size()-2)->GetBiasesAt(0));
+                               output,
+                               GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0));
    Architecture_t::AddBiases(output,
                              GetLayerAt(GetLayers().size()-2)->GetBiasesAt(0));
    evaluate<Architecture_t>(output, DNN::EActivationFunction::kSigmoid);
