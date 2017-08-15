@@ -517,6 +517,11 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
    {
       output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0);
    }*/
+   for (unsigned int i=0; i<GetLayerAt(0)->GetWeights().size(); i++) 
+   {
+      std::cout << "Weights " << GetLayerAt(0)->GetWeights()[0](i, 0) << " "; 
+   }
+   std::cout << std::endl; 
 
    Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
    std::cout << "Created output matrix. " << std::endl; 
