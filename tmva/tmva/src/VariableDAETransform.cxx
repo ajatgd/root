@@ -177,7 +177,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
       return fTransformedEvent;
    }
 
-   Matrix_t transformedEvent; 
+   Matrix_t transformedEvent, encodedEvent; 
    std::vector<Matrix_t> transformedEvents; 
    transformedEvents.push_back(transformedEvent); 
 
@@ -186,6 +186,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 
    for (unsigned int i=0; i<fAutoEncoder.size(); i++) 
    {
+      encodedEvent = fAutoEncoder[i]->Predict(transformedEvent); 
       //fAutoEncoder[i]->FineTune(transformedEvents, transformedEvents, transformedEvents, 2, 1, 0.1, 10); 
    }
 
@@ -505,13 +506,13 @@ void TMVA::VariableDAETransform::TransformInputData( const std::vector<Float_t>&
 {
    //std::cout << "Starting conversion from vector<Float_t> to Matrix_t " << std::endl; 
    size_t numVar = localEvent.size(); 
-   Matrix_t localInput(numVar, 1); 
-   for ( unsigned int i = 0; i<2/*numVar*/; i++ ) 
+   remoteInput.ResizeTo(numVar, 1);    //Matrix_t localInput(numVar, 1); 
+   for ( unsigned int i = 0; i<numVar; i++ ) 
    {
-      localInput(i, 0) = localEvent[i]; 
+      remoteInput(i, 0) = localEvent[i]; 
    }
-   std::cout << "Matrix copy" << std::endl; 
-   remoteInput = localInput; 
+   std::cout << "Matrix copy" << std::endl;     // Works now 
+   //remoteInput = localInput; 
 }
 
 void TMVA::VariableDAETransform::BackTransformOutputData( const Matrix_t& autoencoderOutput, std::vector<Float_t>& vec) const 

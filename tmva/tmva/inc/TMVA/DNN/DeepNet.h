@@ -33,6 +33,7 @@
 #include "TMVA/DNN/Functions.h"
 
 #include "TMVA/DNN/GeneralLayer.h"
+#include "TMVA/MsgLogger.h"
 
 
 #include "TMVA/DNN/DAE/CompressionLayer.h"
@@ -83,6 +84,10 @@ private:
    ERegularization fR;    ///< The regularization used for the network.
    Scalar_t fWeightDecay; ///< The weight decay factor.
    bool wasPretrained;    ///< If PreTrain wa executed. 
+
+   MsgLogger* fLogger;                     //! message logger
+
+   MsgLogger& Log() const { return *fLogger; }
 
 public:
    /*! Default Constructor */
@@ -486,11 +491,22 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
    }
 }
 
-//TMVA::DNN::TDeepAutoEncoder::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Predict(TMVA::DNN::TDeepAutoEncoder::Matrix_t& input) 
-//{
-//  TMVA::DNN::Matrix_t output; 
-//  return output; 
-//}
+template <typename Architecture_t, typename Layer_t>
+typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Predict(Matrix_t& input) 
+{
+  if (wasPretrained == false)  
+  {
+    Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
+  }
+  size_t outputDim = GetLayerAt(GetLayers().size()-1)->GetOutputAt(0).GetNrows(); 
+  Matrix_t output(outputDim, 1);
+  output = GetLayerAt(GetLayers().size()-1)->GetOutput()[0]; 
+  /*for (unsigned int i=0; i<outputDim; i++) 
+  {
+    output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0); 
+  }*/ 
+  return output; 
+}
 /*
 //______________________________________________________________________________
 template <typename Architecture_t, typename Layer_t>
