@@ -83,7 +83,7 @@ private:
    EInitialization fI;    ///< The initialization method of the network.
    ERegularization fR;    ///< The regularization used for the network.
    Scalar_t fWeightDecay; ///< The weight decay factor.
-   bool wasPretrained;    ///< If PreTrain wa executed. 
+   bool fWasPreTrained;    ///< If PreTrain wa executed.
 
    MsgLogger* fLogger;                     //! message logger
 
@@ -168,7 +168,7 @@ public:
    void FineTune(std::vector<Matrix_t> &input, std::vector<Matrix_t> &testInput, std::vector<Matrix_t> &outputLabel,
                  size_t outputUnits, size_t testDataBatchSize, Scalar_t learningRate, size_t epochs);
 
-   Matrix_t Predict(Matrix_t& input); 
+   Matrix_t Predict(Matrix_t& input);
 
    /*! Prediction based on activations stored in the last layer. */
    //void Prediction(Matrix_t &predictions, EOutputFunction f) const;
@@ -205,6 +205,7 @@ public:
    inline size_t GetBatchWidth() const { return fBatchWidth; }
 
    inline bool IsTraining() const { return fIsTraining; }
+   inline bool GetWasPreTrained() const {return fWasPreTrained;}
 
    inline ELossFunction GetLossFunction() const { return fJ; }
    inline EInitialization GetInitialization() const { return fI; }
@@ -233,7 +234,7 @@ template <typename Architecture_t, typename Layer_t>
 TDeepAutoEncoder<Architecture_t, Layer_t>::TDeepAutoEncoder()
    : fLayers(), fBatchSize(0), fInputDepth(0), fInputHeight(0), fInputWidth(0), fBatchDepth(0), fBatchHeight(0),
      fBatchWidth(0), fJ(ELossFunction::kMeanSquaredError), fI(EInitialization::kZero), fR(ERegularization::kNone),
-     fWeightDecay(0.0), fIsTraining(true), wasPretrained(false)
+     fWeightDecay(0.0), fIsTraining(true), fWasPreTrained(false)
 {
    // Nothing to do here.
 }
@@ -245,7 +246,7 @@ TDeepAutoEncoder<Architecture_t, Layer_t>::TDeepAutoEncoder(size_t batchSize, si
                                             EInitialization I, ERegularization R, Scalar_t weightDecay, bool isTraining)
    : fLayers(), fBatchSize(batchSize), fInputDepth(inputDepth), fInputHeight(inputHeight), fBatchDepth(batchDepth),
      fBatchHeight(batchHeight), fBatchWidth(batchWidth), fInputWidth(inputWidth), fJ(J), fI(I), fR(R),
-     fWeightDecay(weightDecay), fIsTraining(isTraining), wasPretrained(false)
+     fWeightDecay(weightDecay), fIsTraining(isTraining), fWasPreTrained(false)
 {
    // Nothing to do here.
 }
@@ -256,7 +257,7 @@ TDeepAutoEncoder<Architecture_t, Layer_t>::TDeepAutoEncoder(const TDeepAutoEncod
    : fLayers(), fBatchSize(deepNet.fBatchSize), fInputDepth(deepNet.fInputDepth), fInputHeight(deepNet.fInputHeight),
      fInputWidth(deepNet.fInputWidth), fBatchDepth(deepNet.fBatchDepth), fBatchHeight(deepNet.fBatchHeight),
      fBatchWidth(deepNet.fBatchWidth), fJ(deepNet.fJ), fI(deepNet.fI), fR(deepNet.fR),
-     fWeightDecay(deepNet.fWeightDecay), fIsTraining(deepNet.fIsTraining), wasPretrained(false)
+     fWeightDecay(deepNet.fWeightDecay), fIsTraining(deepNet.fIsTraining), fWasPreTrained(false)
 {
    // Nothing to do here.
 }
@@ -376,11 +377,11 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
    size_t batchSize = this->GetBatchSize();
    size_t visibleUnits = (size_t)input[0].GetNrows();
 
-   for (unsigned int i=0; i<numHiddenUnitsPerLayer.size(); i++) 
+   for (unsigned int i=0; i<numHiddenUnitsPerLayer.size(); i++)
    {
-      std::cout << numHiddenUnitsPerLayer[i] << " "; 
+      std::cout << numHiddenUnitsPerLayer[i] << " ";
    }
-   std::cout << std::endl; 
+   std::cout << std::endl;
 
    AddCorruptionLayer(visibleUnits, numHiddenUnitsPerLayer[0], dropoutProbability, corruptionLevel);
    fLayers.back()->Initialize();
@@ -459,7 +460,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
       }
       //fLayers.back()->Print();
    }
-   wasPretrained = true; 
+   fWasPreTrained = true;
 }
 //______________________________________________________________________________
 template <typename Architecture_t, typename Layer_t>
@@ -493,30 +494,38 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
 }
 
 template <typename Architecture_t, typename Layer_t>
-typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Predict(Matrix_t& input) 
+typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Predict(Matrix_t& input)
 {
-  if (wasPretrained == false)  
-  {
-    Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
-  }
-  std::vector<Matrix_t> firstInput = std::vector<Matrix_t>{input};
-  std::cout << "Input affected properly " << std::endl; 
-  fLayers[0]->Forward(firstInput); 
-  for (unsigned int i=1; i<fLayers.size(); i++) 
-  {   
-    std::cout << "Forward pass on layer " << i << std::endl; 
-    fLayers[i]->Forward(GetLayerAt(i-1)->GetOutput()); 
-  }
-  //fLayers[fLayers.size() - 2]->Forward(fLayers[fLayers.size() - 3]->GetOutput());
-  //fLayers[fLayers.size() - 1]->Forward(fLayers[fLayers.size() - 2]->GetOutput());
-  size_t outputDim = GetLayerAt(GetLayers().size()-2)->GetOutputAt(0).GetNrows(); 
-  Matrix_t output(outputDim, 1);
-  output = GetLayerAt(GetLayers().size()-2)->GetOutput()[0]; 
-  /*for (unsigned int i=0; i<outputDim; i++) 
-  {
-    output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0); 
-  }*/ 
-  return output; 
+   if (fWasPreTrained == false)
+   {
+      Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
+   }
+   /*std::vector<Matrix_t> firstInput = std::vector<Matrix_t>{input};
+   std::cout << "Input affected properly " << std::endl;
+   fLayers[0]->Forward(firstInput);
+   for (unsigned int i=1; i<fLayers.size(); i++)
+   {
+      std::cout << "Forward pass on layer " << i << std::endl;
+      fLayers[i]->Forward(GetLayerAt(i-1)->GetOutput());
+   }*/
+   //fLayers[fLayers.size() - 2]->Forward(fLayers[fLayers.size() - 3]->GetOutput());
+   //fLayers[fLayers.size() - 1]->Forward(fLayers[fLayers.size() - 2]->GetOutput());
+   /*size_t outputDim = GetLayerAt(GetLayers().size()-2)->GetOutputAt(0).GetNrows();
+   Matrix_t output(outputDim, 1);
+   output = GetLayerAt(GetLayers().size()-2)->GetOutput()[0];*/
+   /*for (unsigned int i=0; i<outputDim; i++)
+   {
+      output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0);
+   }*/
+
+   Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
+   Architecture_t::EncodeInput(input,
+                               GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0),
+                               GetLayerAt(GetLayers().size()-2)->GetBiasesAt(0));
+   Architecture_t::AddBiases(output,
+                             GetLayerAt(GetLayers().size()-2)->GetBiasesAt(0));
+   evaluate<Architecture_t>(output, DNN::EActivationFunction::kSigmoid);
+   return output;
 }
 /*
 //______________________________________________________________________________
