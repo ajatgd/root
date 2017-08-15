@@ -77,6 +77,7 @@ private:
    size_t fBatchHeight; ///< The height of the batch used for training/testing.
    size_t fBatchWidth;  ///< The width of the batch used for training/testing.
 
+
    bool fIsTraining; ///< Is the network training?
 
    ELossFunction fJ;      ///< The loss function of the network.
@@ -90,6 +91,10 @@ private:
    MsgLogger& Log() const { return *fLogger; }
 
 public:
+
+
+   Matrix_t fLocalWeights;
+   Matrix_t fLocalBiases;
    /*! Default Constructor */
    TDeepAutoEncoder();
 
@@ -199,6 +204,12 @@ public:
    inline size_t GetInputDepth() const { return fInputDepth; }
    inline size_t GetInputHeight() const { return fInputHeight; }
    inline size_t GetInputWidth() const { return fInputWidth; }
+
+   const Matrix_t &GetLocalWeights() const { return fLocalWeights; }
+   Matrix_t &GetLocalWeights() { return fLocalWeights; }
+
+   const Matrix_t &GetLocalBiases() const { return fLocalBiases; }
+   Matrix_t &GetLocalBiases() { return fLocalBiases; }
 
    inline size_t GetBatchDepth() const { return fBatchDepth; }
    inline size_t GetBatchHeight() const { return fBatchHeight; }
@@ -457,9 +468,14 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
          fLayers[fLayers.size() - 1]->Backward(fLayers[fLayers.size() - 2]->GetOutput(), inp1,
                                                fLayers[fLayers.size() - 3]->GetOutput(),
                                                fLayers[fLayers.size() - 5]->GetOutput());
+
+
       }
+      //Architecture_t::Copy(fLocalWeights, fLayers[fLayers.size() - 2]->GetWeightsAt(0));
+      //Architecture_t::Copy(fLocalBiases, fLayers[fLayers.size() - 2]->GetBiasesAt(0));
       //fLayers.back()->Print();
    }
+
    fWasPreTrained = true;
 }
 //______________________________________________________________________________
@@ -517,19 +533,22 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
    {
       output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0);
    }*/
-
-   Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
-   std::cout << "Created output matrix. " << std::endl; 
+   Matrix_t output(2,1);
+   Matrix_t weights(2,4);
+   Matrix_t biases(2,1);
+   //Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
+  // Matrix_t output(fLocalWeights.GetNrows(),1);
+   std::cout << "Created output matrix. " << std::endl;
    Architecture_t::EncodeInput(input,
-                               output,
-                               GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0));
-   std::cout << "Encoded input. " << std::endl; 
-   Architecture_t::AddBiases(output,
-                             GetLayerAt(GetLayers().size()-2)->GetBiasesAt(0));
-   std::cout << "Added biases. " << std::endl; 
+                               output,weights
+                               /*fLocalWeights*//*GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0)*/);
+   std::cout << "Encoded input. " << std::endl;
+   Architecture_t::AddBiases(output,biases
+                             /*fLocalBiases*//*GetLayerAt(GetLayers().size()-2)->GetBiasesAt(0)*/);
+   std::cout << "Added biases. " << std::endl;
    evaluate<Architecture_t>(output, DNN::EActivationFunction::kSigmoid);
-   std::cout << "Evaluated " << std::endl; 
-   std::cout << "Dim of output " << output.GetNrows() << std::endl; 
+   std::cout << "Evaluated " << std::endl;
+   std::cout << "Dim of output " << output.GetNrows() << std::endl;
    return output;
 }
 /*
