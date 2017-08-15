@@ -510,6 +510,7 @@ void TMVA::VariableDAETransform::TransformInputData( const std::vector<Float_t>&
    {
       localInput(i, 0) = localEvent[i]; 
    }
+   std::cout << "Matrix copy" << std::endl; 
    remoteInput = localInput; 
 }
 

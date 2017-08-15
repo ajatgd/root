@@ -82,6 +82,7 @@ private:
    EInitialization fI;    ///< The initialization method of the network.
    ERegularization fR;    ///< The regularization used for the network.
    Scalar_t fWeightDecay; ///< The weight decay factor.
+   bool wasPretrained;    ///< If PreTrain wa executed. 
 
 public:
    /*! Default Constructor */
@@ -162,6 +163,7 @@ public:
    void FineTune(std::vector<Matrix_t> &input, std::vector<Matrix_t> &testInput, std::vector<Matrix_t> &outputLabel,
                  size_t outputUnits, size_t testDataBatchSize, Scalar_t learningRate, size_t epochs);
 
+   Matrix_t Predict(Matrix_t& input); 
 
    /*! Prediction based on activations stored in the last layer. */
    //void Prediction(Matrix_t &predictions, EOutputFunction f) const;
@@ -226,7 +228,7 @@ template <typename Architecture_t, typename Layer_t>
 TDeepAutoEncoder<Architecture_t, Layer_t>::TDeepAutoEncoder()
    : fLayers(), fBatchSize(0), fInputDepth(0), fInputHeight(0), fInputWidth(0), fBatchDepth(0), fBatchHeight(0),
      fBatchWidth(0), fJ(ELossFunction::kMeanSquaredError), fI(EInitialization::kZero), fR(ERegularization::kNone),
-     fWeightDecay(0.0), fIsTraining(true)
+     fWeightDecay(0.0), fIsTraining(true), wasPretrained(false)
 {
    // Nothing to do here.
 }
@@ -238,7 +240,7 @@ TDeepAutoEncoder<Architecture_t, Layer_t>::TDeepAutoEncoder(size_t batchSize, si
                                             EInitialization I, ERegularization R, Scalar_t weightDecay, bool isTraining)
    : fLayers(), fBatchSize(batchSize), fInputDepth(inputDepth), fInputHeight(inputHeight), fBatchDepth(batchDepth),
      fBatchHeight(batchHeight), fBatchWidth(batchWidth), fInputWidth(inputWidth), fJ(J), fI(I), fR(R),
-     fWeightDecay(weightDecay), fIsTraining(isTraining)
+     fWeightDecay(weightDecay), fIsTraining(isTraining), wasPretrained(false)
 {
    // Nothing to do here.
 }
@@ -249,7 +251,7 @@ TDeepAutoEncoder<Architecture_t, Layer_t>::TDeepAutoEncoder(const TDeepAutoEncod
    : fLayers(), fBatchSize(deepNet.fBatchSize), fInputDepth(deepNet.fInputDepth), fInputHeight(deepNet.fInputHeight),
      fInputWidth(deepNet.fInputWidth), fBatchDepth(deepNet.fBatchDepth), fBatchHeight(deepNet.fBatchHeight),
      fBatchWidth(deepNet.fBatchWidth), fJ(deepNet.fJ), fI(deepNet.fI), fR(deepNet.fR),
-     fWeightDecay(deepNet.fWeightDecay), fIsTraining(deepNet.fIsTraining)
+     fWeightDecay(deepNet.fWeightDecay), fIsTraining(deepNet.fIsTraining), wasPretrained(false)
 {
    // Nothing to do here.
 }
@@ -483,6 +485,12 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
      // fLayers.back()->Print();
    }
 }
+
+//TMVA::DNN::TDeepAutoEncoder::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Predict(TMVA::DNN::TDeepAutoEncoder::Matrix_t& input) 
+//{
+//  TMVA::DNN::Matrix_t output; 
+//  return output; 
+//}
 /*
 //______________________________________________________________________________
 template <typename Architecture_t, typename Layer_t>
