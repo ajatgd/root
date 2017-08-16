@@ -130,7 +130,7 @@ Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Even
 
    TrainOnExampleData( events );
 
-   std::cout << "PrepareTransfiormation succeded " << std::endl; 
+   std::cout << "PrepareTransformation succeded " << std::endl; 
 
    SetCreated( kTRUE );
 
@@ -189,10 +189,10 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    std::cout << "Forward Tranformation finished " << std::endl; 
    encodedEvent.ResizeTo(numCompressedUnits, 1); 
 
-   for (unsigned int i=0; i<fAutoEncoder.size(); i++) 
+   //for (unsigned int i=0; i<fAutoEncoder.size(); i++) 
    {
       std::cout << "Starting evaluation " << std::endl; 
-      encodedEvent = fAutoEncoder[i]->Predict(transformedEvents[0]); 
+      encodedEvent = fAutoEncoder[cls]->Predict(transformedEvents[0]); 
       //fAutoEncoder[i]->FineTune(transformedEvents, transformedEvents, transformedEvents, 2, 1, 0.1, 10); 
    }
 
@@ -382,13 +382,32 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    std::vector<Char_t>  mask;
 
    input.clear(); 
+   //totalInput.clear(); 
+   std::cout << "Nclasses : " << nCls << std::endl; 
+   std::cout << "Initializing input vector "; 
+   for (unsigned int i=0; i<numDAE; i++) 
+   {
+      input.emplace_back(std::vector<Matrix_t>(0)); 
+      std::cout << input[i].size() << " "; 
+   }
+   std::cout << "Initialization finished" << std::endl; 
+   std::cout << input.size() << std::endl; 
+   std::vector<size_t> evtsPerClass(nCls, -1);     // Initialising with -1 so that the first element inserted coincides with index 0. 
+   std::cout << evtsPerClass.size() << std::endl; 
 
+   Matrix_t transformedInput(visibleUnits, 1); 
    for ( unsigned int i = 0; i<numEvents; i++ ) 
    {
-      input.emplace_back(visibleUnits, 1);
-      
+            
       const Event* ev = events[i];        // Why this? Can't we just pass events[i] in the function?
       UInt_t cls = ev->GetClass();
+
+      input[cls].emplace_back(visibleUnits, 1);
+      //totalInput.emplace_back(visibleUnits, 1); 
+      input[input.size()-1].emplace_back(visibleUnits, 1); 
+      evtsPerClass[cls]++; 
+      std::cout << cls << " " << evtsPerClass[cls] << std::endl; 
+
 
       Bool_t hasMaskedEntries = GetInput( ev, bareinput, mask );
 
@@ -410,27 +429,30 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
       //DAE.at(cls)->AddRow( dvec );
       //if (nCls > 1) DAE.at(numDAE-1)->AddRow( dvec );
-      TransformInputData(bareinput, input[i]); 
+      //std::cout << "First input transformation " << std::endl; 
+      TransformInputData(bareinput, transformedInput);     // Seems to be working 
+      //std::cout << "Second input transformation " << std::endl; 
+      //TransformInputData(bareinput, input[cls][evtsPerClass[cls]]);
+      input[cls][evtsPerClass[cls]] = transformedInput; 
+      input[input.size()-1][i] = transformedInput; 
+      std::cout << "Transformations succeded " << std::endl; 
    }
-   for (unsigned int i=0; i<input.size(); i++) 
+   /*for (unsigned int i=0; i<totalInput.size(); i++) 
    {
-      for (int j=0; j<input[i].GetNrows(); j++) 
+      for (int j=0; j<totalInput[i].GetNrows(); j++) 
       {
-         std::cout << input[i](j, 0) << " "; 
+         std::cout << totalInput[i](j, 0) << " "; 
       }
       std::cout << std::endl; 
-   }
+   }*/
    
    
    // delete possible leftovers
-   for (UInt_t i=0; i<fMeanValues.size(); i++)   if (fMeanValues[i]   != 0) delete fMeanValues[i];
-   for (UInt_t i=0; i<fEigenVectors.size(); i++) if (fEigenVectors[i] != 0) delete fEigenVectors[i];
-   fMeanValues.resize(numDAE,0);
-   fEigenVectors.resize(numDAE,0);
+   
 
    for (UInt_t i=0; i<numDAE; i++ ) {
       std::cout << "Training autoencoder " << i << std::endl; 
-      fAutoEncoder.at(i)->PreTrain(input, numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
+      fAutoEncoder.at(i)->PreTrain(input[i], numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout); 
       //fAutoEncoder.at(i)->PreTrain(input, std::vector<size_t>{2}, 0.1, 0.2, 0.2, 10, DNN::EActivationFunction::kSoftSign, kFALSE); 
 
    }
@@ -499,7 +521,7 @@ void TMVA::VariableDAETransform::TransformInputDataset( const std::vector< Event
    size_t numEvents = localEvents.size(); 
    for ( unsigned int i = 0; i<numEvents; i++ ) 
    {
-      input.emplace_back(visibleUnits, 1); 
+      //input.emplace_back(visibleUnits, 1); 
       for (unsigned int j = 0; j < visibleUnits; j++) 
       {
          localInputs[i](j, 0) = localEvents[i]->GetValues()[j]; 
