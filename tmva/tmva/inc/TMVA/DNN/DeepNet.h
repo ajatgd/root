@@ -43,6 +43,7 @@
 
 #include <vector>
 #include <cmath>
+//#include <iostream>
 
 using namespace TMVA::DNN::DAE;
 
@@ -77,6 +78,8 @@ private:
    size_t fBatchHeight; ///< The height of the batch used for training/testing.
    size_t fBatchWidth;  ///< The width of the batch used for training/testing.
 
+   Matrix_t fLocalWeights;
+   Matrix_t fLocalBiases;
 
    bool fIsTraining; ///< Is the network training?
 
@@ -92,9 +95,6 @@ private:
 
 public:
 
-
-   Matrix_t fLocalWeights;
-   Matrix_t fLocalBiases;
    /*! Default Constructor */
    TDeepAutoEncoder();
 
@@ -224,6 +224,8 @@ public:
    inline Scalar_t GetWeightDecay() const { return fWeightDecay; }
 
    /*! Setters */
+   inline void SetLocalWeights(size_t A, size_t B) {fLocalWeights(A,B);}
+   inline void SetLocalBiases(size_t A, size_t B) {fLocalBiases(A,B);}
    inline void SetBatchSize(size_t batchSize) { fBatchSize = batchSize; }
    inline void SetInputDepth(size_t inputDepth) { fInputDepth = inputDepth; }
    inline void SetInputHeight(size_t inputHeight) { fInputHeight = inputHeight; }
@@ -473,8 +475,28 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
       }
       //Architecture_t::Copy(fLocalWeights, fLayers[fLayers.size() - 2]->GetWeightsAt(0));
       //Architecture_t::Copy(fLocalBiases, fLayers[fLayers.size() - 2]->GetBiasesAt(0));
-      //fLayers.back()->Print();
+
+
    }
+   //this->fLocalWeights(fLayers.back()->GetWeightsAt(0).GetNrows(), fLayers.back()->GetWeightsAt(0).GetNcols())
+   //this->SetLocalBiases((size_t)fLayers.back()->GetBiasesAt(0).GetNrows(), 1);
+   this->fLocalWeights.ResizeTo(fLayers.back()->GetWeightsAt(0));
+   this->fLocalBiases.ResizeTo(fLayers.back()->GetBiasesAt(0));
+   Architecture_t::Copy(this->fLocalWeights , fLayers.back()->GetWeightsAt(0));
+   Architecture_t::Copy(this->fLocalBiases, fLayers.back()->GetBiasesAt(0));
+   std::cout<<"weights Rows:"<<this->fLocalWeights.GetNrows()<<std::endl;
+   /*std::cout<<"weights are"<<std::endl;
+
+   for(size_t i=0; i<(size_t)fLayers[fLayers.size() - 2]->GetWeightsAt(0).GetNrows(); i++)
+   {
+      for(size_t j=0; j<(size_t)fLayers[fLayers.size() - 2]->GetWeightsAt(0).GetNcols(); j++)
+      {
+         std::cout<<fLayers[fLayers.size() - 2]->GetWeightsAt(0)(i,j)<<"\t";
+      }
+      std::cout<<std::endl;
+   }*/
+
+   //fLayers.back()->Print();
 
    fWasPreTrained = true;
 }
@@ -536,6 +558,11 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
    Matrix_t output(2,1);
    Matrix_t weights(2,4);
    Matrix_t biases(2,1);
+   std::cout<<"weights rows:"<<this->fLocalWeights.GetNrows()<<std::endl;
+   std::cout<<"weights cols:"<<this->fLocalWeights.GetNcols()<<std::endl;
+   std::cout<<"biases rows:"<<this->fLocalBiases.GetNrows()<<std::endl;
+   std::cout<<"biases cols:"<<this->fLocalBiases.GetNcols()<<std::endl;
+   std::cout<<"Weights rows from layers"<<fLayers.back()->GetWeightsAt(0).GetNrows()<<std::endl;
    //Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
   // Matrix_t output(fLocalWeights.GetNrows(),1);
    std::cout << "Created output matrix. " << std::endl;
