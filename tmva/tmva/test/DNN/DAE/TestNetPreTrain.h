@@ -68,6 +68,8 @@ template <typename Architecture> auto constructDeepAutoEncoderNet(TDeepAutoEncod
                 learningRate, corruptionLevel,
                 dropoutProbability, epochs,
                 EActivationFunction::kSigmoid, false);
+    Matrix_t Input(visibleUnits,1);
+    net.Predict(Input);
 }
 
 template <typename Architecture> auto testNet()
