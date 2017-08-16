@@ -534,7 +534,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
 template <typename Architecture_t, typename Layer_t>
 typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Predict(Matrix_t& input)
 {
-   std::cout << "Starting predict " << std::endl; 
+   std::cout << "Starting predict " << std::endl;
    if (fWasPreTrained == false)
    {
       Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
@@ -557,7 +557,7 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
       output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0);
    }*/
    Matrix_t output(2,1);
-   Matrix_t weights(2,4);
+   Matrix_t weights(2,3);
    Matrix_t biases(2,1);
    std::cout<<"weights rows:"<<this->fLocalWeights.GetNrows()<<std::endl;
    std::cout<<"weights cols:"<<this->fLocalWeights.GetNcols()<<std::endl;
