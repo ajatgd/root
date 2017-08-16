@@ -87,7 +87,7 @@ private:
    EInitialization fI;    ///< The initialization method of the network.
    ERegularization fR;    ///< The regularization used for the network.
    Scalar_t fWeightDecay; ///< The weight decay factor.
-   bool fWasPreTrained;    ///< If PreTrain wa executed.
+   bool fWasPreTrained;   ///< If PreTrain wa executed.
 
    MsgLogger* fLogger;                     //! message logger
 
@@ -534,7 +534,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
 template <typename Architecture_t, typename Layer_t>
 typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Predict(Matrix_t& input)
 {
-   if (fWasPreTrained == false)
+   //if (fWasPreTrained == false)
    {
       Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
    }

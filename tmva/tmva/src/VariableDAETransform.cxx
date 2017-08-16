@@ -188,6 +188,11 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    TransformInputData(localInput, transformedEvents[0]); 
    std::cout << "Forward Tranformation finished " << std::endl; 
    encodedEvent.ResizeTo(numCompressedUnits, 1); 
+   for (unsigned int i=0; i<transformedEvents[0].GetNrows(); i++) 
+   {
+      std::cout << transformedEvents[0](i, 0) << " " ;
+   }
+   std::cout << std::endl; 
 
    //for (unsigned int i=0; i<fAutoEncoder.size(); i++) 
    {
@@ -404,7 +409,10 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
       input[cls].emplace_back(visibleUnits, 1);
       //totalInput.emplace_back(visibleUnits, 1); 
-      input[input.size()-1].emplace_back(visibleUnits, 1); 
+      if (nCls > 1) 
+      {
+         input[input.size()-1].emplace_back(visibleUnits, 1);
+      } 
       evtsPerClass[cls]++; 
       std::cout << cls << " " << evtsPerClass[cls] << std::endl; 
 
@@ -434,7 +442,10 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
       //std::cout << "Second input transformation " << std::endl; 
       //TransformInputData(bareinput, input[cls][evtsPerClass[cls]]);
       input[cls][evtsPerClass[cls]] = transformedInput; 
-      input[input.size()-1][i] = transformedInput; 
+      if (nCls > 1) 
+      {
+        input[input.size()-1][i] = transformedInput; 
+      }
       std::cout << "Transformations succeded " << std::endl; 
    }
    /*for (unsigned int i=0; i<totalInput.size(); i++) 
