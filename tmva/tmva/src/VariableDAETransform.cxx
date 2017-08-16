@@ -318,7 +318,7 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
 
 void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>& events )
 {
-   size_t BatchSize = 1;
+   //size_t BatchSize = 1;
    size_t InputDepth = 1;     // Just put 1 here
    size_t InputHeight = 1; 
    size_t InputWidth = 1; 
@@ -354,7 +354,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    // if we have more than one class, add another PCA analysis which combines all classes
    const UInt_t nCls = GetNClasses();
-   const UInt_t numDAE = (nCls<=1) ? nCls : nCls+1;
+   const UInt_t numDAE = (nCls<=1) ? 1 : nCls+1;
 // ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
    // PCA [signal/background/class x/class y/... /all classes]
@@ -371,12 +371,6 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    numHiddenUnitsPerLayer.clear();
    numHiddenUnitsPerLayer.push_back(visibleUnits); 
    numHiddenUnitsPerLayer.push_back(2); 
-
-   BatchSize = 1; //numEvents; 
-
-   for (UInt_t i=0; i<numDAE; i++) fAutoEncoder.push_back( new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(BatchSize, InputDepth, InputHeight, InputWidth, 
-                                       BatchDepth, BatchHeight, BatchWidth, fJ, fI, fR, fWeightDecay, isTraining) ); 
-
 
    //TransformInputDataset(events, input); 
 
@@ -456,10 +450,25 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
       }
       std::cout << std::endl; 
    }*/
+   for (unsigned int i=0; i<nCls; i++) 
+   {
+      evtsPerClass[i]++;      // Setting it at the right size value of the dataset. 
+   }
+   if (nCls > 1) 
+   {
+      evtsPerClass.push_back(numEvents-1); 
+   }
+   std::cout << evtsPerClass.size() << " " << numDAE << std::endl; 
    
    
-   // delete possible leftovers
+   //BatchSize = 1; //numEvents; 
+
+   for (UInt_t i=0; i<numDAE; i++) fAutoEncoder.push_back( new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(input[i].size(), InputDepth, InputHeight, InputWidth, 
+                                       BatchDepth, BatchHeight, BatchWidth, fJ, fI, fR, fWeightDecay, isTraining) ); 
+
+
    
+
 
    for (UInt_t i=0; i<numDAE; i++ ) {
       std::cout << "Training autoencoder " << i << std::endl; 

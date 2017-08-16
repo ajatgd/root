@@ -534,7 +534,8 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
 template <typename Architecture_t, typename Layer_t>
 typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Predict(Matrix_t& input)
 {
-   //if (fWasPreTrained == false)
+   std::cout << "Starting predict " << std::endl; 
+   if (fWasPreTrained == false)
    {
       Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
    }
