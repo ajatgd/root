@@ -92,7 +92,6 @@ namespace TMVA {
       //TCompressionLayer fEncoder; 
 
       std::vector<std::vector<Matrix_t> > input;   // One DAE per class plus one extra for all classes together. 
-      std::vector<Matrix_t> totalInput; 
       //std::vector<Matrix_t> output; 
 
       Int_t numCompressedUnits; 

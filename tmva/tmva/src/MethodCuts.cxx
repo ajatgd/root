@@ -587,13 +587,13 @@ void  TMVA::MethodCuts::Train( void )
    // treat signal and background one must decide which transformation type shall
    // be used: our default is signal-type
 
-   const std::vector<TMVA::Event*>& eventCollectionTraining = GetEventCollection (Types::kTraining);
-   const std::vector<TMVA::Event*>& eventCollectionTesting  = GetEventCollection (Types::kTesting);
+   const std::vector<TMVA::Event*> eventCollectionTraining = GetEventCollection(Types::kTraining); //GetTransformationHandler().CalcTransformations(Data()->GetEventCollection(Types::kTraining), true);
+   const std::vector<TMVA::Event*> eventCollectionTesting  = GetEventCollection(Types::kTraining); //GetTransformationHandler().CalcTransformations(Data()->GetEventCollection(Types::kTesting), true); 
    for (unsigned int i=0; i<eventCollectionTraining.size(); i++) 
    {
       for (unsigned int j=0; j<eventCollectionTraining[i]->GetValues().size(); j++) 
       {
-        std::cout << eventCollectionTraining[i]->GetValue(j) << " "; 
+        std::cout << eventCollectionTraining.at(i)->GetValue(j) << " "; 
       }
       std::cout << std::endl; 
    }

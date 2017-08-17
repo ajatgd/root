@@ -208,6 +208,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    //encodedEvent(1, 0) = 2.0;
    BackTransformOutputData(encodedEvent, localOutput); 
    std::cout << "Backward transformation finished " << std::endl; 
+   std::cout << "Output size : " << localOutput.size() << std::endl;
    //X2P( principalComponents, localInput, cls );
    for (unsigned int i=numCompressedUnits; i<mask.size(); i++) 
    {
@@ -220,6 +221,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    }
    std::cout << std::endl; 
    SetOutput( fTransformedEvent, localOutput, mask, ev ); 
+   std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl; 
    std::cout << "Setting output succeded. " << std::endl; 
 
    return fTransformedEvent;
