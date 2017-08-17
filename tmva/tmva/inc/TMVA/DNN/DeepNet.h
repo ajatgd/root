@@ -434,7 +434,6 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
    //fLayers.back()->Print();
 
    for (size_t i = 1; i < numOfHiddenLayers; i++) {
-
       AddCorruptionLayer(numHiddenUnitsPerLayer[i - 1], numHiddenUnitsPerLayer[i], dropoutProbability, corruptionLevel);
       fLayers.back()->Initialize();
       fLayers.back()->Forward(fLayers[fLayers.size() - 3]->GetOutput(),
@@ -473,6 +472,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
 
 
       }
+
       //Architecture_t::Copy(fLocalWeights, fLayers[fLayers.size() - 2]->GetWeightsAt(0));
       //Architecture_t::Copy(fLocalBiases, fLayers[fLayers.size() - 2]->GetBiasesAt(0));
 
@@ -480,11 +480,18 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
    }
    //this->fLocalWeights(fLayers.back()->GetWeightsAt(0).GetNrows(), fLayers.back()->GetWeightsAt(0).GetNcols())
    //this->SetLocalBiases((size_t)fLayers.back()->GetBiasesAt(0).GetNrows(), 1);
-   this->fLocalWeights.ResizeTo(fLayers.back()->GetWeightsAt(0));
-   this->fLocalBiases.ResizeTo(fLayers.back()->GetBiasesAt(0));
-   Architecture_t::Copy(this->fLocalWeights , fLayers.back()->GetWeightsAt(0));
-   Architecture_t::Copy(this->fLocalBiases, fLayers.back()->GetBiasesAt(0));
-   std::cout<<"weights Rows:"<<this->fLocalWeights.GetNrows()<<std::endl;
+   this->fLocalWeights.ResizeTo(fLayers[fLayers.size() - 4]->GetWeightsAt(0));
+   this->fLocalBiases.ResizeTo(fLayers[fLayers.size() - 4]->GetBiasesAt(0));
+   Architecture_t::Copy(this->fLocalWeights , fLayers[fLayers.size() - 4]->GetWeightsAt(0));
+   Architecture_t::Copy(this->fLocalBiases, fLayers[fLayers.size() - 4]->GetBiasesAt(0));
+   std::cout<<"total hidden units "<<numOfHiddenLayers<<std::endl;
+   //std::cout<<"epochs "<<d<<std::endl;
+   std::cout<<"hidden Unit 1 "<<" is "<<numHiddenUnitsPerLayer[0]<<std::endl;
+   std::cout<<"hidden Unit 2 "<<" is "<<numHiddenUnitsPerLayer[1]<<std::endl;
+   std::cout<<"hidden Unit 3 "<<" is "<<numHiddenUnitsPerLayer[2]<<std::endl;
+
+   std::cout<<"weights Rows:"<<fLayers[fLayers.size() - 7]->GetWeightsAt(0).GetNrows()<<std::endl;
+   std::cout<<"weights Cols:"<<fLayers[fLayers.size() - 7]->GetWeightsAt(0).GetNcols()<<std::endl;
    /*std::cout<<"weights are"<<std::endl;
 
    for(size_t i=0; i<(size_t)fLayers[fLayers.size() - 2]->GetWeightsAt(0).GetNrows(); i++)
@@ -556,9 +563,9 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
    {
       output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0);
    }*/
-   Matrix_t output(2,1);
-   Matrix_t weights(2,4);
-   Matrix_t biases(2,1);
+   Matrix_t output(this->fLocalWeights.GetNrows(),1);
+   Matrix_t weights(this->fLocalWeights.GetNrows(),this->fLocalWeights.GetNcols());
+   Matrix_t biases(this->fLocalWeights.GetNrows(),1);
    std::cout<<"weights rows:"<<this->fLocalWeights.GetNrows()<<std::endl;
    std::cout<<"weights cols:"<<this->fLocalWeights.GetNcols()<<std::endl;
    std::cout<<"biases rows:"<<this->fLocalBiases.GetNrows()<<std::endl;
