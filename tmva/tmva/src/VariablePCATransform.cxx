@@ -315,6 +315,7 @@ void TMVA::VariablePCATransform::P2X( std::vector<Float_t>& x, const std::vector
 void TMVA::VariablePCATransform::WriteTransformationToStream( std::ostream& o ) const
 {
    for (Int_t sbType=0; sbType<2; sbType++) {
+      #pragma("Why are there only two classes here?"); 
       o << "# PCA mean values " << std::endl;
       const TVectorD* means = fMeanValues[sbType];
       o << (sbType==0 ? "Signal" : "Background") << " " << means->GetNrows() << std::endl;

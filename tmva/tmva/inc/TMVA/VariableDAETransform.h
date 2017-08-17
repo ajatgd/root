@@ -88,15 +88,12 @@ namespace TMVA {
       void TransformInputData( const std::vector<Float_t>& localEvent, Matrix_t& remoteInputs) const; 
       void BackTransformOutputData(const Matrix_t&, std::vector<Float_t>&) const; 
 
-      void X2P( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
-      void P2X( std::vector<Float_t>&, const std::vector<Float_t>&, Int_t cls ) const;
-
       std::vector<DNN::TDeepAutoEncoder<Architecture_t>* > fAutoEncoder; 
       //TCompressionLayer fEncoder; 
 
       std::vector<std::vector<Matrix_t> > input;   // One DAE per class plus one extra for all classes together. 
       std::vector<Matrix_t> totalInput; 
-      std::vector<Matrix_t> output; 
+      //std::vector<Matrix_t> output; 
 
       Int_t numCompressedUnits; 
 

@@ -307,7 +307,7 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
    std::vector<Float_t> output;
 
    GetInput( ev, principalComponents, mask, kTRUE );
-   P2X( output, principalComponents, cls );
+   //P2X( output, principalComponents, cls );
    SetOutput( fBackTransformedEvent, output, mask, ev, kTRUE );
 
    return fBackTransformedEvent;
@@ -579,43 +579,6 @@ void TMVA::VariableDAETransform::BackTransformOutputData( const Matrix_t& autoen
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// Calculate the principal components from the original data vector
-/// x, and return it in p (function extracted from TPrincipal::X2P)
-/// It's the users responsibility to make sure that both x and p are
-/// of the right size (i.e., memory must be allocated for p)
-
-void TMVA::VariableDAETransform::X2P( std::vector<Float_t>& pc, const std::vector<Float_t>& x, Int_t cls ) const
-{
-   const Int_t nInput = x.size();
-   pc.assign(nInput,0);
-
-   for (Int_t i = 0; i < nInput; i++) {
-      Double_t pv = 0;
-      for (Int_t j = 0; j < nInput; j++)
-         pv += (((Double_t)x.at(j)) - (*fMeanValues.at(cls))(j)) * (*fEigenVectors.at(cls))(j,i);
-      pc[i] = pv;
-   }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Perform the back-transformation from the principal components
-/// pc, and return x
-/// It's the users responsibility to make sure that both x and pc are
-/// of the right size (i.e., memory must be allocated for p)
-
-void TMVA::VariableDAETransform::P2X( std::vector<Float_t>& x, const std::vector<Float_t>& pc, Int_t cls ) const
-{
-   const Int_t nInput = pc.size();
-   x.assign(nInput,0);
-
-   for (Int_t i = 0; i < nInput; i++) {
-      Double_t xv = 0;
-      for (Int_t j = 0; j < nInput; j++)
-         xv += (((Double_t)pc.at(j)) * (*fEigenVectors.at(cls))(i,j) ) + (*fMeanValues.at(cls))(j);
-      x[i] = xv;
-   }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// write mean values to stream
@@ -623,12 +586,12 @@ void TMVA::VariableDAETransform::P2X( std::vector<Float_t>& x, const std::vector
 void TMVA::VariableDAETransform::WriteTransformationToStream( std::ostream& o ) const
 {
    for (Int_t sbType=0; sbType<2; sbType++) {
-      o << "# PCA mean values " << std::endl;
-      const TVectorD* means = fMeanValues[sbType];
-      o << (sbType==0 ? "Signal" : "Background") << " " << means->GetNrows() << std::endl;
-      for (Int_t row = 0; row<means->GetNrows(); row++) {
-         o << std::setprecision(12) << std::setw(20) << (*means)[row];
-      }
+      o << "Deep autoencoder output values " << std::endl;
+      //const TVectorD* means = fMeanValues[sbType];
+      //o << (sbType==0 ? "Signal" : "Background") << " " << means->GetNrows() << std::endl;
+      //for (Int_t row = 0; row<means->GetNrows(); row++) {
+      //   o << std::setprecision(12) << std::setw(20) << (*means)[row];
+      //}
       o << std::endl;
    }
    o << "##" << std::endl;

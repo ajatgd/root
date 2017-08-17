@@ -587,6 +587,17 @@ void  TMVA::MethodCuts::Train( void )
    // treat signal and background one must decide which transformation type shall
    // be used: our default is signal-type
 
+   const std::vector<TMVA::Event*>& eventCollectionTraining = GetEventCollection (Types::kTraining);
+   const std::vector<TMVA::Event*>& eventCollectionTesting  = GetEventCollection (Types::kTesting);
+   for (unsigned int i=0; i<eventCollectionTraining.size(); i++) 
+   {
+      for (unsigned int j=0; j<eventCollectionTraining[i]->GetValues().size(); j++) 
+      {
+        std::cout << eventCollectionTraining[i]->GetValue(j) << " "; 
+      }
+      std::cout << std::endl; 
+   }
+
    fBinaryTreeS = new BinarySearchTree();
    fBinaryTreeS->Fill( GetEventCollection(Types::kTraining), fSignalClass );
    fBinaryTreeB = new BinarySearchTree();

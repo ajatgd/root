@@ -212,7 +212,7 @@ const std::vector<TMVA::Event*>* TMVA::TransformationHandler::CalcTransformation
    // as intended for the chained transformations
    std::vector<Event*> *transformedEvents = new std::vector<TMVA::Event*>(events.size());
    for ( UInt_t ievt = 0; ievt<events.size(); ievt++)
-      transformedEvents->at(ievt) = new Event(*events.at(ievt));
+      transformedEvents->at(ievt) = new Event(*events.at(ievt));     // Why not passing directly the transformed events? 
 
    TListIter trIt(&fTransformations);
    std::vector< Int_t >::iterator rClsIt = fTransformationsReferenceClasses.begin();
