@@ -59,7 +59,7 @@
 #include "TMVA/Tools.h"
 #include "TMVA/TMVAGui.h"
 
-int TMVAClassificationoriginal_copy( TString myMethodList = "" )
+int DAETransform( TString myMethodList = "" )
 {
    // The explicit loading of the shared libTMVA is done in TMVAlogon.C, defined in .rootrc
    // if you use your private .rootrc, or run from a different directory, please copy the
@@ -304,7 +304,7 @@ int TMVAClassificationoriginal_copy( TString myMethodList = "" )
    // Cut optimisation
    if (Use["Cuts"])
       factory->BookMethod( dataloader, TMVA::Types::kCuts, "Cuts",
-                           "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart" );
+                           "!H:!V:FitMethod=MC:EffSel:VarTransform=A:SampleSize=200000:VarProp=FSmart" );
 
    if (Use["CutsD"])
       factory->BookMethod( dataloader, TMVA::Types::kCuts, "CutsD",
@@ -560,5 +560,5 @@ int main( int argc, char** argv )
       if (!methodList.IsNull()) methodList += TString(",");
       methodList += regMethod;
    }
-   return TMVAClassificationoriginal_copy(methodList);
+   return DAETransform(methodList);
 }

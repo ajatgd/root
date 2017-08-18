@@ -804,26 +804,25 @@ void TMVA::VariableDAETransform::ReadTransformationFromStream( std::istream& ist
 void TMVA::VariableDAETransform::MakeFunction( std::ostream& fout, const TString& fcncName,
                                                Int_t part, UInt_t trCounter, Int_t )
 {
-   UInt_t nvar = fEigenVectors[0]->GetNrows();
+   /*UInt_t nvar = input[0][0].GetNrows();
 
    // creates a PCA transformation function
-   UInt_t numC = fMeanValues.size();
+   UInt_t numC = input.size();
    if (part==1) {
       fout << std::endl;
-      fout << "   void X2P_"<<trCounter<<"( const double*, double*, int ) const;" << std::endl;
-      fout << "   double fMeanValues_"<<trCounter<<"["<<numC<<"]["
-           << fMeanValues[0]->GetNrows()   << "];" << std::endl;   // mean values
-      fout << "   double fEigenVectors_"<<trCounter<<"["<<numC<<"]["
-           << fEigenVectors[0]->GetNrows() << "]["
-           << fEigenVectors[0]->GetNcols() <<"];" << std::endl;   // eigenvectors
+      fout << "   void Transform_"<<trCounter<<"( const double*, double*, int ) const;" << std::endl;
+      fout << "   double input_"<<trCounter<<"["<<numC<<"]["
+           << input[0].GetNrows()   << "];" << std::endl;   // mean values
+      fout << "   double output_"<<trCounter<<"["<<numC<<"]["
+           << input[0].GetNrows() << "]["
+           << output[0].GetNcols() <<"];" << std::endl;   // eigenvectors
       fout << std::endl;
    }
 
    // sanity check
-   if (numC>1){
-      if (fMeanValues[0]->GetNrows()   != fMeanValues[1]->GetNrows() ||
-          fEigenVectors[0]->GetNrows() != fEigenVectors[1]->GetNrows() ||
-          fEigenVectors[0]->GetNcols() != fEigenVectors[1]->GetNcols()) {
+   /*if (numC>1){
+      if (input[0][0]->GetNrows()   != input[1][0]->GetNrows() ||
+          output[0][0]->GetNrows() != output[1][0]->GetNrows() ||) {
          Log() << kFATAL << "<MakeFunction> Mismatch in vector/matrix dimensions" << Endl;
       }
    }
@@ -832,7 +831,7 @@ void TMVA::VariableDAETransform::MakeFunction( std::ostream& fout, const TString
 
       fout << std::endl;
       fout << "//_______________________________________________________________________" << std::endl;
-      fout << "inline void " << fcncName << "::X2P_"<<trCounter<<"( const double* x, double* p, int index ) const" << std::endl;
+      fout << "inline void " << fcncName << "::Transform_"<<trCounter<<"( const double* x, double* p, int index ) const" << std::endl;
       fout << "{" << std::endl;
       fout << "   // Calculate the principal components from the original data vector" << std::endl;
       fout << "   // x, and return it in p (function extracted from TPrincipal::X2P)" << std::endl;
@@ -900,5 +899,5 @@ void TMVA::VariableDAETransform::MakeFunction( std::ostream& fout, const TString
       fout << "   delete [] dv;" << std::endl;
       fout << "   delete [] rv;" << std::endl;
       fout << "}" << std::endl;
-   }
+   }*/
 }
