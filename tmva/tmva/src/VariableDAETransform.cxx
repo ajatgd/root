@@ -341,7 +341,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    size_t epochs = 50; 
    DNN::EActivationFunction activation; 
    bool applyDropout = false; 
-   activation = DNN::EActivationFunction::kSoftSign; 
+   activation = DNN::EActivationFunction::kSigmoid; 
 
    numCompressedUnits = numHiddenUnitsPerLayer.back(); 
 

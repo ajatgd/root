@@ -303,6 +303,16 @@ const std::vector<Float_t>& TMVA::Event::GetValues() const
    return fValues;
 }
 
+void TMVA::Event::ResizeValues(int newSize) 
+{
+  fValues = std::vector<Float_t>(newSize); 
+  //std::cout << fValues.size() << std::endl; 
+}
+
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 /// accessor to the number of variables
 

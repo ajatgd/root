@@ -202,7 +202,7 @@ const TMVA::Event* TMVA::TransformationHandler::InverseTransform( const Event* e
 
 const std::vector<TMVA::Event*>* TMVA::TransformationHandler::CalcTransformations( const std::vector<Event*>& events,
                                                                                    Bool_t createNewVector )
-{
+{ 
    if (fTransformations.GetEntries() <= 0)
       return &events;
 
@@ -224,11 +224,12 @@ const std::vector<TMVA::Event*>* TMVA::TransformationHandler::CalcTransformation
          rClsIt++;
       }
    }
+   std::cout << "Transformations succeded " << int(bool(createNewVector)) << std::endl; 
 
-   CalcStats(*transformedEvents);
+   //CalcStats(*transformedEvents);
 
    // plot the variables once in this transformation
-   PlotVariables(*transformedEvents);
+   //PlotVariables(*transformedEvents);
 
    //sometimes, the actual transformed event vector is not used for anything but the previous
    //CalcStat and PlotVariables calles, in that case, we delete it again (and return NULL)

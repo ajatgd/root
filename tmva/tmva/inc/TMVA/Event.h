@@ -94,6 +94,8 @@ namespace TMVA {
          }
       const std::vector<Float_t>& GetValues() const;
 
+      void ResizeValues(int); 
+
       Float_t  GetTarget( UInt_t itgt ) const { return fTargets.at(itgt); }
       std::vector<Float_t>& GetTargets()  { return fTargets; }
       const std::vector<Float_t>& GetTargets() const { return fTargets; }

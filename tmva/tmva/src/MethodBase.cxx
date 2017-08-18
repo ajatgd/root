@@ -98,6 +98,7 @@
 #include "TMVA/VariableInfo.h"
 #include "TMVA/VariableNormalizeTransform.h"
 #include "TMVA/VariablePCATransform.h"
+#include "TMVA/VariableDAETransform.h"
 #include "TMVA/VariableTransform.h"
 #include "TMVA/Version.h"
 
@@ -666,6 +667,7 @@ void TMVA::MethodBase::TrainMethod()
    // once calculate all the transformation (e.g. the sequence of Decorr:Gauss:Decorr)
    //    needed for this classifier
    GetTransformationHandler().CalcTransformations(Data()->GetEventCollection());
+   std::cout << "First time CalcTransformation " << std::endl; 
 
    // call training of derived MVA
    Log() << kDEBUG //<<Form("\tDataset[%s] : ",DataInfo().GetName())
@@ -1621,6 +1623,8 @@ void TMVA::MethodBase::ReadStateFromStream( std::istream& fin )
    } else if ( fVarTransformString == "GaussDecorr" ) {
       varTrafo  = GetTransformationHandler().AddTransformation( new VariableGaussTransform(DataInfo()), -1 );
       varTrafo2 = GetTransformationHandler().AddTransformation( new VariableDecorrTransform(DataInfo()), -1 );
+   } else if ( fVarTransformString == "DAE"  ) {
+      varTrafo = GetTransformationHandler().AddTransformation( new VariableDAETransform(DataInfo()), -1 );
    } else {
       Log() << kFATAL <<Form("Dataset[%s] : ",DataInfo().GetName())<< "<ProcessOptions> Variable transform '"
             << fVarTransformString << "' unknown." << Endl;
@@ -3268,6 +3272,7 @@ const std::vector<TMVA::Event*>& TMVA::MethodBase::GetEventCollection( Types::ET
    // if there's no variable transformation for this classifier, just hand back the
    //  event collection of the data set
    if (GetTransformationHandler().GetTransformationList().GetEntries() <= 0) {
+      std::cout << "No transformation available " << std::endl; 
       return (Data()->GetEventCollection(type));
    }
 
@@ -3279,6 +3284,7 @@ const std::vector<TMVA::Event*>& TMVA::MethodBase::GetEventCollection( Types::ET
       fEventCollections.at(idx) = &(Data()->GetEventCollection(type));
       fEventCollections.at(idx) = GetTransformationHandler().CalcTransformations(*(fEventCollections.at(idx)),kTRUE);
    }
+   std::cout << "Applied transformations " << std::endl; 
    return *(fEventCollections.at(idx));
 }
 

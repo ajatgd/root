@@ -2050,6 +2050,7 @@ void TMVA::Factory::EvaluateAllMethods( void )
    }//end for MethodsMap
    // references for citation
    gTools().TMVACitation( Log(), Tools::kHtmlLink );
+   std::cout << "Yo" << std::endl; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -598,6 +598,7 @@ void  TMVA::MethodCuts::Train( void )
       std::cout << std::endl; 
    }
 
+   std::cout << "Maybe second time CalcTransformations is called " << std::endl; 
    fBinaryTreeS = new BinarySearchTree();
    fBinaryTreeS->Fill( GetEventCollection(Types::kTraining), fSignalClass );
    fBinaryTreeB = new BinarySearchTree();
