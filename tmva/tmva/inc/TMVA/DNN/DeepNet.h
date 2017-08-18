@@ -484,6 +484,15 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
    this->fLocalBiases.ResizeTo(fLayers[fLayers.size() - 4]->GetBiasesAt(0));
    Architecture_t::Copy(this->fLocalWeights , fLayers[fLayers.size() - 4]->GetWeightsAt(0));
    Architecture_t::Copy(this->fLocalBiases, fLayers[fLayers.size() - 4]->GetBiasesAt(0));
+   std::cout<<"Weights are: "<<std::endl;
+   for(size_t i=0; i<(size_t)fLayers[fLayers.size() - 4]->GetWeightsAt(0).GetNrows(); i++)
+      {
+         for(size_t j=0; j<(size_t)fLayers[fLayers.size() - 4]->GetWeightsAt(0).GetNcols(); j++)
+         {
+            std::cout<<fLayers[fLayers.size() - 4]->GetWeightsAt(0)(i,j)<<"\t";
+	 }
+         std::cout<<std::endl;
+      }
    std::cout<<"total hidden units "<<numOfHiddenLayers<<std::endl;
    //std::cout<<"epochs "<<d<<std::endl;
    std::cout<<"hidden Unit 1 "<<" is "<<numHiddenUnitsPerLayer[0]<<std::endl;
@@ -571,17 +580,26 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
    std::cout<<"biases rows:"<<this->fLocalBiases.GetNrows()<<std::endl;
    std::cout<<"biases cols:"<<this->fLocalBiases.GetNcols()<<std::endl;
    std::cout<<"Weights rows from layers"<<fLayers.back()->GetWeightsAt(0).GetNrows()<<std::endl;
+   std::cout<<"Weights are: "<<std::endl;
+   for(size_t i=0; i<(size_t)this->fLocalWeights.GetNrows(); i++)
+      {
+         for(size_t j=0; j<(size_t)this->fLocalWeights.GetNcols(); j++)
+         {
+            std::cout<<this->fLocalWeights(i,j)<<"\t";
+	       }
+         std::cout<<std::endl;
+      }
    //Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
   // Matrix_t output(fLocalWeights.GetNrows(),1);
    std::cout << "Created output matrix. " << std::endl;
    Architecture_t::EncodeInput(input,
-                               output,weights
+                               output,this->fLocalWeights
                                /*fLocalWeights*//*GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0)*/);
    std::cout << "Encoded input. " << std::endl;
-   Architecture_t::AddBiases(output,biases
+   Architecture_t::AddBiases(output,this->fLocalBiases
                              /*fLocalBiases*//*GetLayerAt(GetLayers().size()-2)->GetBiasesAt(0)*/);
    std::cout << "Added biases. " << std::endl;
-   evaluate<Architecture_t>(output, DNN::EActivationFunction::kSigmoid);
+   //evaluate<Architecture_t>(output, DNN::EActivationFunction::kSigmoid);
    std::cout << "Evaluated " << std::endl;
    std::cout << "Dim of output " << output.GetNrows() << std::endl;
    return output;
