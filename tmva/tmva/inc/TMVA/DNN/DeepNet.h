@@ -1,5 +1,5 @@
 // @(#)root/tmva/tmva/dnn:$Id$
-// Author: Vladimir Ilievski
+// Author: Akshay Vashistha
 
 /**********************************************************************************
  * Project: TMVA - a Root-integrated toolkit for multivariate data analysis       *
@@ -78,9 +78,9 @@ private:
    size_t fBatchHeight; ///< The height of the batch used for training/testing.
    size_t fBatchWidth;  ///< The width of the batch used for training/testing.
 
-   Matrix_t fLocalWeights;
-   Matrix_t fLocalHiddenBiases;
-   Matrix_t fLocalVisibleBiases;
+   std::vector<Matrix_t> fLocalWeights; ///< Storing weights of all layers
+   std::vector<Matrix_t> fLocalHiddenBiases; ///< Storing hidden biases locally for all layers
+   std::vector<Matrix_t> fLocalVisibleBiases; ///< Stroring visible biases locally for all layers
 
    bool fIsTraining; ///< Is the network training?
 
@@ -174,7 +174,7 @@ public:
    void FineTune(std::vector<Matrix_t> &input, std::vector<Matrix_t> &testInput, std::vector<Matrix_t> &outputLabel,
                  size_t outputUnits, size_t testDataBatchSize, Scalar_t learningRate, size_t epochs);
 
-   Matrix_t Predict(Matrix_t& input);
+   Matrix_t PredictCompressedOutput(Matrix_t& input);
    Matrix_t PredictDecodedOutput(Matrix_t& input);
 
    /*! Prediction based on activations stored in the last layer. */
@@ -207,15 +207,28 @@ public:
    inline size_t GetInputHeight() const { return fInputHeight; }
    inline size_t GetInputWidth() const { return fInputWidth; }
 
-   const Matrix_t &GetLocalWeights() const { return fLocalWeights; }
-   Matrix_t &GetLocalWeights() { return fLocalWeights; }
-
-   const Matrix_t &GetLocalBiases() const { return fLocalHiddenBiases; }
-   Matrix_t &GetLocalBiases() { return fLocalHiddenBiases; }
-
    inline size_t GetBatchDepth() const { return fBatchDepth; }
    inline size_t GetBatchHeight() const { return fBatchHeight; }
    inline size_t GetBatchWidth() const { return fBatchWidth; }
+
+   const std::vector<Matrix_t> &GetLocalWeights() const { return fLocalWeights; }
+   std::vector<Matrix_t> &GetLocalWeights() { return fLocalWeights; }
+
+   const Matrix_t &GetLocalWeightsAt(size_t i) const { return fLocalWeights[i]; }
+   Matrix_t &GetLocalWeightsAt(size_t i) { return fLocalWeights[i]; }
+
+   const std::vector<Matrix_t> &GetLocalHiddenBiases() const { return fLocalHiddenBiases; }
+   std::vector<Matrix_t> &GetLocalHiddenBiases() { return fLocalHiddenBiases; }
+
+   const Matrix_t &GetLocalHiddenBiasesAt(size_t i) const { return fLocalHiddenBiases[i]; }
+   Matrix_t &GetLocalHiddenBiasesAt(size_t i) { return fLocalHiddenBiases[i]; }
+
+   const std::vector<Matrix_t> &GetLocalVisibleBiases() const { return fLocalVisibleBiases; }
+   std::vector<Matrix_t> &GetLocalVisibleBiases() { return fLocalVisibleBiases; }
+
+   const Matrix_t &GetLocalVisibleBiasesAt(size_t i) const { return fLocalVisibleBiases[i]; }
+   Matrix_t &GetLocalVisibleBiasesAt(size_t i) { return fLocalVisibleBiases[i]; }
+
 
    inline bool IsTraining() const { return fIsTraining; }
    inline bool GetWasPreTrained() const {return fWasPreTrained;}
@@ -226,8 +239,6 @@ public:
    inline Scalar_t GetWeightDecay() const { return fWeightDecay; }
 
    /*! Setters */
-   inline void SetLocalWeights(size_t A, size_t B) {fLocalWeights(A,B);}
-   inline void SetLocalBiases(size_t A, size_t B) {fLocalHiddenBiases(A,B);}
    inline void SetBatchSize(size_t batchSize) { fBatchSize = batchSize; }
    inline void SetInputDepth(size_t inputDepth) { fInputDepth = inputDepth; }
    inline void SetInputHeight(size_t inputHeight) { fInputHeight = inputHeight; }
@@ -475,48 +486,30 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
 
       }
 
-      //Architecture_t::Copy(fLocalWeights, fLayers[fLayers.size() - 2]->GetWeightsAt(0));
-      //Architecture_t::Copy(fLocalHiddenBiases, fLayers[fLayers.size() - 2]->GetBiasesAt(0));
-
-
    }
-   //this->fLocalWeights(fLayers.back()->GetWeightsAt(0).GetNrows(), fLayers.back()->GetWeightsAt(0).GetNcols())
-   //this->SetLocalBiases((size_t)fLayers.back()->GetBiasesAt(0).GetNrows(), 1);
-   this->fLocalWeights.ResizeTo(fLayers[fLayers.size() - 4]->GetWeightsAt(0));
-   this->fLocalHiddenBiases.ResizeTo(fLayers[fLayers.size() - 4]->GetBiasesAt(0));
-   Architecture_t::Copy(this->fLocalWeights , fLayers[fLayers.size() - 4]->GetWeightsAt(0));
-   Architecture_t::Copy(this->fLocalHiddenBiases, fLayers[fLayers.size() - 4]->GetBiasesAt(0));
-   Architecture_t::Copy(this->fLocalVisibleBiases, fLayers[fLayers.size() - 4]->GetBiasesAt(1));
-   std::cout<<"Weights are: "<<std::endl;
-   for(size_t i=0; i<(size_t)fLayers[fLayers.size() - 4]->GetWeightsAt(0).GetNrows(); i++)
+
+   std::cout<<"here"<<std::endl;
+   for(size_t layer=0; layer<numOfHiddenLayers-1; layer++)
+   {
+      std::cout<<"Weights rows "<<this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNrows()<<std::endl;
+      std::cout<<"Weights cols "<<this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNcols()<<std::endl;
+      this->GetLocalWeights().emplace_back(this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNrows(), this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNcols());
+      this->GetLocalHiddenBiases().emplace_back(this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(0).GetNrows(), 1);
+      this->GetLocalVisibleBiases().emplace_back(this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(1).GetNrows(), 1);
+
+      Architecture_t::Copy(this->GetLocalWeightsAt(layer), this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0));
+      Architecture_t::Copy(this->GetLocalHiddenBiasesAt(layer), this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(0));
+      Architecture_t::Copy(this->GetLocalVisibleBiasesAt(layer), this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(1));
+
+      for(size_t k=0; k<(size_t)this->GetLayerAt(  2)->GetWeightsAt(0).GetNrows(); k++)
       {
-         for(size_t j=0; j<(size_t)fLayers[fLayers.size() - 4]->GetWeightsAt(0).GetNcols(); j++)
+         for(size_t m = 0; m<(size_t)this->GetLayerAt( 2 )->GetWeightsAt(0).GetNcols(); m++)
          {
-            std::cout<<fLayers[fLayers.size() - 4]->GetWeightsAt(0)(i,j)<<"\t";
-	 }
+            std::cout<<this->GetLayerAt( 2 )->GetWeightsAt(0)(k,m)<<"\t";
+         }
          std::cout<<std::endl;
       }
-   std::cout<<"total hidden units "<<numOfHiddenLayers<<std::endl;
-   //std::cout<<"epochs "<<d<<std::endl;
-   std::cout<<"hidden Unit 1 "<<" is "<<numHiddenUnitsPerLayer[0]<<std::endl;
-   std::cout<<"hidden Unit 2 "<<" is "<<numHiddenUnitsPerLayer[1]<<std::endl;
-   std::cout<<"hidden Unit 3 "<<" is "<<numHiddenUnitsPerLayer[2]<<std::endl;
-
-   std::cout<<"weights Rows:"<<fLayers[fLayers.size() - 7]->GetWeightsAt(0).GetNrows()<<std::endl;
-   std::cout<<"weights Cols:"<<fLayers[fLayers.size() - 7]->GetWeightsAt(0).GetNcols()<<std::endl;
-   /*std::cout<<"weights are"<<std::endl;
-
-   for(size_t i=0; i<(size_t)fLayers[fLayers.size() - 2]->GetWeightsAt(0).GetNrows(); i++)
-   {
-      for(size_t j=0; j<(size_t)fLayers[fLayers.size() - 2]->GetWeightsAt(0).GetNcols(); j++)
-      {
-         std::cout<<fLayers[fLayers.size() - 2]->GetWeightsAt(0)(i,j)<<"\t";
-      }
-      std::cout<<std::endl;
-   }*/
-
-   //fLayers.back()->Print();
-
+   }
    fWasPreTrained = true;
 }
 //______________________________________________________________________________
@@ -551,141 +544,94 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
 }
 
 template <typename Architecture_t, typename Layer_t>
-typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Predict(Matrix_t& input)
+typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::PredictCompressedOutput(Matrix_t& input)
 {
    std::cout << "Starting predict " << std::endl;
    if (fWasPreTrained == false)
    {
       Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
    }
-   /*std::vector<Matrix_t> firstInput = std::vector<Matrix_t>{input};
-   std::cout << "Input affected properly " << std::endl;
-   fLayers[0]->Forward(firstInput);
-   for (unsigned int i=1; i<fLayers.size(); i++)
+
+   size_t size = this->GetLocalWeights().size();
+   std::cout<<"size is "<<size<<std::endl;
+   Matrix_t output;
+   for(size_t i=0; i<size; i++)
    {
-      std::cout << "Forward pass on layer " << i << std::endl;
-      fLayers[i]->Forward(GetLayerAt(i-1)->GetOutput());
-   }*/
-   //fLayers[fLayers.size() - 2]->Forward(fLayers[fLayers.size() - 3]->GetOutput());
-   //fLayers[fLayers.size() - 1]->Forward(fLayers[fLayers.size() - 2]->GetOutput());
-   /*size_t outputDim = GetLayerAt(GetLayers().size()-2)->GetOutputAt(0).GetNrows();
-   Matrix_t output(outputDim, 1);
-   output = GetLayerAt(GetLayers().size()-2)->GetOutput()[0];*/
-   /*for (unsigned int i=0; i<outputDim; i++)
-   {
-      output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0);
-   }*/
-   Matrix_t output(this->fLocalWeights.GetNrows(),1);
-   Matrix_t weights(this->fLocalWeights.GetNrows(),this->fLocalWeights.GetNcols());
-   Matrix_t biases(this->fLocalWeights.GetNrows(),1);
-   std::cout<<"weights rows:"<<this->fLocalWeights.GetNrows()<<std::endl;
-   std::cout<<"weights cols:"<<this->fLocalWeights.GetNcols()<<std::endl;
-   std::cout<<"biases rows:"<<this->fLocalHiddenBiases.GetNrows()<<std::endl;
-   std::cout<<"biases cols:"<<this->fLocalHiddenBiases.GetNcols()<<std::endl;
-   std::cout<<"Weights rows from layers"<<fLayers.back()->GetWeightsAt(0).GetNrows()<<std::endl;
-   std::cout<<"Weights are: "<<std::endl;
-   for(size_t i=0; i<(size_t)this->fLocalWeights.GetNrows(); i++)
+      Matrix_t localOutput(this->GetLocalWeightsAt(i).GetNrows(), 1);
+      Matrix_t weights(this->GetLocalWeightsAt(i).GetNrows(), this->GetLocalWeightsAt(i).GetNcols());
+      Matrix_t biases(this->GetLocalHiddenBiasesAt(i).GetNrows(), 1);
+      Architecture_t::EncodeInput(input, localOutput, this->GetLocalWeightsAt(i));
+      Architecture_t::AddBiases(localOutput, this->GetLocalHiddenBiasesAt(i));
+      //evaluate<Architecture_t>(localOutput, DNN::EActivationFunction::kSigmoid);
+      std::cout<<"1"<<std::endl;
+      input.ResizeTo(localOutput);
+      std::cout<<"2"<<std::endl;
+      Architecture_t::Copy(input,localOutput);
+      std::cout<<"3"<<std::endl;
+
+      //std::cout<<"Local Output rows: "<<localOutput.GetNrows()<<std::endl;
+      //std::cout<<"local Output cols: "<<localOutput.GetNcols()<<std::endl;
+      if(i == size-1)
       {
-         for(size_t j=0; j<(size_t)this->fLocalWeights.GetNcols(); j++)
-         {
-            std::cout<<this->fLocalWeights(i,j)<<"\t";
-	       }
-         std::cout<<std::endl;
+        output.ResizeTo(localOutput);
+        Architecture_t::Copy(output, localOutput);
+        ///std::cout<<"Local Output rows: "<<localOutput.GetNrows()<<std::endl;
+        //std::cout<<"local Output cols: "<<localOutput.GetNcols()<<std::endl;
+        //std::cout<<"Output rows: "<<output.GetNrows()<<std::endl;
+        //std::cout<<"Output cols: "<<output.GetNcols()<<std::endl;
       }
-   //Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
-  // Matrix_t output(fLocalWeights.GetNrows(),1);
-   std::cout << "Created output matrix. " << std::endl;
-   Architecture_t::EncodeInput(input,
-                               output,this->fLocalWeights
-                               /*fLocalWeights*//*GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0)*/);
-   std::cout << "Encoded input. " << std::endl;
-   Architecture_t::AddBiases(output,this->fLocalHiddenBiases
-                             /*fLocalHiddenBiases*//*GetLayerAt(GetLayers().size()-2)->GetBiasesAt(0)*/);
-   std::cout << "Added biases. " << std::endl;
-   //evaluate<Architecture_t>(output, DNN::EActivationFunction::kSigmoid);
-   std::cout << "Evaluated " << std::endl;
-   std::cout << "Dim of output " << output.GetNrows() << std::endl;
+
+
+   }
+   std::cout<<"Output rows: "<<output.GetNrows()<<std::endl;
+   std::cout<<"Output cols: "<<output.GetNcols()<<std::endl;
    return output;
 }
 //______________________________________________________________________________
 
-
+// input must be of transformed or compressed form.
 template <typename Architecture_t, typename Layer_t>
 typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::PredictDecodedOutput(Matrix_t& input)
 {
-   std::cout << "Starting decoding " << std::endl;
+
+   std::cout << "Starting predict " << std::endl;
    if (fWasPreTrained == false)
    {
-      Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the decoded output for the sample. " << Endl;
+      Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
    }
-   /*std::vector<Matrix_t> firstInput = std::vector<Matrix_t>{input};
-   std::cout << "Input affected properly " << std::endl;
-   fLayers[0]->Forward(firstInput);
-   for (unsigned int i=1; i<fLayers.size(); i++)
+
+   size_t size = this->GetLocalWeights().size();
+   std::cout<<"size is "<<size<<std::endl;
+   Matrix_t output;
+   for(size_t i= size ; i > 0; i--)
    {
-      std::cout << "Forward pass on layer " << i << std::endl;
-      fLayers[i]->Forward(GetLayerAt(i-1)->GetOutput());
-   }*/
-   //fLayers[fLayers.size() - 2]->Forward(fLayers[fLayers.size() - 3]->GetOutput());
-   //fLayers[fLayers.size() - 1]->Forward(fLayers[fLayers.size() - 2]->GetOutput());
-   /*size_t outputDim = GetLayerAt(GetLayers().size()-2)->GetOutputAt(0).GetNrows();
-   Matrix_t output(outputDim, 1);
-   output = GetLayerAt(GetLayers().size()-2)->GetOutput()[0];*/
-   /*for (unsigned int i=0; i<outputDim; i++)
-   {
-      output(i, 0) = GetLayerAt(GetLayers().size()-1)->GetOutput()[0](i, 0);
-   }*/
-   Matrix_t output(input.GetNrows(),1);
-   Matrix_t weights(this->fLocalWeights.GetNrows(),this->fLocalWeights.GetNcols());
-   Matrix_t biases(this->fLocalVisibleBiases.GetNrows(),1);
-   std::cout<<"weights rows: "<<this->fLocalWeights.GetNrows()<<std::endl;
-   std::cout<<"weights cols: "<<this->fLocalWeights.GetNcols()<<std::endl;
-   std::cout<<"biases rows: "<<this->fLocalVisibleBiases.GetNrows()<<std::endl;
-   std::cout<<"biases cols: "<<this->fLocalVisibleBiases.GetNcols()<<std::endl;
-   std::cout<<"Weights rows from layers"<<fLayers.back()->GetWeightsAt(0).GetNrows()<<std::endl;
-   std::cout<<"Weights are: "<<std::endl;
-   for(size_t i=0; i<(size_t)this->fLocalWeights.GetNrows(); i++)
+      Matrix_t localOutput(this->GetLocalWeightsAt(i-1).GetNrows(), 1);
+      Matrix_t weights(this->GetLocalWeightsAt(i-1).GetNrows(), this->GetLocalWeightsAt(i-1).GetNcols());
+      Matrix_t biases(this->GetLocalVisibleBiasesAt(i-1).GetNrows(), 1);
+      Architecture_t::ReconstructInput(input, localOutput, this->GetLocalWeightsAt(i-1));
+      Architecture_t::AddBiases(localOutput, this->GetLocalVisibleBiasesAt(i-1));
+      //evaluate<Architecture_t>(localOutput, DNN::EActivationFunction::kSigmoid);
+      std::cout<<"1"<<std::endl;
+      input.ResizeTo(localOutput);
+      std::cout<<"2"<<std::endl;
+      Architecture_t::Copy(input,localOutput);
+      std::cout<<"3"<<std::endl;
+
+      if(i == 0)
       {
-         for(size_t j=0; j<(size_t)this->fLocalWeights.GetNcols(); j++)
-         {
-            std::cout<<this->fLocalWeights(i,j)<<"\t";
-	       }
-         std::cout<<std::endl;
+        output.ResizeTo(localOutput);
+        Architecture_t::Copy(output, localOutput);
       }
-   //Matrix_t output(GetLayerAt(GetLayers().size()-2)->GetWeightsAt(0).GetNrows(),1);
-  // Matrix_t output(fLocalWeights.GetNrows(),1);
-   std::cout << "Created output matrix. " << std::endl;
-   Architecture_t::ReconstructInput(input,
-                               output,this->fLocalWeights);
-   std::cout << "Encoded input. " << std::endl;
-   Architecture_t::AddBiases(output,this->fLocalVisibleBiases);
-   std::cout << "Added biases. " << std::endl;
-   evaluate<Architecture_t>(output, DNN::EActivationFunction::kSigmoid);
-   std::cout << "Evaluated " << std::endl;
-   std::cout << "Dim of output " << output.GetNrows() << std::endl;
+
+
+   }
+   std::cout<<"Output rows: "<<output.GetNrows()<<std::endl;
+   std::cout<<"Output cols: "<<output.GetNcols()<<std::endl;
    return output;
 }
 
 
-/*
-//______________________________________________________________________________
-template <typename Architecture_t, typename Layer_t>
-auto TDeepAutoEncoder<Architecture_t, Layer_t>::Prediction(Matrix_t &predictions, EOutputFunction f) const -> void
-{
-   // Last layer should not be deep
-   evaluate<Architecture_t>(predictions, f, fLayers.back()->GetOutputAt(0));
-}
 
-//______________________________________________________________________________
-template <typename Architecture_t, typename Layer_t>
-auto TDeepAutoEncoder<Architecture_t, Layer_t>::Prediction(Matrix_t &predictions, std::vector<Matrix_t> input,
-                                                   EOutputFunction f) -> void
-{
-   Forward(input, false);
-   // Last layer should not be deep
-   evaluate<Architecture_t>(predictions, f, fLayers.back()->GetOutputAt(0));
-}
-*/
 //______________________________________________________________________________
 template <typename Architecture_t, typename Layer_t>
 auto TDeepAutoEncoder<Architecture_t, Layer_t>::Print() -> void
