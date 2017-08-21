@@ -174,7 +174,7 @@ public:
    void FineTune(std::vector<Matrix_t> &input, std::vector<Matrix_t> &testInput, std::vector<Matrix_t> &outputLabel,
                  size_t outputUnits, size_t testDataBatchSize, Scalar_t learningRate, size_t epochs);
 
-   Matrix_t PredictCompressedOutput(Matrix_t& input);
+   Matrix_t PredictEncodedOutput(Matrix_t& input);
    Matrix_t PredictDecodedOutput(Matrix_t& input);
 
    /*! Prediction based on activations stored in the last layer. */
@@ -544,7 +544,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
 }
 
 template <typename Architecture_t, typename Layer_t>
-typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::PredictCompressedOutput(Matrix_t& input)
+typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::PredictEncodedOutput(Matrix_t& input)
 {
    std::cout << "Starting predict " << std::endl;
    if (fWasPreTrained == false)

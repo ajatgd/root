@@ -198,7 +198,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    //for (unsigned int i=0; i<fAutoEncoder.size(); i++)
    {
       std::cout << "Starting evaluation " << std::endl;
-      encodedEvent = fAutoEncoder[currentClass]->PredictCompressedOutput(transformedEvents[0]);
+      encodedEvent = fAutoEncoder[currentClass]->PredictEncodedOutput(transformedEvents[0]);
       //fAutoEncoder[i]->FineTune(transformedEvents, transformedEvents, transformedEvents, 2, 1, 0.1, 10);
    }
 
