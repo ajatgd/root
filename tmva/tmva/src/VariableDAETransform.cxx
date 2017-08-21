@@ -144,10 +144,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 {
    if (!IsCreated()) return 0;
 
-   //   const Int_t inputSize = fGet.size();
-   //   const UInt_t nCls = GetNClasses();
-
-   // if we have more than one class, take the last PCA analysis where all classes are combined if
+   // if we have more than one class, take the last DAE analysis where all classes are combined if
    // the cls parameter is outside the defined classes
    // If there is only one class, then no extra class for all events of all classes has to be created
 
@@ -156,17 +153,18 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    if (cls < 0 || cls >= (int) fMeanValues.size()) cls = fMeanValues.size()-1;
    // EVT workaround end
 
-   // Perform PCA and put it into PCAed events tree
+   // Perform DAETransform and return pointers to the new events. 
 
    if (fTransformedEvent==0 ) {
       fTransformedEvent = new Event();
    }
    Int_t currentClass = ev->GetClass();
 
+   Matrix_t transformedEvent, encodedEvent; 
    std::vector<Float_t> localInput, localOutput;
    std::vector<Char_t>  mask;
-   std::vector<Float_t> principalComponents;
-
+   encodedEvent.ResizeTo(numCompressedUnits, 1);
+   
    Bool_t hasMaskedEntries = GetInput( ev, localInput, mask );
 
    if( hasMaskedEntries ){ // targets might be masked (for events where the targets have not been computed yet)
@@ -179,50 +177,42 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
       return fTransformedEvent;
    }
 
-   Matrix_t transformedEvent, encodedEvent;
-   std::vector<Matrix_t> transformedEvents;
-   transformedEvents.push_back(transformedEvent);
-   std::vector<Event*> transformed;
-
-   //BackTransformOutputData(transformedEvent, localInput);
-   std::cout << "Forward Transformation " << std::endl;
-   TransformInputData(localInput, transformedEvents[0]);
-   std::cout << "Forward Tranformation finished " << std::endl;
-   encodedEvent.ResizeTo(numCompressedUnits, 1);
-   for (unsigned int i=0; i<transformedEvents[0].GetNrows(); i++)
+   
+   //std::cout << "Forward Transformation " << std::endl; 
+   TransformInputData(localInput, transformedEvent); 
+   //std::cout << "Forward Tranformation finished " << std::endl; 
+   /*for (unsigned int i=0; i<transformedEvent.GetNrows(); i++) 
    {
-      std::cout << transformedEvents[0](i, 0) << " " ;
+      std::cout << transformedEvent(i, 0) << " " ;
    }
-   std::cout << std::endl;
+   std::cout << std::endl; */
 
-   //for (unsigned int i=0; i<fAutoEncoder.size(); i++)
-   {
-      std::cout << "Starting evaluation " << std::endl;
-      encodedEvent = fAutoEncoder[currentClass]->PredictEncodedOutput(transformedEvents[0]);
-      //fAutoEncoder[i]->FineTune(transformedEvents, transformedEvents, transformedEvents, 2, 1, 0.1, 10);
-   }
-
-   std::cout << "Backward transformation starts..." << std::endl;
-   // encodedEvent.ResizeTo(2, 1);
-   //encodedEvent(0, 0) = 1.2;
+   //std::cout << "Starting evaluation " << std::endl; 
+   encodedEvent = fAutoEncoder[currentClass]->PredictEncodedOutput(transformedEvent);      // Maybe cls for same behaviour as PCA... 
+   
+   //std::cout << "Backward transformation starts..." << std::endl; 
+   // encodedEvent.ResizeTo(2, 1); 
+   //encodedEvent(0, 0) = 1.2; 
    //encodedEvent(1, 0) = 2.0;
-   BackTransformOutputData(encodedEvent, localOutput);
-   std::cout << "Backward transformation finished " << std::endl;
-   std::cout << "Output size : " << localOutput.size() << std::endl;
-   //X2P( principalComponents, localInput, cls );
-   for (unsigned int i=numCompressedUnits; i<mask.size(); i++)
+   BackTransformOutputData(encodedEvent, localOutput); 
+   //std::cout << "Backward transformation finished " << std::endl; 
+   //std::cout << "Output size : " << localOutput.size() << std::endl;
+   
+   for (unsigned int i=numCompressedUnits; i<mask.size(); i++) 
    {
-      mask[i] = kTRUE; // Workaround for the spare value
-   }
-   std::cout << encodedEvent.GetNrows() << " " << localOutput.size() << " " << std::endl;
-   for (unsigned int i=0; i<localOutput.size(); i++)
+      mask[i] = kTRUE;  // Workaround for not overshooting the spare value, since the output has less dimensions than the input. 
+   }                    // Only the number of output dimensions (numCompressedUnits) ar left unmasked. 
+
+   // std::cout << encodedEvent.GetNrows() << " " << localOutput.size() << " " << std::endl; 
+   /*for (unsigned int i=0; i<localOutput.size(); i++) 
    {
-      std::cout << encodedEvent(i, 0) << " " << localOutput[i] << " ";
+      std::cout << encodedEvent(i, 0) << " " << localOutput[i] << " "; 
    }
-   std::cout << std::endl;
-   SetOutput( fTransformedEvent, localOutput, mask, ev );
-   std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl;
-   std::cout << "Setting output succeded. " << std::endl;
+   std::cout << std::endl; */
+   SetOutput( fTransformedEvent, localOutput, mask, ev ); 
+   //std::cout << "Setting output succeded. " << std::endl; 
+   std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl; 
+  
 
    return fTransformedEvent;
 }
@@ -296,7 +286,7 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
    const UInt_t nCls = GetNClasses();
    //UInt_t evCls = ev->GetClass();
 
-   // if we have more than one class, take the last PCA analysis where all classes are combined if
+   // if we have more than one class, take the last DAE analysis where all classes are combined if
    // the cls parameter is outside the defined classes
    // If there is only one class, then no extra class for all events of all classes has to be created
    if (cls < 0 || UInt_t(cls) > nCls) cls = (fMeanValues.size()==1?0:2);//( GetNClasses() == 1 ? 0 : 1 );  ;
@@ -360,42 +350,33 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    const UInt_t numDAE = (nCls<=1) ? 1 : nCls+1;
 // ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-   // PCA [signal/background/class x/class y/... /all classes]
-   //std::vector<DNN::TDeepAutoEncoder<Architecture_t>* > DAE(numDAE);
-
    // !! Not normalizing and not storing input data, for performance reasons. Should perhaps restore normalization.
    // But this can be done afterwards by adding a normalisation transformation (user defined)
 
-   //std::vector<Matrix_t> inputs; // We already have this in the class.
-
-   size_t visibleUnits = events[0]->GetValues().size();
-   size_t numEvents = events.size();
+   size_t visibleUnits = events[0]->GetValues().size(); 
+   size_t numEvents = events.size(); 
 
    numHiddenUnitsPerLayer.clear();
    numHiddenUnitsPerLayer.push_back(visibleUnits);
    numHiddenUnitsPerLayer.push_back(2);
 
-   //TransformInputDataset(events, input);
-
-   //size_t hiddenUnits = 2;
-
-
+   
+   
    std::vector<Float_t> bareinput;
    std::vector<Char_t>  mask;
 
-   input.clear();
-   //totalInput.clear();
-   std::cout << "Nclasses : " << nCls << std::endl;
-   std::cout << "Initializing input vector ";
-   for (unsigned int i=0; i<numDAE; i++)
+   input.clear(); 
+   //std::cout << "Nclasses : " << nCls << std::endl; 
+   //std::cout << "Initializing input vector "; 
+   for (unsigned int i=0; i<numDAE; i++) 
    {
-      input.emplace_back(std::vector<Matrix_t>(0));
-      std::cout << input[i].size() << " ";
+      input.emplace_back(std::vector<Matrix_t>(0)); 
+      //std::cout << input[i].size() << " "; 
    }
-   std::cout << "Initialization finished" << std::endl;
-   std::cout << input.size() << std::endl;
-   std::vector<size_t> evtsPerClass(nCls, -1);     // Initialising with -1 so that the first element inserted coincides with index 0.
-   std::cout << evtsPerClass.size() << std::endl;
+   //std::cout << "Initialization finished" << std::endl; 
+   //std::cout << input.size() << std::endl; 
+   std::vector<size_t> evtsPerClass(nCls, -1);     // Initialising with -1 so that the first element inserted coincides with index 0. 
+   //std::cout << evtsPerClass.size() << std::endl; 
 
    Matrix_t transformedInput(visibleUnits, 1);
    for ( unsigned int i = 0; i<numEvents; i++ )
@@ -409,9 +390,9 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
       if (nCls > 1)
       {
          input[input.size()-1].emplace_back(visibleUnits, 1);
-      }
-      evtsPerClass[cls]++;
-      std::cout << cls << " " << evtsPerClass[cls] << std::endl;
+      } 
+      evtsPerClass[cls]++; 
+      //std::cout << cls << " " << evtsPerClass[cls] << std::endl; 
 
 
       Bool_t hasMaskedEntries = GetInput( ev, bareinput, mask );
@@ -424,26 +405,14 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
          Log() << kFATAL << "Masked entries found in event read in when calculating the principal components for the PCA transformation." << Endl;
       }
 
-      /*UInt_t iinp = 0;
-      for( std::vector<Float_t>::iterator itInp = bareinput.begin(), itInpEnd = bareinput.end(); itInp != itInpEnd; ++itInp )
-         {
-            Float_t value = (*itInp);
-            dvec[iinp] = (Double_t)value;
-            ++iinp;
-         }*/
-
-      //DAE.at(cls)->AddRow( dvec );
-      //if (nCls > 1) DAE.at(numDAE-1)->AddRow( dvec );
-      //std::cout << "First input transformation " << std::endl;
-      TransformInputData(bareinput, transformedInput);     // Seems to be working
-      //std::cout << "Second input transformation " << std::endl;
-      //TransformInputData(bareinput, input[cls][evtsPerClass[cls]]);
-      input[cls][evtsPerClass[cls]] = transformedInput;
-      if (nCls > 1)
+      TransformInputData(bareinput, transformedInput);     // Seems to be working 
+      
+      input[cls][evtsPerClass[cls]] = transformedInput; 
+      if (nCls > 1) 
       {
-        input[input.size()-1][i] = transformedInput;
+        input[input.size()-1][i] = transformedInput; 
       }
-      std::cout << "Transformations succeded " << std::endl;
+      //std::cout << "Transformations succeded " << std::endl; 
    }
    /*for (unsigned int i=0; i<totalInput.size(); i++)
    {
