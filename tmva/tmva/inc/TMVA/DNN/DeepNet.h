@@ -546,14 +546,14 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
 template <typename Architecture_t, typename Layer_t>
 typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::PredictEncodedOutput(Matrix_t& input)
 {
-   std::cout << "Starting predict " << std::endl;
+   //std::cout << "Starting predict " << std::endl;
    if (fWasPreTrained == false)
    {
       Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
    }
 
    size_t size = this->GetLocalWeights().size();
-   std::cout<<"size is "<<size<<std::endl;
+   //std::cout<<"size is "<<size<<std::endl;
    Matrix_t output;
    for(size_t i=0; i<size; i++)
    {
@@ -563,11 +563,11 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
       Architecture_t::EncodeInput(input, localOutput, this->GetLocalWeightsAt(i));
       Architecture_t::AddBiases(localOutput, this->GetLocalHiddenBiasesAt(i));
       //evaluate<Architecture_t>(localOutput, DNN::EActivationFunction::kSigmoid);
-      std::cout<<"1"<<std::endl;
+      //std::cout<<"1"<<std::endl;
       input.ResizeTo(localOutput);
-      std::cout<<"2"<<std::endl;
+      //std::cout<<"2"<<std::endl;
       Architecture_t::Copy(input,localOutput);
-      std::cout<<"3"<<std::endl;
+      //std::cout<<"3"<<std::endl;
 
       //std::cout<<"Local Output rows: "<<localOutput.GetNrows()<<std::endl;
       //std::cout<<"local Output cols: "<<localOutput.GetNcols()<<std::endl;
@@ -583,8 +583,8 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
 
 
    }
-   std::cout<<"Output rows: "<<output.GetNrows()<<std::endl;
-   std::cout<<"Output cols: "<<output.GetNcols()<<std::endl;
+   //std::cout<<"Output rows: "<<output.GetNrows()<<std::endl;
+   //std::cout<<"Output cols: "<<output.GetNcols()<<std::endl;
    return output;
 }
 //______________________________________________________________________________

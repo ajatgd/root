@@ -125,7 +125,7 @@ TMVA::Factory::Factory( TString jobName, TFile* theTargetFile, TString theOption
    fSilentFile           ( kFALSE ),
    fJobName              ( jobName ),
    fAnalysisType         ( Types::kClassification ),
-   fModelPersistence     (kTRUE)
+   fModelPersistence     (kFALSE)
 {
    fgTargetFile = theTargetFile;
    fLogger->SetSource(GetName());
@@ -202,7 +202,7 @@ TMVA::Factory::Factory( TString jobName, TString theOption )
    fSilentFile           ( kTRUE ),
    fJobName              ( jobName ),
    fAnalysisType         ( Types::kClassification ),
-   fModelPersistence     (kTRUE)
+   fModelPersistence     (kFALSE)
 {
    fgTargetFile = 0;
    fLogger->SetSource(GetName());
