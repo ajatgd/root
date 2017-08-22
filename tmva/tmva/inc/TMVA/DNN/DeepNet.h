@@ -403,9 +403,16 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
 {
    std::vector<Matrix_t> inp1;
    std::vector<Matrix_t> inp2;
-   size_t numOfHiddenLayers = sizeof(numHiddenUnitsPerLayer) / sizeof(numHiddenUnitsPerLayer[0]);
+   size_t numOfHiddenLayers = static_cast<size_t>(sizeof(numHiddenUnitsPerLayer) / sizeof(numHiddenUnitsPerLayer[0]));
+   std::cout << "numHiddenUnitsPerLayer : " << sizeof(numHiddenUnitsPerLayer) << std::endl; 
+   std::cout << "numHiddenUnitsPerLayer[0] : " << sizeof(numHiddenUnitsPerLayer[0]) << std::endl; ; 
+   std::cout << "division : " << sizeof(numHiddenUnitsPerLayer)/sizeof(numHiddenUnitsPerLayer[0]) << std::endl; 
+   std::cout << "numHiddenUnitsPerLayer size : " << numHiddenUnitsPerLayer.size() << std::endl; 
+
    size_t batchSize = this->GetBatchSize();
-   size_t visibleUnits = (size_t)input[0].GetNrows();
+   size_t visibleUnits = static_cast<size_t>(input[0].GetNrows());
+
+   std::cout << visiblebiasesfile << std::encl; 
 
    for (unsigned int i=0; i<numHiddenUnitsPerLayer.size(); i++)
    {

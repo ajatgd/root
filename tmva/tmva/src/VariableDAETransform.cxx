@@ -416,6 +416,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    for (UInt_t i=0; i<numDAE; i++) 
    {
+      std::cout << "input size " << i << " : " << input[i].size() << std::endl;  
       fAutoEncoder.push_back( new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(input[i].size(), InputDepth, InputHeight, InputWidth, BatchDepth, BatchHeight, BatchWidth, fJ, fI, fR, fWeightDecay, isTraining) );
       std::cout << "Training autoencoder " << i << std::endl;
       fAutoEncoder.at(i)->PreTrain(input[i], numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout);
