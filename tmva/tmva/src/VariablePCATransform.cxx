@@ -184,6 +184,7 @@ const TMVA::Event* TMVA::VariablePCATransform::InverseTransform( const Event* co
    // the cls parameter is outside the defined classes
    // If there is only one class, then no extra class for all events of all classes has to be created
    if (cls < 0 || UInt_t(cls) > nCls) cls = (fMeanValues.size()==1?0:2);//( GetNClasses() == 1 ? 0 : 1 );  ;
+   #pragma("Why different condition?")
    // Perform PCA and put it into PCAed events tree
 
    if (fBackTransformedEvent==0 ) fBackTransformedEvent = new Event();

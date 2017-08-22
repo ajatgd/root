@@ -213,7 +213,6 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    //std::cout << "Setting output succeded. " << std::endl; 
    //std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl; 
   
-
    return fTransformedEvent;
 }
 
@@ -284,23 +283,21 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
    if (!IsCreated()) return 0;
    //   const Int_t inputSize = fGet.size();
    const UInt_t nCls = GetNClasses();
-   //UInt_t evCls = ev->GetClass();
-
-   // if we have more than one class, take the last DAE analysis where all classes are combined if
-   // the cls parameter is outside the defined classes
-   // If there is only one class, then no extra class for all events of all classes has to be created
-   if (cls < 0 || UInt_t(cls) > nCls) cls = (fMeanValues.size()==1?0:2);//( GetNClasses() == 1 ? 0 : 1 );  ;
-   // Perform PCA and put it into PCAed events tree
+   Int_t currentClass = ev->GetClass(); 
 
    if (fBackTransformedEvent==0 ) fBackTransformedEvent = new Event();
 
-   std::vector<Float_t> principalComponents;
+   Matrix_t backTransformInput, backTransformOutput; 
+   std::vector<Float_t> localInput, localOutput;
    std::vector<Char_t>  mask;
    std::vector<Float_t> output;
 
-   GetInput( ev, principalComponents, mask, kTRUE );
-   //P2X( output, principalComponents, cls );
-   SetOutput( fBackTransformedEvent, output, mask, ev, kTRUE );
+   GetInput(ev, localInput, mask, kTRUE); 
+   TransformInputData(localInput, backTransformInput); 
+   backTransformOutput = fAutoEncoder[currentClass]->PredictDecodedOutput(backTransformInput); 
+   BackTransformOutputData(backTransformOutput, localOutput); 
+   SetOutput(fBackTransformedEvent, localOutput, mask, ev, kTRUE); 
+
 
    return fBackTransformedEvent;
 }
