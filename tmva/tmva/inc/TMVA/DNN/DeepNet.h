@@ -431,6 +431,20 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
                            applyDropout); // as we have to pass compressed Input
    fLayers.back()->Backward(fLayers[fLayers.size() - 2]->GetOutput(), inp1, fLayers[fLayers.size() - 3]->GetOutput(),
                             input);
+   fLayers.back()->Print();
+
+   std::cout<<"output weights out"<<std::endl;
+   for(size_t j=0; j<fLayers.back()->GetWeightsAt(0).GetNrows(); j++)
+   {
+      for(size_t k=0; k<fLayers.back()->GetWeightsAt(0).GetNcols(); k++)
+         {
+            std::cout<<fLayers.back()->GetWeightsAt(0)(j,k)<<"\t";
+   }
+         std::cout<<std::endl;
+   }
+   std::cout<<std::endl;
+
+
    //fLayers.back()->Print();
    // three layers are added, now pointer is on third layer
    size_t weightsSize = fLayers.back()->GetWeights().size();

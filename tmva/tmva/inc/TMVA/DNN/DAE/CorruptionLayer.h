@@ -101,7 +101,7 @@ TCorruptionLayer<Architecture_t>::TCorruptionLayer(size_t batchSize, size_t visi
                            size_t hiddenUnits,
                            Scalar_t dropoutProbability, Scalar_t corruptionLevel)
    : VGeneralLayer<Architecture_t>(batchSize, 1, 1, 0, 0, 0, 0, 1, {hiddenUnits}, {visibleUnits},
-   2, {hiddenUnits,visibleUnits}, {1,1}, batchSize, visibleUnits, 1, EInitialization::kZero),
+   2, {hiddenUnits,visibleUnits}, {1,1}, batchSize, visibleUnits, 1, EInitialization::kGauss),
    fVisibleUnits(visibleUnits), fDropoutProbability(dropoutProbability),
    fType(1), fCorruptionLevel(corruptionLevel), fHiddenUnits(hiddenUnits)
 
