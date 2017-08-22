@@ -403,22 +403,23 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
 {
    std::vector<Matrix_t> inp1;
    std::vector<Matrix_t> inp2;
-   size_t numOfHiddenLayers = static_cast<size_t>(sizeof(numHiddenUnitsPerLayer) / sizeof(numHiddenUnitsPerLayer[0]));
-   std::cout << "numHiddenUnitsPerLayer : " << sizeof(numHiddenUnitsPerLayer) << std::endl; 
-   std::cout << "numHiddenUnitsPerLayer[0] : " << sizeof(numHiddenUnitsPerLayer[0]) << std::endl; ; 
-   std::cout << "division : " << sizeof(numHiddenUnitsPerLayer)/sizeof(numHiddenUnitsPerLayer[0]) << std::endl; 
-   std::cout << "numHiddenUnitsPerLayer size : " << numHiddenUnitsPerLayer.size() << std::endl; 
+   inp1.emplace_back(1,1);
+   inp2.emplace_back(1,1);
+   size_t numOfHiddenLayers = numHiddenUnitsPerLayer.size();
+   std::cout << "numHiddenUnitsPerLayer : " << numOfHiddenLayers << std::endl;
+   std::cout << "numHiddenUnitsPerLayer[0] : " << numHiddenUnitsPerLayer[0] << std::endl;
+   std::cout << "numHiddenUnitsPerLayer[1] :"<< numHiddenUnitsPerLayer[1] << std::endl;
 
    size_t batchSize = this->GetBatchSize();
    size_t visibleUnits = static_cast<size_t>(input[0].GetNrows());
 
-   std::cout << visiblebiasesfile << std::encl; 
+   //std::cout << visiblebiasesfile << std::encl;
 
-   for (unsigned int i=0; i<numHiddenUnitsPerLayer.size(); i++)
+  /* for (unsigned int i=0; i<numHiddenUnitsPerLayer.size(); i++)
    {
       std::cout << numHiddenUnitsPerLayer[i] << " ";
    }
-   std::cout << std::endl;
+   std::cout << std::endl;*/
 
    AddCorruptionLayer(visibleUnits, numHiddenUnitsPerLayer[0], dropoutProbability, corruptionLevel);
    fLayers.back()->Initialize();
@@ -502,7 +503,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
    }
 
    std::cout<<"here"<<std::endl;
-   for(size_t layer=0; layer<numOfHiddenLayers-1; layer++)
+   for(size_t layer=0; layer<numOfHiddenLayers; layer++)
    {
 
 
