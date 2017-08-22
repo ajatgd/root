@@ -176,9 +176,13 @@ public:
    void FineTune(std::vector<Matrix_t> &input, std::vector<Matrix_t> &testInput, std::vector<Matrix_t> &outputLabel,
                  size_t outputUnits, size_t testDataBatchSize, Scalar_t learningRate, size_t epochs);
 
+   /* Functions used to predict Encoded outputs from trained weights.*/
    Matrix_t PredictEncodedOutput(Matrix_t& input);
+
+   /* Functions used to predict Reconstructed output from trained weights.*/
    Matrix_t PredictDecodedOutput(Matrix_t& input);
 
+   /* Used to write weights and biases to files*/
    void WriteToFile(size_t layer);
 
    /*! Prediction based on activations stored in the last layer. */
@@ -397,19 +401,15 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::Initialize() -> void
 //_____________________________________________________________________________
 template <typename Architecture_t, typename Layer_t>
 auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &input,
-                                                 std::vector<size_t> numHiddenUnitsPerLayer, Scalar_t learningRate,
-                                                 Scalar_t corruptionLevel, Scalar_t dropoutProbability, size_t epochs,
-                                                 EActivationFunction f, bool applyDropout) -> void
+                                                         std::vector<size_t> numHiddenUnitsPerLayer, Scalar_t learningRate,
+                                                         Scalar_t corruptionLevel, Scalar_t dropoutProbability, size_t epochs,
+                                                         EActivationFunction f, bool applyDropout) -> void
 {
    std::vector<Matrix_t> inp1;
    std::vector<Matrix_t> inp2;
    inp1.emplace_back(1,1);
    inp2.emplace_back(1,1);
    size_t numOfHiddenLayers = numHiddenUnitsPerLayer.size();
-   std::cout << "numHiddenUnitsPerLayer : " << numOfHiddenLayers << std::endl;
-   std::cout << "numHiddenUnitsPerLayer[0] : " << numHiddenUnitsPerLayer[0] << std::endl;
-   std::cout << "numHiddenUnitsPerLayer[1] :"<< numHiddenUnitsPerLayer[1] << std::endl;
-
    size_t batchSize = this->GetBatchSize();
    size_t visibleUnits = static_cast<size_t>(input[0].GetNrows());
 
@@ -431,20 +431,6 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
                            applyDropout); // as we have to pass compressed Input
    fLayers.back()->Backward(fLayers[fLayers.size() - 2]->GetOutput(), inp1, fLayers[fLayers.size() - 3]->GetOutput(),
                             input);
-   fLayers.back()->Print();
-
-   std::cout<<"output weights out"<<std::endl;
-   for(size_t j=0; j<fLayers.back()->GetWeightsAt(0).GetNrows(); j++)
-   {
-      for(size_t k=0; k<fLayers.back()->GetWeightsAt(0).GetNcols(); k++)
-         {
-            std::cout<<fLayers.back()->GetWeightsAt(0)(j,k)<<"\t";
-   }
-         std::cout<<std::endl;
-   }
-   std::cout<<std::endl;
-
-
    //fLayers.back()->Print();
    // three layers are added, now pointer is on third layer
    size_t weightsSize = fLayers.back()->GetWeights().size();
@@ -502,20 +488,12 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
                                                fLayers[fLayers.size() - 3]->GetOutput(),
                                                fLayers[fLayers.size() - 5]->GetOutput());
 
-
-
-
       }
 
    }
 
-   std::cout<<"here"<<std::endl;
    for(size_t layer=0; layer<numOfHiddenLayers; layer++)
    {
-
-
-      std::cout<<"Weights rows "<<this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNrows()<<std::endl;
-      std::cout<<"Weights cols "<<this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNcols()<<std::endl;
       this->GetLocalWeights().emplace_back(this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNrows(), this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNcols());
       this->GetLocalHiddenBiases().emplace_back(this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(0).GetNrows(), 1);
       this->GetLocalVisibleBiases().emplace_back(this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(1).GetNrows(), 1);
@@ -527,11 +505,6 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
       this->WriteToFile(layer);
    }
 
-
-
-
-
-
    fWasPreTrained = true;
 }
 //______________________________________________________________________________
@@ -542,7 +515,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::FineTune(std::vector<Matrix_t> &
 {
    std::vector<Matrix_t> inp1;
    std::vector<Matrix_t> inp2;
-   if (fLayers.size() == 0) // only Logistic Regression Layer
+   if (fLayers.size() == 0) // only classification Layer
    {
       size_t inputUnits = input[0].GetNrows();
 
@@ -585,28 +558,14 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
       Architecture_t::EncodeInput(input, localOutput, this->GetLocalWeightsAt(i));
       Architecture_t::AddBiases(localOutput, this->GetLocalHiddenBiasesAt(i));
       //evaluate<Architecture_t>(localOutput, DNN::EActivationFunction::kSigmoid);
-      //std::cout<<"1"<<std::endl;
       input.ResizeTo(localOutput);
-      //std::cout<<"2"<<std::endl;
       Architecture_t::Copy(input,localOutput);
-      //std::cout<<"3"<<std::endl;
-
-      //std::cout<<"Local Output rows: "<<localOutput.GetNrows()<<std::endl;
-      //std::cout<<"local Output cols: "<<localOutput.GetNcols()<<std::endl;
       if(i == size-1)
       {
         output.ResizeTo(localOutput);
         Architecture_t::Copy(output, localOutput);
-        ///std::cout<<"Local Output rows: "<<localOutput.GetNrows()<<std::endl;
-        //std::cout<<"local Output cols: "<<localOutput.GetNcols()<<std::endl;
-        //std::cout<<"Output rows: "<<output.GetNrows()<<std::endl;
-        //std::cout<<"Output cols: "<<output.GetNcols()<<std::endl;
       }
-
-
    }
-   //std::cout<<"Output rows: "<<output.GetNrows()<<std::endl;
-   //std::cout<<"Output cols: "<<output.GetNcols()<<std::endl;
    return output;
 }
 //______________________________________________________________________________
@@ -641,14 +600,10 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
 
       if(i == 0)
       {
-        output.ResizeTo(localOutput);
-        Architecture_t::Copy(output, localOutput);
+         output.ResizeTo(localOutput);
+         Architecture_t::Copy(output, localOutput);
       }
-
-
    }
-   std::cout<<"Output rows: "<<output.GetNrows()<<std::endl;
-   std::cout<<"Output cols: "<<output.GetNcols()<<std::endl;
    return output;
 }
 

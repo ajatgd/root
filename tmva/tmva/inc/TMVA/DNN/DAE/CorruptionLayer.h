@@ -130,7 +130,6 @@ TCorruptionLayer<Architecture_t>::TCorruptionLayer(const TCorruptionLayer &corru
 
 {
   // Output Tensor will be created in General Layer
-
 }
 //______________________________________________________________________________
 

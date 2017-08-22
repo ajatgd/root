@@ -110,7 +110,7 @@ TCompressionLayer<Architecture_t>::TCompressionLayer(size_t batchSize, size_t vi
    Architecture_t::Copy(this->GetWeightsAt(0),weights[0]);
    Architecture_t::Copy(this->GetBiasesAt(0),biases[0]);
    Architecture_t::Copy(this->GetBiasesAt(1),biases[1]);
-   
+
  }
 //______________________________________________________________________________
 template <typename Architecture_t>
@@ -173,20 +173,19 @@ auto TCompressionLayer<Architecture_t>::Print() const
                << "Input Units: " << this->GetVisibleUnits() << "\n"
                << "Hidden units " << this->GetHiddenUnits() << "\n";
 
-               std::cout<<"Compressed Input: "<<std::endl;
-               for(size_t i=0; i<this->GetBatchSize(); i++)
-               {
-                  for(size_t j=0; j<this->GetOutputAt(i).GetNrows(); j++)
-                  {
-                     for(size_t k=0; k<this->GetOutputAt(i).GetNcols(); k++)
-                        {
-                           std::cout<<this->GetOutputAt(i)(j,k)<<"\t";
-            	    }
-                        std::cout<<std::endl;
-                  }
-                  std::cout<<std::endl;
-               }
-
+   std::cout<<"Compressed Input: "<<std::endl;
+   for(size_t i=0; i<this->GetBatchSize(); i++)
+   {
+      for(size_t j=0; j<this->GetOutputAt(i).GetNrows(); j++)
+      {
+         for(size_t k=0; k<this->GetOutputAt(i).GetNcols(); k++)
+         {
+            std::cout<<this->GetOutputAt(i)(j,k)<<"\t";
+         }
+         std::cout<<std::endl;
+      }
+      std::cout<<std::endl;
+   }
 }
 //______________________________________________________________________________
 
