@@ -43,7 +43,9 @@
 
 #include <vector>
 #include <cmath>
-//#include <iostream>
+#include <iostream>
+#include <fstream>
+#include <string>
 
 using namespace TMVA::DNN::DAE;
 
@@ -176,6 +178,8 @@ public:
 
    Matrix_t PredictEncodedOutput(Matrix_t& input);
    Matrix_t PredictDecodedOutput(Matrix_t& input);
+
+   void WriteToFile(size_t layer);
 
    /*! Prediction based on activations stored in the last layer. */
    //void Prediction(Matrix_t &predictions, EOutputFunction f) const;
@@ -484,6 +488,8 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
                                                fLayers[fLayers.size() - 5]->GetOutput());
 
 
+
+
       }
 
    }
@@ -491,6 +497,8 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
    std::cout<<"here"<<std::endl;
    for(size_t layer=0; layer<numOfHiddenLayers-1; layer++)
    {
+
+
       std::cout<<"Weights rows "<<this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNrows()<<std::endl;
       std::cout<<"Weights cols "<<this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNcols()<<std::endl;
       this->GetLocalWeights().emplace_back(this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNrows(), this->GetLayerAt( (3 * layer) + 2 )->GetWeightsAt(0).GetNcols());
@@ -501,15 +509,14 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
       Architecture_t::Copy(this->GetLocalHiddenBiasesAt(layer), this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(0));
       Architecture_t::Copy(this->GetLocalVisibleBiasesAt(layer), this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(1));
 
-      for(size_t k=0; k<(size_t)this->GetLayerAt(  2)->GetWeightsAt(0).GetNrows(); k++)
-      {
-         for(size_t m = 0; m<(size_t)this->GetLayerAt( 2 )->GetWeightsAt(0).GetNcols(); m++)
-         {
-            std::cout<<this->GetLayerAt( 2 )->GetWeightsAt(0)(k,m)<<"\t";
-         }
-         std::cout<<std::endl;
-      }
+      this->WriteToFile(layer);
    }
+
+
+
+
+
+
    fWasPreTrained = true;
 }
 //______________________________________________________________________________
@@ -630,7 +637,31 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
    return output;
 }
 
+//______________________________________________________________________________
 
+template <typename Architecture_t, typename Layer_t>
+auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToFile(size_t layer)
+-> void
+{
+   std::ofstream weightsfile, hiddenbiasesfile, visiblebiasesfile;
+   weightsfile.open("Weights"+std::to_string(layer)+".txt");
+   hiddenbiasesfile.open("HiddenBiases"+std::to_string(layer)+".txt");
+   visiblebiasesfile.open("VisibleBiases"+std::to_string(layer)+".txt");
+
+   for(size_t k=0; k<(size_t)this->GetLayerAt(3*layer+2)->GetWeightsAt(0).GetNrows(); k++)
+   {
+      hiddenbiasesfile << this->GetLayerAt(3*layer+2)->GetBiasesAt(0)(k,0)<<"\n";
+      for(size_t m = 0; m<(size_t)this->GetLayerAt(3*layer+2)->GetWeightsAt(0).GetNcols(); m++)
+      {
+         weightsfile << this->GetLayerAt(3*layer+2)->GetWeightsAt(0)(k,m)<<"\n";
+         visiblebiasesfile << this->GetLayerAt(3*layer+2)->GetBiasesAt(1)(m,0)<<"\n";
+      }
+      std::cout<<std::endl;
+   }
+   weightsfile.close();
+   hiddenbiasesfile.close();
+   visiblebiasesfile.close();
+}
 
 //______________________________________________________________________________
 template <typename Architecture_t, typename Layer_t>
