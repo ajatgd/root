@@ -413,13 +413,6 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
    size_t batchSize = this->GetBatchSize();
    size_t visibleUnits = static_cast<size_t>(input[0].GetNrows());
 
-   //std::cout << visiblebiasesfile << std::encl;
-
-  /* for (unsigned int i=0; i<numHiddenUnitsPerLayer.size(); i++)
-   {
-      std::cout << numHiddenUnitsPerLayer[i] << " ";
-   }
-   std::cout << std::endl;*/
 
    AddCorruptionLayer(visibleUnits, numHiddenUnitsPerLayer[0], dropoutProbability, corruptionLevel);
    fLayers.back()->Initialize();

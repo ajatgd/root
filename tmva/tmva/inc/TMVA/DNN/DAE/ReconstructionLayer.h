@@ -144,6 +144,7 @@ TReconstructionLayer<Architecture_t>::TReconstructionLayer(size_t batchSize, siz
 {
    Architecture_t::Copy(this->GetWeightsAt(0),weights[0]);
    Architecture_t::Copy(this->GetBiasesAt(0),biases[0]);
+   Architecture_t::Copy(this->GetBiasesAt(1), biases[1]);
 }
 
 //______________________________________________________________________________
@@ -162,6 +163,7 @@ TReconstructionLayer<Architecture_t>::TReconstructionLayer(TReconstructionLayer<
 {
    Architecture_t::Copy(this->GetWeightsAt(0),layer->weights[0]);
    Architecture_t::Copy(this->GetBiasesAt(0),layer->biases[0]);
+   Architecture_t::Copy(this->GetBiasesAt(1),layer->biases[1]);
 }
 
 //______________________________________________________________________________
@@ -181,7 +183,7 @@ TReconstructionLayer<Architecture_t>::TReconstructionLayer(const TReconstruction
 {
    Architecture_t::Copy(this->GetWeightsAt(0),dae.weights[0]);
    Architecture_t::Copy(this->GetBiasesAt(0),dae.biases[0]);
-
+   Architecture_t::Copy(this->GetBiasesAt(1),dae.biases[1]);
 }
 
 //______________________________________________________________________________

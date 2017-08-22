@@ -109,6 +109,7 @@ TCompressionLayer<Architecture_t>::TCompressionLayer(size_t batchSize, size_t vi
  {
    Architecture_t::Copy(this->GetWeightsAt(0),weights[0]);
    Architecture_t::Copy(this->GetBiasesAt(0),biases[0]);
+   Architecture_t::Copy(this->GetBiasesAt(1),biases[1]);
  }
 //______________________________________________________________________________
 template <typename Architecture_t>
@@ -120,6 +121,7 @@ TCompressionLayer<Architecture_t>::TCompressionLayer(TCompressionLayer<Architect
 {
    Architecture_t::Copy(this->GetWeightsAt(0), layer->weights[0]);
    Architecture_t::Copy(this->GetBiasesAt(0), layer->biases[0]);
+   Architecture_t::Copy(this->GetBiasesAt(1), layer->biases[1]);
    // Output Tensor will be created in General Layer
 }
 //______________________________________________________________________________
@@ -133,6 +135,7 @@ TCompressionLayer<Architecture_t>::TCompressionLayer(const TCompressionLayer &co
 {
    Architecture_t::Copy(this->GetWeightsAt(0), compress.weights[0]);
    Architecture_t::Copy(this->GetBiasesAt(0), compress.biases[0]);
+   Architecture_t::Copy(this->GetBiasesAt(1), compress.biases[1]);
    // Output Tensor will be created in General Layer
 }
 //______________________________________________________________________________
