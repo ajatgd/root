@@ -150,7 +150,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 
    //if (cls < 0 || cls > GetNClasses()) cls = (fMeanValues.size()==1?0:2);//( GetNClasses() == 1 ? 0 : 1 );  ;
    // EVT this is a workaround to address the reader problem with transforma and EvaluateMVA(std::vector<float/double> ,...)
-   if (cls < 0 || cls >= (int) fMeanValues.size()) cls = fMeanValues.size()-1;
+   if (cls < 0 || cls >= (int) input.size()) cls = input.size()-1;
    // EVT workaround end
 
    // Perform DAETransform and return pointers to the new events.

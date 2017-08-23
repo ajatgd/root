@@ -194,7 +194,7 @@ namespace TMVA {
       std::vector<VariableInfo>  fSpectators;        // list of spectators expressions/internal names
 
       // the classes
-      mutable std::vector<ClassInfo*> fClasses;      // name and other infos of the classes
+      mutable std::vector<ClassInfo*> fClasses;       // name and other infos of the classes
 
       TString                    fNormalization;     //
       TString                    fSplitOptions;      //
