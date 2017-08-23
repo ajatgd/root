@@ -213,6 +213,23 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    //std::cout << "Setting output succeded. " << std::endl;
    //std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl;
 
+
+   const Event* decodedEvent = InverseTransform(fTransformedEvent, 2); 
+
+   std::ofstream myfile; 
+   myfile.open("/home/mhuwiler/rootauto/testing/autoencodertest.txt"); 
+   for (unsigned int i=0; i<fTransformedEvent->GetNVariables(); i++) 
+   {
+      myfile << fTransformedEvent->GetValue(i) << " "; 
+
+   }
+   myfile << "    "; 
+   for (unsigned int i=0; i<decodedEvent->GetNVariables(); i++) 
+   {
+      myfile << decodedEvent->GetValue(i) << " "; 
+   }
+   myfile.close(); 
+
    return fTransformedEvent;
 }
 
@@ -297,7 +314,9 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
 
    GetInput(ev, localInput, mask, kTRUE);
    TransformInputData(localInput, backTransformInput);
+   std::cout << "backTransformInput : " << backTransformInput.GetNrows() << std::endl; 
    backTransformOutput = fAutoEncoder[currentClass]->PredictDecodedOutput(backTransformInput);
+   std::cout << "backTransformOutput : " << backTransformOutput.GetNrows() << std::endl; 
    BackTransformOutputData(backTransformOutput, localOutput);
    SetOutput(fBackTransformedEvent, localOutput, mask, ev, kTRUE);
 

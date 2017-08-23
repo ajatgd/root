@@ -374,8 +374,9 @@ void TMVA::VariableTransformBase::SetOutput( Event* event, std::vector<Float_t>&
    std::vector<Float_t>::iterator itOutput = output.begin();
    std::vector<Char_t>::iterator  itMask   = mask.begin();
 
-   if( oldEvent )
+   if( oldEvent ) {
       event->CopyVarValues( *oldEvent );
+   }
 
    event->ResizeValues(output.size()); 
 
@@ -383,6 +384,8 @@ void TMVA::VariableTransformBase::SetOutput( Event* event, std::vector<Float_t>&
    //for (unsigned int i=0; i<mask.size(); i++) {
    //   std::cout << static_cast<bool>(mask[i]) << " "; 
    //}
+
+   std::cout << "sizes (output, fGet, fPut) : " << output.size() << " " << fGet.size() << " " << fPut.size() << std::endl; 
 
    try {
 
