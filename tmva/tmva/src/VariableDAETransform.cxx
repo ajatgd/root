@@ -215,21 +215,21 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 
 
    if (false) {
-   const Event* decodedEvent = InverseTransform(fTransformedEvent, 2); 
+   const Event* decodedEvent = InverseTransform(fTransformedEvent, 2);
 
-   std::ofstream myfile; 
-   myfile.open("/home/mhuwiler/rootauto/testing/autoencodertest.txt"); 
-   for (unsigned int i=0; i<fTransformedEvent->GetNVariables(); i++) 
+   std::ofstream myfile;
+   myfile.open("/home/mhuwiler/rootauto/testing/autoencodertest.txt");
+   for (unsigned int i=0; i<fTransformedEvent->GetNVariables(); i++)
    {
-      myfile << fTransformedEvent->GetValue(i) << " "; 
+      myfile << fTransformedEvent->GetValue(i) << " ";
 
    }
-   myfile << "    "; 
-   for (unsigned int i=0; i<decodedEvent->GetNVariables(); i++) 
+   myfile << "    ";
+   for (unsigned int i=0; i<decodedEvent->GetNVariables(); i++)
    {
-      myfile << decodedEvent->GetValue(i) << " "; 
+      myfile << decodedEvent->GetValue(i) << " ";
    }
-   myfile.close(); 
+   myfile.close();
    }
 
    return fTransformedEvent;
@@ -243,7 +243,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    if( oldEvent )
       event->CopyVarValues( *oldEvent );
 
-   event->ResizeValues(output.size()); 
+   event->ResizeValues(output.size());
 
 
    try {
@@ -316,9 +316,9 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
 
    GetInput(ev, localInput, mask, kTRUE);
    TransformInputData(localInput, backTransformInput);
-   std::cout << "backTransformInput : " << backTransformInput.GetNrows() << std::endl; 
+   std::cout << "backTransformInput : " << backTransformInput.GetNrows() << std::endl;
    backTransformOutput = fAutoEncoder[currentClass]->PredictDecodedOutput(backTransformInput);
-   std::cout << "backTransformOutput : " << backTransformOutput.GetNrows() << std::endl; 
+   std::cout << "backTransformOutput : " << backTransformOutput.GetNrows() << std::endl;
    BackTransformOutputData(backTransformOutput, localOutput);
    SetOutput(fBackTransformedEvent, localOutput, mask, ev, kTRUE);
 
@@ -447,24 +447,24 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    }
 
 
-   Char_t varType = 's'; 
-   if (nvars > 0)    // If the transfomation was done on variables 
+   Char_t varType = 's';
+   if (nvars > 0)    // If the transfomation was done on variables
    {
-      varType = 'v'; 
+      varType = 'v';
    }
-   else if (ntgts > 0)  // If the transformation was done on targets 
+   else if (ntgts > 0)  // If the transformation was done on targets
    {
-      varType = 't'; 
+      varType = 't';
    }
-   else 
+   else
    {
       Log() << kFATAL << "No variables or only spectators, cannot perform autoencoder transformation. " << Endl;
    }
 
-   fPut.clear(); 
-   for (unsigned int i=0; i<numCompressedUnits; i++) 
+   fPut.clear();
+   for (unsigned int i=0; i<numCompressedUnits; i++)
    {
-      fPut.push_back(std::pair<Char_t,UInt_t>(varType, i)); 
+      fPut.push_back(std::pair<Char_t,UInt_t>(varType, i));
    }
 
 
@@ -888,4 +888,20 @@ void TMVA::VariableDAETransform::MakeFunction( std::ostream& fout, const TString
       fout << "   delete [] rv;" << std::endl;
       fout << "}" << std::endl;
    }*/
+}
+void TMVA::VariableDAETransform::ReadFromFile()
+{
+   std::ifstream weightsfile, hiddenbiasesfile, visiblebiasesfile, info;
+   std::string line;
+   info.open("layersInfo.txt");
+   info >> line;
+   size_t layers = std::stoi(line);
+
+   for(size_t i=0; i < layers; i++)
+   {
+      weightsfile.open("Weights"+std::to_string(layers)+".txt");
+      hiddenbiasesfile.open("HiddenBiases"+std::to_string(layers)+".txt");
+      visiblebiasesfile.open("VisibleBiases"+std::to_string(layers)+".txt");
+   }
+
 }

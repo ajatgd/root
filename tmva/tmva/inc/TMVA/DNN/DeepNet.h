@@ -183,7 +183,7 @@ public:
    Matrix_t PredictDecodedOutput(Matrix_t& input);
 
    /* Used to write weights and biases to files*/
-   void WriteToFile(size_t layer);
+   void WriteToFile(size_t layer, size_t layerSize);
 
    /*! Prediction based on activations stored in the last layer. */
    //void Prediction(Matrix_t &predictions, EOutputFunction f) const;
@@ -502,7 +502,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
       Architecture_t::Copy(this->GetLocalHiddenBiasesAt(layer), this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(0));
       Architecture_t::Copy(this->GetLocalVisibleBiasesAt(layer), this->GetLayerAt( (3 * layer) + 2 )->GetBiasesAt(1));
 
-      this->WriteToFile(layer);
+      this->WriteToFile(layer, numOfHiddenLayers);
    }
 
    fWasPreTrained = true;
@@ -610,14 +610,15 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
 //______________________________________________________________________________
 
 template <typename Architecture_t, typename Layer_t>
-auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToFile(size_t layer)
+auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToFile(size_t layer, size_t totalLayers)
 -> void
 {
-   std::ofstream weightsfile, hiddenbiasesfile, visiblebiasesfile;
+   std::ofstream weightsfile, hiddenbiasesfile, visiblebiasesfile, info;
    weightsfile.open("Weights"+std::to_string(layer)+".txt");
    hiddenbiasesfile.open("HiddenBiases"+std::to_string(layer)+".txt");
    visiblebiasesfile.open("VisibleBiases"+std::to_string(layer)+".txt");
-
+   info.open("layersInfo.txt");
+   info << totalLayers;
    for(size_t k=0; k<(size_t)this->GetLayerAt(3*layer+2)->GetWeightsAt(0).GetNrows(); k++)
    {
       hiddenbiasesfile << this->GetLayerAt(3*layer+2)->GetBiasesAt(0)(k,0)<<"\n";
@@ -631,6 +632,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToFile(size_t layer)
    weightsfile.close();
    hiddenbiasesfile.close();
    visiblebiasesfile.close();
+   info.close();
 }
 
 //______________________________________________________________________________
