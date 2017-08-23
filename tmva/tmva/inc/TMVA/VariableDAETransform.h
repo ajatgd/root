@@ -66,8 +66,8 @@ namespace TMVA {
       //template <typename Architecture_t> void   Initialize();
       Bool_t PrepareTransformation (const std::vector<Event*>&);
 
-      //Bool_t GetEventValues( const Event* event, Matrix_t& input, std::vector<Char_t>& mask, Bool_t backTransform = kFALSE  ) const;; 
-      
+      //Bool_t GetEventValues( const Event* event, Matrix_t& input, std::vector<Char_t>& mask, Bool_t backTransform = kFALSE  ) const;;
+
       virtual const Event* Transform(const Event* const, Int_t cls ) const;
       virtual const Event* InverseTransform(const Event* const, Int_t cls ) const;
 
@@ -76,6 +76,7 @@ namespace TMVA {
 
       virtual void AttachXMLTo(void* parent);
       virtual void ReadFromXML( void* trfnode );
+      void ReadFromFile();
 
       // writer of function code
       virtual void MakeFunction( std::ostream& fout, const TString& fncName, Int_t part, UInt_t trCounter, Int_t cls );
@@ -84,19 +85,19 @@ namespace TMVA {
 
       void TrainOnExampleData( const std::vector< Event*>& );
 
-      void TransformInputDataset(const std::vector<Event*>&, std::vector<Matrix_t>&);     //Maybe rename into Convert  
-      void TransformInputData( const std::vector<Float_t>& localEvent, Matrix_t& remoteInputs) const; 
-      void BackTransformOutputData(const Matrix_t&, std::vector<Float_t>&) const; 
+      void TransformInputDataset(const std::vector<Event*>&, std::vector<Matrix_t>&);     //Maybe rename into Convert
+      void TransformInputData( const std::vector<Float_t>& localEvent, Matrix_t& remoteInputs) const;
+      void BackTransformOutputData(const Matrix_t&, std::vector<Float_t>&) const;
 
-      std::vector<DNN::TDeepAutoEncoder<Architecture_t>* > fAutoEncoder; 
-      //TCompressionLayer fEncoder; 
+      std::vector<DNN::TDeepAutoEncoder<Architecture_t>* > fAutoEncoder;
+      //TCompressionLayer fEncoder;
 
-      std::vector<std::vector<Matrix_t> > input;   // One DAE per class plus one extra for all classes together. 
-      std::vector<std::vector<Matrix_t> > output; 
+      std::vector<std::vector<Matrix_t> > input;   // One DAE per class plus one extra for all classes together.
+      std::vector<std::vector<Matrix_t> > output;
 
-      Int_t numCompressedUnits; 
+      Int_t numCompressedUnits;
 
-      
+
       // store relevant parts of PCA locally
       std::vector<TVectorD*> fMeanValues;   // mean values
       std::vector<TMatrixD*> fEigenVectors; // eigenvectors
@@ -104,7 +105,7 @@ namespace TMVA {
       ClassDef(VariableDAETransform,0); // Variable transformation: Principal Value Composition
    };
 
-  //} // namespace DNN 
+  //} // namespace DNN
 
 } // namespace TMVA
 

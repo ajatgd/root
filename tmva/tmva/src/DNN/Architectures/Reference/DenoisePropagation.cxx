@@ -19,6 +19,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <cassert>
 namespace TMVA
 {
 namespace DNN
@@ -112,6 +113,7 @@ template <typename Real_t>
 void TReference<Real_t>::CorruptInput(TMatrixT<Real_t> &input,
                                       TMatrixT<Real_t> &corruptedInput,
                                       Real_t corruptionLevel) {
+   assert(corruptionLevel != 0 && corruptionLevel != 1 && "corruptionLevel cannot be 0 or 1");
    for(size_t i=0; i< (size_t)input.GetNrows(); i++)
    {
       for(size_t j=0; j<(size_t)input.GetNcols(); j++ )
