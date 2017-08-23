@@ -67,7 +67,7 @@ namespace TMVA {
       Bool_t PrepareTransformation (const std::vector<Event*>&);
 
       //Bool_t GetEventValues( const Event* event, Matrix_t& input, std::vector<Char_t>& mask, Bool_t backTransform = kFALSE  ) const;; 
-
+      
       virtual const Event* Transform(const Event* const, Int_t cls ) const;
       virtual const Event* InverseTransform(const Event* const, Int_t cls ) const;
 

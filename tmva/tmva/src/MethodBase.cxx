@@ -668,6 +668,7 @@ void TMVA::MethodBase::TrainMethod()
    //    needed for this classifier
    GetTransformationHandler().CalcTransformations(Data()->GetEventCollection());
    std::cout << "First time CalcTransformation " << std::endl; 
+   #pragma message("Why is this called here? It is called again for the proper transformation. ")
 
    // call training of derived MVA
    Log() << kDEBUG //<<Form("\tDataset[%s] : ",DataInfo().GetName())

@@ -325,9 +325,20 @@ namespace TMVA {
       void             SetTestvarName  ( const TString & v="" ) { fTestvar = (v=="") ? ("MVA_" + GetMethodName()) : v; }
 
       // number of input variable used by classifier
-      UInt_t           GetNvar()       const { return DataInfo().GetNVariables(); }
-      UInt_t           GetNVariables() const { return DataInfo().GetNVariables(); }
+      UInt_t           GetNvar()       const { return GetNVariables(); }
+      UInt_t           GetNVariables() const 
+      { 
+         if (GetTransformationHandler().DifferentOutputSize()) 
+         {
+            return GetTransformationHandler().GetNVariables(); 
+         }
+         else 
+         {
+            return DataInfo().GetNVariables(); 
+         }         
+      }
       UInt_t           GetNTargets()   const { return DataInfo().GetNTargets(); };
+      UInt_t           GetOriginalNVariables() const {return DataInfo().GetNVariables(); }; 
 
       // internal names and expressions of input variables
       const TString&   GetInputVar  ( Int_t i ) const { return DataInfo().GetVariableInfo(i).GetInternalName(); }

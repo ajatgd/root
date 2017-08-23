@@ -239,7 +239,7 @@ void TMVA::MethodDAE::ProcessOptions() {
 
    //net = new TSDAE<fArchitectureString>(batchSize, inputSize, outputSize, fLayout.size(), fLayout)
 
-   #pragma("build net here")
+   #pragma message("build net here")
 
    //
    // Loss function and output.

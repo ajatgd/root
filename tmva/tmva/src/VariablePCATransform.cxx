@@ -184,7 +184,7 @@ const TMVA::Event* TMVA::VariablePCATransform::InverseTransform( const Event* co
    // the cls parameter is outside the defined classes
    // If there is only one class, then no extra class for all events of all classes has to be created
    if (cls < 0 || UInt_t(cls) > nCls) cls = (fMeanValues.size()==1?0:2);//( GetNClasses() == 1 ? 0 : 1 );  ;
-   #pragma("Why different condition?")
+   #pragma message("Why different condition?")
    // Perform PCA and put it into PCAed events tree
 
    if (fBackTransformedEvent==0 ) fBackTransformedEvent = new Event();
@@ -316,7 +316,7 @@ void TMVA::VariablePCATransform::P2X( std::vector<Float_t>& x, const std::vector
 void TMVA::VariablePCATransform::WriteTransformationToStream( std::ostream& o ) const
 {
    for (Int_t sbType=0; sbType<2; sbType++) {
-      #pragma("Why are there only two classes here?"); 
+      #pragma message("Why are there only two classes here?"); 
       o << "# PCA mean values " << std::endl;
       const TVectorD* means = fMeanValues[sbType];
       o << (sbType==0 ? "Signal" : "Background") << " " << means->GetNrows() << std::endl;

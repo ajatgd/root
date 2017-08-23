@@ -69,6 +69,8 @@ Class that contains all the data information.
 
 TMVA::TransformationHandler::TransformationHandler( DataSetInfo& dsi, const TString& callerName )
    : fDataSetInfo(dsi),
+     currentOutputSize(-1), 
+     differentOutputDim(false),
      fRootBaseDir(0),
      fCallerName (callerName),
      fLogger     ( new MsgLogger(TString("TFHandler_" + callerName).Data(), kINFO) )
@@ -143,6 +145,7 @@ void TMVA::TransformationHandler::SetTransformationReferenceClass( Int_t cls )
 
 const TMVA::Event* TMVA::TransformationHandler::Transform( const Event* ev ) const
 {
+   // Update DataSetInfo 
    TListIter trIt(&fTransformations);
    std::vector<Int_t>::const_iterator rClsIt = fTransformationsReferenceClasses.begin();
    const Event* trEv = ev;
@@ -150,6 +153,11 @@ const TMVA::Event* TMVA::TransformationHandler::Transform( const Event* ev ) con
       if (rClsIt == fTransformationsReferenceClasses.end()) Log() << kFATAL<< "invalid read in TransformationHandler::Transform " <<Endl;
       trEv = trf->Transform(trEv, (*rClsIt) );
       rClsIt++;
+   }
+   if (trEv->GetNVariables() != ev->GetNVariables() || trEv->GetNTargets() != ev->GetNTargets() || trEv->GetNSpectators() != ev->GetNSpectators())     // Patch for updating the variable size in MethodBase 
+   {
+      differentOutputDim = true; 
+      currentOutputSize = trEv->GetNVariables(); 
    }
    return trEv;
 }
@@ -176,6 +184,12 @@ const TMVA::Event* TMVA::TransformationHandler::InverseTransform( const Event* e
       }
       else break;
       --rClsIt;
+   }
+   if (trEv->GetNVariables() != ev->GetNVariables() || trEv->GetNTargets() != ev->GetNTargets() || trEv->GetNSpectators() != ev->GetNSpectators())     // Patch for updating the variable size in MethodBase 
+   {
+      differentOutputDim = true; 
+      currentOutputSize = trEv->GetNVariables(); 
+
    }
    return trEv;
 

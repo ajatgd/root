@@ -198,10 +198,10 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    //std::cout << "Backward transformation finished " << std::endl;
    //std::cout << "Output size : " << localOutput.size() << std::endl;
 
-   for (unsigned int i=numCompressedUnits; i<mask.size(); i++)
-   {
-      mask[i] = kTRUE;  // Workaround for not overshooting the spare value, since the output has less dimensions than the input.
-   }                    // Only the number of output dimensions (numCompressedUnits) ar left unmasked.
+   //for (unsigned int i=numCompressedUnits; i<mask.size(); i++)
+   //{
+   //   mask[i] = kTRUE;  // Workaround for not overshooting the spare value, since the output has less dimensions than the input.
+   //}                    // Only the number of output dimensions (numCompressedUnits) ar left unmasked.
 
    // std::cout << encodedEvent.GetNrows() << " " << localOutput.size() << " " << std::endl;
    /*for (unsigned int i=0; i<localOutput.size(); i++)
@@ -223,6 +223,9 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 
    if( oldEvent )
       event->CopyVarValues( *oldEvent );
+
+   event->ResizeValues(output.size()); 
+
 
    try {
 
@@ -423,7 +426,25 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    }
 
 
+   Char_t varType = 's'; 
+   if (nvars > 0)    // If the transfomation was done on variables 
+   {
+      varType = 'v'; 
+   }
+   else if (ntgts > 0)  // If the transformation was done on targets 
+   {
+      varType = 't'; 
+   }
+   else 
+   {
+      Log() << kFATAL << "No variables or only spectators, cannot perform autoencoder transformation. " << Endl;
+   }
 
+   fPut.clear(); 
+   for (unsigned int i=0; i<numCompressedUnits; i++) 
+   {
+      fPut.push_back(std::pair<Char_t,UInt_t>(varType, i)); 
+   }
 
 
 
