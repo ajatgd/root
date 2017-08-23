@@ -598,7 +598,7 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
       Architecture_t::Copy(input,localOutput);
       std::cout<<"3"<<std::endl;
 
-      if(i == 0)
+      if(i == 1)
       {
          output.ResizeTo(localOutput);
          Architecture_t::Copy(output, localOutput);

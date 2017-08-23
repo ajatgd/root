@@ -214,6 +214,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    //std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl;
 
 
+   if (false) {
    const Event* decodedEvent = InverseTransform(fTransformedEvent, 2); 
 
    std::ofstream myfile; 
@@ -229,6 +230,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
       myfile << decodedEvent->GetValue(i) << " "; 
    }
    myfile.close(); 
+   }
 
    return fTransformedEvent;
 }

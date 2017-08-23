@@ -480,7 +480,7 @@ void TMVA::TransformationHandler::PlotVariables (const std::vector<Event*>& even
       CalcStats(events);
    }
 
-   const UInt_t nvar = fDataSetInfo.GetNVariables();
+   const UInt_t nvar = differentOutputDim ? GetNVariables() : fDataSetInfo.GetNVariables();;
    const UInt_t ntgt = fDataSetInfo.GetNTargets();
    const Int_t  ncls = fDataSetInfo.GetNClasses();
 
