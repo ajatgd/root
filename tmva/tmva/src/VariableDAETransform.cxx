@@ -213,8 +213,8 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    //std::cout << "Setting output succeded. " << std::endl;
    //std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl;
 
-
-   if (false) {
+   std::cout << "fTransformedEvent : " << fTransformedEvent->GetNVariables() << std::endl; 
+   if (true) {
    const Event* decodedEvent = InverseTransform(fTransformedEvent, 2);
 
    std::ofstream myfile;

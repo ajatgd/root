@@ -335,6 +335,8 @@ Bool_t TMVA::VariableTransformBase::GetInput( const Event* event, std::vector<Fl
       input.reserve(fGet.size() );
    }
 
+   //std::cout << "size : (fPut, fGet, input, event) " << fPut.size() << " " << fGet.size() << " " << input.size() << " " << event-GetNVariables() << std::endl; 
+
    Bool_t hasMaskedEntries = kFALSE;
    //   event->Print(std::cout);
    for( ; itEntry != itEntryEnd; ++itEntry ) {

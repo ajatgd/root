@@ -588,6 +588,8 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
       Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
    }
 
+   std::cout << "Matrix dim : " << input.GetNrows() << std::endl; 
+
    size_t size = this->GetLocalWeights().size();
    std::cout<<"size is "<<size<<std::endl;
    Matrix_t output;
