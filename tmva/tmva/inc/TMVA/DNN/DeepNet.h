@@ -547,9 +547,6 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
       Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
    }
 
-   std::cout<< "Input units rows: "<<input.GetNrows()<<std::endl;
-   std::cout<< "Input units cols: "<<input.GetNcols()<<std::endl;
-
    size_t size = this->GetLocalWeights().size();
    //std::cout<<"size is "<<size<<std::endl;
    Matrix_t output;
@@ -568,11 +565,7 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
         output.ResizeTo(localOutput);
         Architecture_t::Copy(output, localOutput);
       }
-      std::cout<<"ok inside is cool"<<std::endl;
    }
-   std::cout<<"cool outside"<<std::endl;
-   std::cout<<"output rows: "<<output.GetNrows();
-   std::cout<<"output cols: "<<output.GetNcols();
    return output;
 }
 //______________________________________________________________________________
@@ -581,31 +574,27 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
 template <typename Architecture_t, typename Layer_t>
 typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::PredictDecodedOutput(Matrix_t& input)
 {
-
+   Matrix_t Input;
+   Input.ResizeTo(input);
+   Architecture_t::Copy(Input,input);
    std::cout << "Starting predict " << std::endl;
    if (fWasPreTrained == false)
    {
       Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
    }
 
-   std::cout << "Matrix dim : " << input.GetNrows() << std::endl; 
-
    size_t size = this->GetLocalWeights().size();
-   std::cout<<"size is "<<size<<std::endl;
    Matrix_t output;
    for(size_t i= size ; i > 0; i--)
    {
-      Matrix_t localOutput(this->GetLocalWeightsAt(i-1).GetNrows(), 1);
+      Matrix_t localOutput(this->GetLocalWeightsAt(i-1).GetNcols(), 1);
       Matrix_t weights(this->GetLocalWeightsAt(i-1).GetNrows(), this->GetLocalWeightsAt(i-1).GetNcols());
       Matrix_t biases(this->GetLocalVisibleBiasesAt(i-1).GetNrows(), 1);
-      Architecture_t::ReconstructInput(input, localOutput, this->GetLocalWeightsAt(i-1));
+      Architecture_t::ReconstructInput(Input, localOutput, this->GetLocalWeightsAt(i-1));
       Architecture_t::AddBiases(localOutput, this->GetLocalVisibleBiasesAt(i-1));
-      //evaluate<Architecture_t>(localOutput, DNN::EActivationFunction::kSigmoid);
-      std::cout<<"1"<<std::endl;
-      input.ResizeTo(localOutput);
-      std::cout<<"2"<<std::endl;
-      Architecture_t::Copy(input,localOutput);
-      std::cout<<"3"<<std::endl;
+
+      Input.ResizeTo(localOutput);
+      Architecture_t::Copy(Input,localOutput);
 
       if(i == 1)
       {

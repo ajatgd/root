@@ -213,7 +213,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    //std::cout << "Setting output succeded. " << std::endl;
    //std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl;
 
-   std::cout << "fTransformedEvent : " << fTransformedEvent->GetNVariables() << std::endl; 
+   std::cout << "fTransformedEvent : " << fTransformedEvent->GetNVariables() << std::endl;
    if (true) {
    const Event* decodedEvent = InverseTransform(fTransformedEvent, 2);
 
@@ -315,10 +315,15 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
    std::vector<Float_t> output;
 
    GetInput(ev, localInput, mask, kTRUE);
+   //std::cout<<"before Transform"<<std::endl;
    TransformInputData(localInput, backTransformInput);
-   std::cout << "backTransformInput : " << backTransformInput.GetNrows() << std::endl;
+   //std::cout<<"after Transform"<<std::endl;
+   //std::cout << "backTransformInput rows : " << backTransformInput.GetNrows() << std::endl;
+   //std::cout << "backTransformInput cols : " << backTransformInput.GetNcols() << std::endl;
+   backTransformOutput.ResizeTo(fAutoEncoder[currentClass]->PredictDecodedOutput(backTransformInput));
    backTransformOutput = fAutoEncoder[currentClass]->PredictDecodedOutput(backTransformInput);
-   std::cout << "backTransformOutput : " << backTransformOutput.GetNrows() << std::endl;
+   //std::cout << "backTransformOutput rows : " << backTransformOutput.GetNrows() << std::endl;
+   //std::cout<< "backTransformOutput cols"<<backTransformOutput.GetNcols()<<std::endl;
    BackTransformOutputData(backTransformOutput, localOutput);
    SetOutput(fBackTransformedEvent, localOutput, mask, ev, kTRUE);
 
