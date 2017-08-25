@@ -8,7 +8,7 @@
  * Web    : http://tmva.sourceforge.net                                           *
  *                                                                                *
  * Description:                                                                   *
- *      Testing the Compression Layer                                                 *
+ *      Testing the Compression Layer for Reference Architecture.                 *
  *                                                                                *
  * Authors (alphabetical):                                                        *
  *      Akshay Vashistha    <akshayvashistha1995@gmail.com>  - CERN, Switzerland  *

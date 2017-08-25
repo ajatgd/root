@@ -41,7 +41,6 @@ using namespace TMVA::DNN::DAE;
 template <typename Architecture> auto constructDeepAutoEncoderNet(TDeepAutoEncoder<Architecture> &net)
 -> void
 {
-   using Scalar_t = typename Architecture::Scalar_t;
    using Matrix_t = typename Architecture::Matrix_t;
 
    double train_X[][6] = {
@@ -111,7 +110,6 @@ template <typename Architecture> auto constructDeepAutoEncoderNet(TDeepAutoEncod
    }
 
 
-   size_t batchSize=6;
    size_t testDataBatchSize =2;
 
    net.FineTune(input,
@@ -122,13 +120,11 @@ template <typename Architecture> auto constructDeepAutoEncoderNet(TDeepAutoEncod
 template <typename Architecture> auto testNet()
 -> void
 {
-   using Scalar_t = typename Architecture::Scalar_t;
-   using Matrix_t = typename Architecture::Matrix_t;
    using Net_t = TDeepAutoEncoder<Architecture>;
    size_t batchSize = 6;
-   Net_t convNet(batchSize, 1, 1, 1, 1, 1, 1,
+   Net_t daeNet(batchSize, 1, 1, 1, 1, 1, 1,
                  ELossFunction::kMeanSquaredError, EInitialization::kGauss);
 
-   constructDeepAutoEncoderNet(convNet);
+   constructDeepAutoEncoderNet(daeNet);
  }
 #endif
