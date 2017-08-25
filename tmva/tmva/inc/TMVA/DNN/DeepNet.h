@@ -577,13 +577,15 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
    Matrix_t Input;
    Input.ResizeTo(input);
    Architecture_t::Copy(Input,input);
-   std::cout << "Starting predict " << std::endl;
+   //std::cout << "Starting predict " << std::endl;
+
    if (fWasPreTrained == false)
    {
       Log() << kFATAL << "The autoencoder was not yet trained, unable to predict the output for the sample. " << Endl;
    }
 
    size_t size = this->GetLocalWeights().size();
+
    Matrix_t output;
    for(size_t i= size ; i > 0; i--)
    {
@@ -604,6 +606,7 @@ typename Architecture_t::Matrix_t TDeepAutoEncoder<Architecture_t, Layer_t>::Pre
    }
    return output;
 }
+
 
 //______________________________________________________________________________
 

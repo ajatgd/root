@@ -213,23 +213,31 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    //std::cout << "Setting output succeded. " << std::endl;
    //std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl;
 
-   std::cout << "fTransformedEvent : " << fTransformedEvent->GetNVariables() << std::endl;
+
+   //std::cout << "fTransformedEvent : " << fTransformedEvent->GetNVariables() << std::endl; 
    if (true) {
    const Event* decodedEvent = InverseTransform(fTransformedEvent, 2);
 
-   std::ofstream myfile;
-   myfile.open("/home/mhuwiler/rootauto/testing/autoencodertest.txt");
+   std::ofstream myfile, differencefile;
+   myfile.open("/home/mhuwiler/rootauto/testing/autoencodertest.txt", std::ios::app);
+   differencefile.open("/home/mhuwiler/rootauto/testing/differences.txt", std::ios::app);
    for (unsigned int i=0; i<fTransformedEvent->GetNVariables(); i++)
    {
       myfile << fTransformedEvent->GetValue(i) << " ";
 
    }
-   myfile << "    ";
+   myfile << " ";
+   //assert(decodedEvent->GetNVariables() == ev->GetNVariables()); 
    for (unsigned int i=0; i<decodedEvent->GetNVariables(); i++)
    {
       myfile << decodedEvent->GetValue(i) << " ";
+      differencefile << (std::abs(ev->GetValue(i) - decodedEvent->GetValue(i))) << " "; 
    }
+   myfile << std::endl; 
+   differencefile << std::endl; 
    myfile.close();
+   differencefile.close(); 
+
    }
 
    return fTransformedEvent;
@@ -324,6 +332,7 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
    backTransformOutput = fAutoEncoder[currentClass]->PredictDecodedOutput(backTransformInput);
    //std::cout << "backTransformOutput rows : " << backTransformOutput.GetNrows() << std::endl;
    //std::cout<< "backTransformOutput cols"<<backTransformOutput.GetNcols()<<std::endl;
+
    BackTransformOutputData(backTransformOutput, localOutput);
    SetOutput(fBackTransformedEvent, localOutput, mask, ev, kTRUE);
 
