@@ -8,10 +8,10 @@
  * Web    : http://tmva.sourceforge.net                                           *
  *                                                                                *
  * Description:                                                                   *
- *      Testing the Compression Layer.                                                              *
+ *      Header for testing the Compression Layer.                                 *                             *
  *                                                                                *
  * Authors (alphabetical):                                                        *
- *      Akshay Vashistha    <akshayvashistha1995@gmail.com>  - CERN, Switzerland  *
+ *      Akshay Vashistha  <akshayvashistha1995@gmail.com> - JSSATE, Noida, India  *
  *                                                                                *
  * Copyright (c) 2005-2015:                                                       *
  *      CERN, Switzerland                                                         *
@@ -41,9 +41,7 @@ using namespace TMVA::DNN::DAE;
 template <typename Architecture> auto testLayer(size_t batchSize, size_t visibleUnits, size_t hiddenUnits)
 -> void
 {
-   //using Scalar_t = typename Architecture::Scalar_t;
    using Matrix_t = typename Architecture::Matrix_t;
-
    using TCompressionLayer = TCompressionLayer<Architecture>;
 
    Matrix_t weights(hiddenUnits,visibleUnits);
@@ -96,11 +94,9 @@ template <typename Architecture> auto testLayer(size_t batchSize, size_t visible
    std::cout<<std::endl;
 
    dae.Forward(input,false);
-
+   
    std::cout<<std::endl;
    std::cout<<std::endl;
    dae.Print();
-
-
 }
 #endif

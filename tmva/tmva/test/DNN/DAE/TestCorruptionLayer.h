@@ -8,7 +8,7 @@
  * Web    : http://tmva.sourceforge.net                                           *
  *                                                                                *
  * Description:                                                                   *
- *      Testing the Corruption Layer.                                                              *
+ *      Header for testing the Corruption Layer.                                  *
  *                                                                                *
  * Authors (alphabetical):                                                        *
  *      Akshay Vashistha    <akshayvashistha1995@gmail.com>  - CERN, Switzerland  *
@@ -41,7 +41,6 @@ using namespace TMVA::DNN::DAE;
 template <typename Architecture> auto testLayer(size_t batchSize, size_t visibleUnits)
 -> void
 {
-   //using Scalar_t = typename Architecture::Scalar_t;
    using Matrix_t = typename Architecture::Matrix_t;
 
    using TCorruptionLayer = TCorruptionLayer<Architecture>;

@@ -312,7 +312,7 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
 {
    if (!IsCreated()) return 0;
    //   const Int_t inputSize = fGet.size();
-   const UInt_t nCls = GetNClasses();
+   //const UInt_t nCls = GetNClasses();
    Int_t currentClass = ev->GetClass();
 
    if (fBackTransformedEvent==0 ) fBackTransformedEvent = new Event();
@@ -320,7 +320,7 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
    Matrix_t backTransformInput, backTransformOutput;
    std::vector<Float_t> localInput, localOutput;
    std::vector<Char_t>  mask;
-   std::vector<Float_t> output;
+   //std::vector<Float_t> output;
 
    GetInput(ev, localInput, mask, kTRUE);
    //std::cout<<"before Transform"<<std::endl;
@@ -378,7 +378,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
 
 
-   const Int_t inputSize = fGet.size();
+   //const Int_t inputSize = fGet.size();
 
    // if we have more than one class, add another PCA analysis which combines all classes
    const UInt_t nCls = GetNClasses();
@@ -476,7 +476,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    }
 
    fPut.clear();
-   for (unsigned int i=0; i<numCompressedUnits; i++)
+   for (size_t i=0; i<(size_t)numCompressedUnits; i++)
    {
       fPut.push_back(std::pair<Char_t,UInt_t>(varType, i));
    }
@@ -532,7 +532,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
          }
          mask.push_back(kFALSE);
       }
-      catch(std::out_of_range& /* excpt * ){ // happens when an event is transformed which does not yet have the targets calculated (in the application phase)
+      catch(std::out_of_range&  excpt * ){ // happens when an event is transformed which does not yet have the targets calculated (in the application phase)
          input(idx, 0) = 0.f;
          mask.push_back(kTRUE);
          hasMaskedEntries = kTRUE;
@@ -577,7 +577,7 @@ void TMVA::VariableDAETransform::BackTransformOutputData( const Matrix_t& autoen
    vec.clear();
    if (autoencoderOutput.GetNcols()<2)
    {
-      for (unsigned int i=0; i< autoencoderOutput.GetNrows(); i++)
+      for (size_t i=0; i< (size_t)autoencoderOutput.GetNrows(); i++)
          vec.push_back(autoencoderOutput(i, 0));
    }
 
@@ -822,7 +822,7 @@ void TMVA::VariableDAETransform::MakeFunction( std::ostream& fout, const TString
    }
 
    // sanity check
-   /*if (numC>1){
+   if (numC>1){
       if (input[0][0]->GetNrows()   != input[1][0]->GetNrows() ||
           output[0][0]->GetNrows() != output[1][0]->GetNrows() ||) {
          Log() << kFATAL << "<MakeFunction> Mismatch in vector/matrix dimensions" << Endl;
