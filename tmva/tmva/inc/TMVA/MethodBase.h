@@ -337,8 +337,19 @@ namespace TMVA {
             return DataInfo().GetNVariables(); 
          }         
       }
-      UInt_t           GetNTargets()   const { return DataInfo().GetNTargets(); };
+      UInt_t           GetNTargets()   const 
+      { 
+         if (GetTransformationHandler().DifferentOutputSize()) 
+         { 
+            return GetTransformationHandler().GetNTargets(); 
+         }
+         else 
+         {
+            return DataInfo().GetNTargets(); 
+         } 
+      };
       UInt_t           GetOriginalNVariables() const {return DataInfo().GetNVariables(); }; 
+      UInt_t           GetOriginalNTargets()   const {return DataInfo().GetNVariables(); };
 
       // internal names and expressions of input variables
       const TString&   GetInputVar  ( Int_t i ) const { return DataInfo().GetVariableInfo(i).GetInternalName(); }

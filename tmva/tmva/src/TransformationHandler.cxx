@@ -69,7 +69,8 @@ Class that contains all the data information.
 
 TMVA::TransformationHandler::TransformationHandler( DataSetInfo& dsi, const TString& callerName )
    : fDataSetInfo(dsi),
-     currentOutputSize(-1), 
+     currentOutputSize(dsi.GetNVariables()),   // Previously -1 
+     currentTargetSize(dsi.GetNTargets()), 
      differentOutputDim(false),
      fRootBaseDir(0),
      fCallerName (callerName),
@@ -158,6 +159,7 @@ const TMVA::Event* TMVA::TransformationHandler::Transform( const Event* ev ) con
    {
       differentOutputDim = true; 
       currentOutputSize = trEv->GetNVariables(); 
+      currentTargetSize = trEv->GetNTargets(); 
    }
    return trEv;
 }

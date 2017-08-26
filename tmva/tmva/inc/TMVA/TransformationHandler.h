@@ -88,7 +88,8 @@ namespace TMVA {
 
       inline Int_t GetNVariables() const { return currentOutputSize; }; 
       inline Bool_t DifferentOutputSize() const { return differentOutputDim; };
-
+      inline Int_t GetNTargets() const { return currentTargetSize; }
+      
       void         WriteToStream ( std::ostream& o ) const;
       void         AddXMLTo      ( void* parent=0 ) const;
       void         ReadFromStream( std::istream& istr );
@@ -132,6 +133,7 @@ namespace TMVA {
       std::vector<std::vector<TMVA::TransformationHandler::VariableStat> >  fVariableStats; // first the variables, then the targets
 
       mutable Int_t                 currentOutputSize;   // Dimension of the output of the transformations, can be different the input dimension (dimensionality reduction)
+      mutable Int_t                 currentTargetSize;   // Dimension of the targets of after the transformation. 
       mutable Bool_t                differentOutputDim;  // Bool that is true if the output of the transformation has a different dimension than the input. 
 
       Int_t                 fNumC;               // number of categories (#classes +1)

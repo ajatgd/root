@@ -387,7 +387,7 @@ void TMVA::VariableTransformBase::SetOutput( Event* event, std::vector<Float_t>&
    //   std::cout << static_cast<bool>(mask[i]) << " "; 
    //}
 
-   std::cout << "sizes (output, fGet, fPut) : " << output.size() << " " << fGet.size() << " " << fPut.size() << std::endl; 
+   //std::cout << "sizes (output, fGet, fPut) : " << output.size() << " " << fGet.size() << " " << fPut.size() << std::endl; 
 
    try {
 
