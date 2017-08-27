@@ -231,7 +231,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    for (unsigned int i=0; i<decodedEvent->GetNVariables(); i++)
    {
       myfile << decodedEvent->GetValue(i) << " ";
-      differencefile << (std::abs(ev->GetValue(i) - decodedEvent->GetValue(i))) << " "; 
+      differencefile << (ev->GetValue(i) - decodedEvent->GetValue(i)) << " "; 
    }
    myfile << std::endl; 
    differencefile << std::endl; 
@@ -361,9 +361,9 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    std::vector<size_t> numHiddenUnitsPerLayer = {2};
    Scalar_t learningRate = 0.1;
-   Scalar_t corruptionLevel = 0.3;
-   Scalar_t dropoutProbability = 1.;
-   size_t epochs = 50;
+   Scalar_t corruptionLevel = 0.2;     // between 0.1 and 0.3 
+   Scalar_t dropoutProbability = 0.2;
+   size_t epochs = 15000;
    DNN::EActivationFunction activation;
    bool applyDropout = false;
    activation = DNN::EActivationFunction::kSigmoid;
@@ -393,7 +393,8 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
 
    numHiddenUnitsPerLayer.clear();
    numHiddenUnitsPerLayer.push_back(visibleUnits);
-   numHiddenUnitsPerLayer.push_back(2);
+   numHiddenUnitsPerLayer.push_back(static_cast<size_t>(std::round(static_cast<double>(visibleUnits)/2.)));   // 2
+
 
 
 
