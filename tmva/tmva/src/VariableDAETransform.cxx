@@ -1,5 +1,5 @@
 // @(#)root/tmva $Id$
-// Author: Andreas Hoecker, Joerg Stelzer, Helge Voss, Eckhard von Toerne
+// Author: Marc Huwiler
 
 /**********************************************************************************
  * Project: TMVA - a Root-integrated toolkit for multivariate data analysis       *
@@ -11,12 +11,8 @@
  *      Implementation (see header for description)                               *
  *                                                                                *
  * Authors (alphabetical):                                                        *
- *      Andreas Hoecker <Andreas.Hocker@cern.ch> - CERN, Switzerland              *
- *      Peter Speckmayer <Peter.Speckmayer@cern.ch> - CERN, Switzerland           *
- *      Joerg Stelzer   <Joerg.Stelzer@cern.ch>  - CERN, Switzerland              *
- *      Eckhard v. Toerne     <evt@uni-bonn.de>     - U of Bonn, Germany          *
- *      Helge Voss      <Helge.Voss@cern.ch>     - MPI-K Heidelberg, Germany      *
- *      Marc Huwiler    <marc.huwiler@windowslive.com> - CERN, Switzerland        *
+ *      Marc Huwiler    <marc.huwiler@windowslive.com> - CERN, Switzerland        *  
+ *      Akshay Vashistha <akshayvashistha1995@gmail.com>  - JSSATE, Noida, India  *
  *                                                                                *
  * Copyright (c) 2005-2011:                                                       *
  *      CERN, Switzerland                                                         *
@@ -30,7 +26,6 @@
 
 /*! \class TMVA::VariableDAETransform
 \ingroup TMVA
-Linear interpolation class
 */
 
 #include "TMVA/VariableDAETransform.h"
@@ -95,8 +90,7 @@ void TMVA::VariableDAETransform::Initialize()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// calculate the principal components using the ROOT class TPrincipal
-/// and the normalization
+
 
 Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Event*>& events)
 {
@@ -112,7 +106,7 @@ Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Even
 
    SetNVariables(inputSize);
 
-   // TPrincipal doesn't support PCA transformation for 1 or less variables
+   // 
    if (inputSize <= 1) {
       Log() << kFATAL << "Cannot perform DAETransform for " << inputSize << " variable only" << Endl;
       return kFALSE;
@@ -138,7 +132,7 @@ Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Even
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// apply the principal component analysis
+/// apply the DAE Transformation
 
 const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev, Int_t cls ) const
 {
@@ -306,7 +300,7 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
 ////////////////////////////////////////////////////////////////////////////////
 /// apply the principal component analysis
 /// TODO: implementation of inverse transformation
-///    Log() << kFATAL << "Inverse transformation for PCA transformation not yet implemented. Hence, this transformation cannot be applied together with regression. Please contact the authors if necessary." << Endl;
+///    Log() << kFATAL << "Inverse transformation for DAE transformation not yet implemented. Hence, this transformation cannot be applied together with regression. Please contact the authors if necessary." << Endl;
 
 const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* const ev, Int_t cls ) const
 {
@@ -341,7 +335,7 @@ const TMVA::Event* TMVA::VariableDAETransform::InverseTransform( const Event* co
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// calculate the principal components for the signal and the background data
+/// calculate the DAE transform for the signal and the background data
 /// it uses the MakePrincipal method of ROOT's TPrincipal class
 
 void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>& events )
