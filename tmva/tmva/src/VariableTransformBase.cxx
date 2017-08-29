@@ -380,7 +380,24 @@ void TMVA::VariableTransformBase::SetOutput( Event* event, std::vector<Float_t>&
       event->CopyVarValues( *oldEvent );
    }
 
-   event->ResizeValues(output.size()); 
+   Int_t valSize = 0, tgtSize = 0, spctSize = 0; 
+   for (unsigned int i=0; i<fPut.size(); i++) 
+   {
+      if (fPut[i].first == 'v') {valSize++; }
+      else if (fPut[i].first == 't') {tgtSize++; }
+      else if (fPut[i].first == 's') {spctSize++; }
+      else Log() << kFATAL << "Unknown type iof variable. " << Endl; 
+   }
+
+   if (valSize > 0) 
+   {
+      event->ResizeValues(valSize); 
+   }
+   if (tgtSize > 0) 
+   {
+      event->ResizeTargets(tgtSize); 
+   }
+
 
    //std::cout << "fGet : " << fGet.size() << " fPut : " << fPut.size() << std::endl; 
    //for (unsigned int i=0; i<mask.size(); i++) {

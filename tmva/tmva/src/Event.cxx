@@ -309,6 +309,11 @@ void TMVA::Event::ResizeValues(int newSize)
   //std::cout << fValues.size() << std::endl; 
 }
 
+void TMVA::Event::ResizeTargets(int newSize) 
+{
+  fTargets = std::vector<Float_t>(newSize); 
+  //std::cout << fValues.size() << std::endl; 
+}
 
 
 

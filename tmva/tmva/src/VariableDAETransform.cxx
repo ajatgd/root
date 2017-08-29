@@ -134,6 +134,11 @@ Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Even
 
    SetCreated( kTRUE );
 
+   std::ofstream file; 
+   file.open("/home/mhuwiler/rootauto/testing/outpufuncDAE.cxx"); 
+   MakeFunction(file, "function", 2, 2, 2); 
+   file.close(); 
+
    return kTRUE;
 }
 
@@ -178,41 +183,18 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    }
 
 
-   //std::cout << "Forward Transformation " << std::endl;
    TransformInputData(localInput, transformedEvent);
-   //std::cout << "Forward Tranformation finished " << std::endl;
-   /*for (unsigned int i=0; i<transformedEvent.GetNrows(); i++)
-   {
-      std::cout << transformedEvent(i, 0) << " " ;
-   }
-   std::cout << std::endl; */
-
-   //std::cout << "Starting evaluation " << std::endl;
+   
    encodedEvent = fAutoEncoder[currentClass]->PredictEncodedOutput(transformedEvent);      // Maybe cls for same behaviour as PCA...
 
-   //std::cout << "Backward transformation starts..." << std::endl;
-   // encodedEvent.ResizeTo(2, 1);
-   //encodedEvent(0, 0) = 1.2;
-   //encodedEvent(1, 0) = 2.0;
    BackTransformOutputData(encodedEvent, localOutput);
-   //std::cout << "Backward transformation finished " << std::endl;
-   //std::cout << "Output size : " << localOutput.size() << std::endl;
-
-   //for (unsigned int i=numCompressedUnits; i<mask.size(); i++)
-   //{
-   //   mask[i] = kTRUE;  // Workaround for not overshooting the spare value, since the output has less dimensions than the input.
-   //}                    // Only the number of output dimensions (numCompressedUnits) ar left unmasked.
-
-   // std::cout << encodedEvent.GetNrows() << " " << localOutput.size() << " " << std::endl;
-   /*for (unsigned int i=0; i<localOutput.size(); i++)
-   {
-      std::cout << encodedEvent(i, 0) << " " << localOutput[i] << " ";
-   }
-   std::cout << std::endl; */
+   
    SetOutput( fTransformedEvent, localOutput, mask, ev );
-   //std::cout << "Setting output succeded. " << std::endl;
-   //std::cout << "Size of transformed event : " << fTransformedEvent->GetValues().size() << std::endl;
 
+
+   //SetOutputDataSetInfo(new DataSetInfo((*fDsi)));    // No copy default method... 
+
+   
 
    //std::cout << "fTransformedEvent : " << fTransformedEvent->GetNVariables() << std::endl; 
    if (true) {
@@ -365,7 +347,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    Scalar_t dropoutProbability = 0.2;
    size_t epochs = 15000;
    DNN::EActivationFunction activation;
-   bool applyDropout = false;
+   bool applyDropout = true;
    activation = DNN::EActivationFunction::kSigmoid;
 
    numCompressedUnits = numHiddenUnitsPerLayer.back();
@@ -807,11 +789,7 @@ void TMVA::VariableDAETransform::ReadTransformationFromStream( std::istream& ist
 void TMVA::VariableDAETransform::MakeFunction( std::ostream& fout, const TString& fcncName,
                                                Int_t part, UInt_t trCounter, Int_t )
 {
-   /*UInt_t nvar = input[0][0].GetNrows();
-
-   // creates a PCA transformation function
-   UInt_t numC = input.size();
-   if (part==1) {
+   /*if (part==1) {
       fout << std::endl;
       fout << "   void Transform_"<<trCounter<<"( const double*, double*, int ) const;" << std::endl;
       fout << "   double input_"<<trCounter<<"["<<numC<<"]["
@@ -820,89 +798,44 @@ void TMVA::VariableDAETransform::MakeFunction( std::ostream& fout, const TString
            << input[0].GetNrows() << "]["
            << output[0].GetNcols() <<"];" << std::endl;   // eigenvectors
       fout << std::endl;
-   }
-
-   // sanity check
-   if (numC>1){
-      if (input[0][0]->GetNrows()   != input[1][0]->GetNrows() ||
-          output[0][0]->GetNrows() != output[1][0]->GetNrows() ||) {
-         Log() << kFATAL << "<MakeFunction> Mismatch in vector/matrix dimensions" << Endl;
-      }
-   }
+   }*/
 
    if (part==2) {
 
       fout << std::endl;
       fout << "//_______________________________________________________________________" << std::endl;
-      fout << "inline void " << fcncName << "::Transform_"<<trCounter<<"( const double* x, double* p, int index ) const" << std::endl;
+      fout << "inline void " << fcncName << "::Transform_"<<trCounter<<"( const Event* const ev, Int_t cls ) const" << std::endl;
       fout << "{" << std::endl;
-      fout << "   // Calculate the principal components from the original data vector" << std::endl;
-      fout << "   // x, and return it in p (function extracted from TPrincipal::X2P)" << std::endl;
-      fout << "   // It's the users responsibility to make sure that both x and p are" << std::endl;
-      fout << "   // of the right size (i.e., memory must be allocated for p)." << std::endl;
-      fout << "   const int nVar = " << nvar << ";" << std::endl;
-      fout << std::endl;
-      fout << "   for (int i = 0; i < nVar; i++) {" << std::endl;
-      fout << "      p[i] = 0;" << std::endl;
-      fout << "      for (int j = 0; j < nVar; j++) p[i] += (x[j] - fMeanValues_"<<trCounter<<"[index][j]) * fEigenVectors_"<<trCounter<<"[index][j][i];" << std::endl;
-      fout << "   }" << std::endl;
-      fout << "}" << std::endl;
-      fout << std::endl;
-      fout << "//_______________________________________________________________________" << std::endl;
-      fout << "inline void " << fcncName << "::InitTransform_"<<trCounter<<"()" << std::endl;
-      fout << "{" << std::endl;
-      fout << "   // PCA transformation, initialisation" << std::endl;
-
-      // fill vector of mean values
-      fout << "   // initialise vector of mean values" << std::endl;
-      std::streamsize dp = fout.precision();
-      for (UInt_t index=0; index<numC; index++) {
-         for (int i=0; i<fMeanValues[index]->GetNrows(); i++) {
-            fout << "   fMeanValues_"<<trCounter<<"["<<index<<"]["<<i<<"] = " << std::setprecision(12)
-                 << (*fMeanValues[index])(i) << ";" << std::endl;
-         }
-      }
-
-      // fill matrix of eigenvectors
-      fout << std::endl;
-      fout << "   // initialise matrix of eigenvectors" << std::endl;
-      for (UInt_t index=0; index<numC; index++) {
-         for (int i=0; i<fEigenVectors[index]->GetNrows(); i++) {
-            for (int j=0; j<fEigenVectors[index]->GetNcols(); j++) {
-               fout << "   fEigenVectors_"<<trCounter<<"["<<index<<"]["<<i<<"]["<<j<<"] = " << std::setprecision(12)
-                    << (*fEigenVectors[index])(i,j) << ";" << std::endl;
-            }
-         }
-      }
-      fout << std::setprecision(dp);
-      fout << "}" << std::endl;
-      fout << std::endl;
-      fout << "//_______________________________________________________________________" << std::endl;
-      fout << "inline void " << fcncName << "::Transform_"<<trCounter<<"( std::vector<double>& iv, int cls ) const" << std::endl;
-      fout << "{" << std::endl;
-      fout << "   // PCA transformation" << std::endl;
-      fout << "   const int nVar = " << nvar << ";" << std::endl;
-      fout << "   double *dv = new double[nVar];" << std::endl;
-      fout << "   double *rv = new double[nVar];" << std::endl;
-      fout << "   if (cls < 0 || cls > "<<GetNClasses()<<") {"<< std::endl;
-      fout << "       if ("<<GetNClasses()<<" > 1 ) cls = "<<GetNClasses()<<";"<< std::endl;
-      fout << "       else cls = "<<(numC==1?0:2)<<";"<< std::endl;
-      fout << "   }"<< std::endl;
-
-      VariableTransformBase::MakeFunction(fout, fcncName, 0, trCounter, 0 );
-
-      fout << "   for (int ivar=0; ivar<nVar; ivar++) dv[ivar] = iv[indicesGet.at(ivar)];" << std::endl;
-
-      fout << std::endl;
-      fout << "   // Perform PCA and put it into PCAed events tree" << std::endl;
-      fout << "   this->X2P_"<<trCounter<<"( dv, rv, cls );" << std::endl;
-      fout << "   for (int ivar=0; ivar<nVar; ivar++) iv[indicesPut.at(ivar)] = rv[ivar];" << std::endl;
-
-      fout << std::endl;
-      fout << "   delete [] dv;" << std::endl;
-      fout << "   delete [] rv;" << std::endl;
-      fout << "}" << std::endl;
-   }*/
+      fout << "   numDAE = " << fAutoEncoder.size() << ";" << std::endl; 
+      fout << std::endl; 
+      fout << "if (cls < 0 || cls >= (int) input.size()) cls = input.size()-1;" << std::endl; 
+      fout << "if (fTransformedEvent==0 ) {" << std::endl; 
+      fout << "fTransformedEvent = new Event();" << std::endl; 
+      fout << "}" << std::endl; 
+      fout << "for (unsigned int i=0; i<numDAE; i++) {" << std::endl; 
+      fout << "   fAutoEncoder.push_back(TDeepAutoEncoder('/filepath'+std::to_tring(i) ));" << std::endl; 
+      fout << "}" << std::endl; 
+      fout << "Matrix_t transformedEvent, encodedEvent;" << std::endl; 
+      fout << "std::vector<Float_t> localInput, localOutput;" << std::endl; 
+      fout << "std::vector<Char_t>  mask;" << std::endl; 
+      fout << "encodedEvent.ResizeTo(numCompressedUnits, 1);" << std::endl; 
+      fout << "Bool_t hasMaskedEntries = GetInput( ev, localInput, mask );" << std::endl; 
+      fout << "if( hasMaskedEntries ){ // targets might be masked (for events where the targets have not been computed yet)" << std::endl; 
+      fout << "   UInt_t numMasked = std::count(mask.begin(), mask.end(), (Char_t)kTRUE);" << std::endl; 
+      fout << "   UInt_t numOK     = std::count(mask.begin(), mask.end(), (Char_t)kFALSE);" << std::endl; 
+      fout << "   if( numMasked>0 && numOK>0 ){" << std::endl; 
+      fout << "      Log() << kFATAL << 'You mixed variables and targets in the Deep Autoencoder transformation. This is not possible.' << Endl;" << std::endl; 
+      fout << "   }" << std::endl; 
+      fout << "   SetOutput( fTransformedEvent, localInput, mask, ev );" << std::endl; 
+      fout << "   return fTransformedEvent;" << std::endl; 
+      fout << "}" << std::endl; 
+      fout << "TransformInputData(localInput, transformedEvent);" << std::endl; 
+      fout << "encodedEvent = fAutoEncoder[cls]->PredictEncodedOutput(transformedEvent);" << std::endl; 
+      fout << "BackTransformOutputData(encodedEvent, localOutput);" << std::endl; 
+      fout << "SetOutput( fTransformedEvent, localOutput, mask, ev );" << std::endl; 
+      fout << "}" << std::endl; 
+      
+   }
 }
 void TMVA::VariableDAETransform::ReadFromFile()
 {

@@ -191,7 +191,7 @@ const TMVA::Event* TMVA::TransformationHandler::InverseTransform( const Event* e
    {
       differentOutputDim = true; 
       currentOutputSize = trEv->GetNVariables(); 
-
+      currentTargetSize = trEv->GetNTargets(); 
    }
    return trEv;
 
@@ -274,6 +274,8 @@ void TMVA::TransformationHandler::CalcStats (const std::vector<Event*>& events )
    const UInt_t nvar = events[0]->GetNVariables();
    const UInt_t ntgt = events[0]->GetNTargets();
 
+   std::cout << "Nvar : " << nvar << " Ntgts : " << ntgt << std::endl; 
+
    Double_t  *sumOfWeights = new Double_t[fNumC];
    Double_t* *x2           = new Double_t*[fNumC];
    Double_t* *x0           = new Double_t*[fNumC];
@@ -330,6 +332,7 @@ void TMVA::TransformationHandler::CalcStats (const std::vector<Event*>& events )
          for (Int_t cls = 0; cls < fNumC; cls++) {
             Double_t mean = x0[cls][(var_tgt*nvar)+ivar]/sumOfWeights[cls];
             Double_t rms = TMath::Sqrt( x2[cls][(var_tgt*nvar)+ivar]/sumOfWeights[cls] - mean*mean);
+            std::cout << "mean : " << mean << " rms : " << rms << " nvar : " << nvar << " (var_tgt*nvar)+ivar : " << (var_tgt*nvar)+ivar << std::endl; 
             AddStats(cls, (var_tgt*nvar)+ivar, mean, rms, varMin[cls][(var_tgt*nvar)+ivar], varMax[cls][(var_tgt*nvar)+ivar]);
          }
       }
