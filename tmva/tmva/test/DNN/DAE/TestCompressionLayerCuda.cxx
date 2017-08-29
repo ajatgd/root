@@ -8,10 +8,10 @@
  * Web    : http://tmva.sourceforge.net                                           *
  *                                                                                *
  * Description:                                                                   *
- *      Testing the Corruption Layer                                              *
+ *      Testing the Compression Layer for CUDA Architecture                        *
  *                                                                                *
  * Authors (alphabetical):                                                        *
- *      Akshay Vashistha <akshayvashistha1995@gmail.com>  - JSSATE, Noida, India  *
+ *    Akshay Vashistha   <akshayvashistha1995@gmail.com>  - JSSATE, Noida, India  *
  *                                                                                *
  * Copyright (c) 2005-2015:                                                       *
  *      CERN, Switzerland                                                         *
@@ -24,8 +24,8 @@
  * (http://tmva.sourceforge.net/LICENSE)                                          *
  **********************************************************************************/
 
-#include "TestCorruptionLayer.h"
-#include "TMVA/DNN/Architectures/Cpu.h"
+#include "TestCompressionLayer.h"
+#include "TMVA/DNN/Architectures/Cuda.h"
 
 using namespace TMVA::DNN;
 using namespace TMVA::DNN::DAE;
@@ -34,9 +34,10 @@ int main()
 
 {
    using Scalar_t = Double_t;
+
    std::cout << "Testing for Corruption Layer started" << std::endl;
 
-   testLayer<TCpu<Scalar_t>>(5, 4);
+   testLayer<TCuda<Scalar_t>>(5, 4,2);
 
    return 0;
 }

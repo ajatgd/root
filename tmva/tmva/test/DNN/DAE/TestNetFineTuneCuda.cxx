@@ -8,10 +8,10 @@
  * Web    : http://tmva.sourceforge.net                                           *
  *                                                                                *
  * Description:                                                                   *
- *      Testing the Corruption Layer                                              *
+ *      Testing the DeepNet for CUDA Architecture                                 *
  *                                                                                *
  * Authors (alphabetical):                                                        *
- *      Akshay Vashistha <akshayvashistha1995@gmail.com>  - JSSATE, Noida, India  *
+ *      Akshay Vashistha    <akshayvashistha1995@gmail.com>  - CERN, Switzerland  *
  *                                                                                *
  * Copyright (c) 2005-2015:                                                       *
  *      CERN, Switzerland                                                         *
@@ -24,8 +24,8 @@
  * (http://tmva.sourceforge.net/LICENSE)                                          *
  **********************************************************************************/
 
-#include "TestCorruptionLayer.h"
-#include "TMVA/DNN/Architectures/Cpu.h"
+#include "TestNetFineTune.h"
+#include "TMVA/DNN/Architectures/Cuda.h"
 
 using namespace TMVA::DNN;
 using namespace TMVA::DNN::DAE;
@@ -34,9 +34,9 @@ int main()
 
 {
    using Scalar_t = Double_t;
-   std::cout << "Testing for Corruption Layer started" << std::endl;
+   std::cout << "Testing for DeepNet started" << std::endl;
 
-   testLayer<TCpu<Scalar_t>>(5, 4);
+   testNet<TCuda<Scalar_t>>();
 
    return 0;
 }
