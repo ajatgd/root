@@ -46,12 +46,15 @@ template <typename Architecture> auto testLayer(size_t batchSize, size_t visible
 
    Matrix_t weights(hiddenUnits,visibleUnits);
    Matrix_t biases(hiddenUnits,1);
+   Matrix_t biases1(visibleUnits,1);
    randomMatrix(weights);
    randomMatrix(biases);
+   randomMatrix(biases1);
 
    std::vector<Matrix_t> Weights, Biases;
    Weights.emplace_back(weights);
    Biases.emplace_back(biases);
+   Biases.emplace_back(biases1);
 
    for(size_t j=0; j< (size_t)weights.GetNrows(); j++)
    {
@@ -67,11 +70,13 @@ template <typename Architecture> auto testLayer(size_t batchSize, size_t visible
                          EActivationFunction::kSigmoid,Weights, Biases);
 
    std::vector<Matrix_t> input, compressedInput;
+
    for(size_t i=0; i<batchSize; i++)
    {
       input.emplace_back(visibleUnits,1);
       compressedInput.emplace_back(hiddenUnits,1);
    }
+
    Matrix_t inputMatrix(visibleUnits, 1);
 
    for(size_t i=0; i<batchSize; i++)
