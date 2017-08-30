@@ -35,8 +35,6 @@
 
 #include "TMVA/DNN/Functions.h"
 #include <iostream>
-#include <fstream>
-#include <string>
 
 using namespace TMVA::DNN;
 using namespace TMVA::DNN::DAE;
