@@ -72,13 +72,9 @@ void TCuda<AFloat>::UpdateParams(TCudaMatrix<AFloat> &x,
    }
 
    //updating fHBiases
+   Multiply(HBiasError, fWeights, VBiasError);
    for(size_t i = 0; i < fHBiases.GetNrows(); i++)
    {
-      HBiasError(i,0) = 0;
-      for(size_t j = 0; j < fVBiases.GetNrows(); j++)
-      {
-         HBiasError(i, 0) += fWeights(i, j) * VBiasError(j, 0);
-      }
       HBiasError(i, 0) *= y(i, 0) * (1 - y(i, 0));
       fHBiases(i, 0) += learningRate * HBiasError(i, 0) / fBatchSize;
    }
