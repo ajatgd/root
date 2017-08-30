@@ -25,25 +25,28 @@
  **********************************************************************************/
 
 
- #ifndef TMVA_DAE_LOGISTIC_REGRESSION_LAYER
- #define TMVA_DAE_LOGISTIC_REGRESSION_LAYER
+#ifndef TMVA_DAE_LOGISTIC_REGRESSION_LAYER
+#define TMVA_DAE_LOGISTIC_REGRESSION_LAYER
 
- #include "TMatrix.h"
+#include "TMatrix.h"
 
- #include "TMVA/DNN/GeneralLayer.h"
- #include "TMVA/DNN/Functions.h"
+#include "TMVA/DNN/GeneralLayer.h"
+#include "TMVA/DNN/Functions.h"
 
- #include <iostream>
- #include <vector>
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
 
- namespace TMVA {
- namespace DNN {
- namespace DAE {
 
- /** \class TLogisticRegressionLayer
-      LogisticRegression Layer is used in the finetune step of training for AutoEncoders.
-      This is the supervised learning step to classify output.
- */
+namespace TMVA {
+namespace DNN {
+namespace DAE {
+
+/** \class TLogisticRegressionLayer
+    LogisticRegression Layer is used in the finetune step of training for AutoEncoders.
+    This is the supervised learning step to classify output.
+*/
 
 template <typename Architecture_t>
 class TLogisticRegressionLayer : public VGeneralLayer<Architecture_t> {
@@ -200,6 +203,8 @@ auto TLogisticRegressionLayer<Architecture_t>::Print() const
                    std::cout<<std::endl;
                  }
             }
+
+
 }
 
 //______________________________________________________________________________
