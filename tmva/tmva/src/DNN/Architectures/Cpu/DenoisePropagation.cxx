@@ -67,18 +67,17 @@ void TCpu<AFloat>::UpdateParams(
    {
       for (size_t j = 0; j < (size_t)fVBiases.GetNcols(); j++) {
          VBiasError(i, j) = x(i, j) - z(i, j);
+         //scalar to matrix multiply
          fVBiases(i, j) += learningRate * VBiasError(i, j) / fBatchSize;
       }
    }
 
    //updating fHBiases
+   
+   Multiply(HBiasError, fWeights, VBiasError);
    for(size_t i = 0; i < fHBiases.GetNrows(); i++)
    {
-      HBiasError(i,0) = 0;
-      for(size_t j = 0; j < fVBiases.GetNrows(); j++)
-      {
-         HBiasError(i, 0) += fWeights(i, j) * VBiasError(j, 0);
-      }
+      //vector to vector Multiply
       HBiasError(i, 0) *= y(i, 0) * (1 - y(i, 0));
       fHBiases(i, 0) += learningRate * HBiasError(i, 0) / fBatchSize;
    }
@@ -87,7 +86,7 @@ void TCpu<AFloat>::UpdateParams(
    for(size_t i = 0; i < fHBiases.GetNrows(); i++)
    {
       for(size_t j = 0; j< fVBiases.GetNrows(); j++)
-      {
+      {  // vector Multiply and store to matrix
          fWeights(i, j) += learningRate * (HBiasError(i, 0) * tildeX(j, 0) +
                                          VBiasError(j, 0) * y(i, 0)) / fBatchSize;
       }
@@ -198,6 +197,7 @@ void TCpu<AFloat>::UpdateParamsLogReg(TCpuMatrix<AFloat> &input,
       difference(i, 0) = output(i, 0) - p(i, 0);
       for(size_t j=0; j<n; j++)
       {
+         // vector to vector multiply
          fWeights(i, j) +=
          learningRate * difference(i, 0) * input(j, 0) / fBatchSize;
       }
