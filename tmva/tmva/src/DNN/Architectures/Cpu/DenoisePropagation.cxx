@@ -1,18 +1,28 @@
 // @(#)root/tmva/tmva/dnn:$Id$
-// Author: Akshay Vashistha(ajatgd)
+// Author: Akshay Vashistha
 
-/*************************************************************************
- * Copyright (C) 2017 ajatgd                                 *
- * All rights reserved.                                                  *
- *                                                                       *
- * For the licensing terms see $ROOTSYS/LICENSE.                         *
- * For the list of contributors see $ROOTSYS/README/CREDITS.             *
- *************************************************************************/
-
- //////////////////////////////////////////////////////////////////
- // Implementation of the Denoise Autoencoder functions for the  //
- // reference implementation.                                    //
-//////////////////////////////////////////////////////////////////
+/**********************************************************************************
+ * Project: TMVA - a Root-integrated toolkit for multivariate data analysis       *
+ * Package: TMVA                                                                  *
+ * Class  :                                                                       *
+ * Web    : http://tmva.sourceforge.net                                           *
+ *                                                                                *
+ * Description:                                                                   *
+ *   Implementation of the Autoencoder functions for the CPU implementation.      *
+ *                                                                                *
+ * Authors (alphabetical):                                                        *
+ *      Akshay Vashistha <akshayvashistha1995@gmail.com>  - JSSATE, Noida, India  *
+ *                                                                                *
+ * Copyright (c) 2005-2015:                                                       *
+ *      CERN, Switzerland                                                         *
+ *      U. of Victoria, Canada                                                    *
+ *      MPI-K Heidelberg, Germany                                                 *
+ *      U. of Bonn, Germany                                                       *
+ *                                                                                *
+ * Redistribution and use in source and binary forms, with or without             *
+ * modification, are permitted according to the terms listed in LICENSE           *
+ * (http://tmva.sourceforge.net/LICENSE)                                          *
+ **********************************************************************************/
 
 #include "TMVA/DNN/Architectures/Cpu.h"
 #include "TMVA/DNN/Architectures/Cpu/Blas.h"
@@ -57,18 +67,17 @@ void TCpu<AFloat>::UpdateParams(
    {
       for (size_t j = 0; j < (size_t)fVBiases.GetNcols(); j++) {
          VBiasError(i, j) = x(i, j) - z(i, j);
+         //scalar to matrix multiply
          fVBiases(i, j) += learningRate * VBiasError(i, j) / fBatchSize;
       }
    }
 
    //updating fHBiases
+   
+   Multiply(HBiasError, fWeights, VBiasError);
    for(size_t i = 0; i < fHBiases.GetNrows(); i++)
    {
-      HBiasError(i,0) = 0;
-      for(size_t j = 0; j < fVBiases.GetNrows(); j++)
-      {
-         HBiasError(i, 0) += fWeights(i, j) * VBiasError(j, 0);
-      }
+      //vector to vector Multiply
       HBiasError(i, 0) *= y(i, 0) * (1 - y(i, 0));
       fHBiases(i, 0) += learningRate * HBiasError(i, 0) / fBatchSize;
    }
@@ -77,7 +86,7 @@ void TCpu<AFloat>::UpdateParams(
    for(size_t i = 0; i < fHBiases.GetNrows(); i++)
    {
       for(size_t j = 0; j< fVBiases.GetNrows(); j++)
-      {
+      {  // vector Multiply and store to matrix
          fWeights(i, j) += learningRate * (HBiasError(i, 0) * tildeX(j, 0) +
                                          VBiasError(j, 0) * y(i, 0)) / fBatchSize;
       }
@@ -142,17 +151,7 @@ void TCpu<AFloat>::EncodeInput(TCpuMatrix<AFloat> &input,
                                      TCpuMatrix<AFloat> &compressedInput,
                                      TCpuMatrix<AFloat> &Weights)
 {
-   size_t m, a;
-   m = compressedInput.GetNrows();
-   a = input.GetNrows();
-
-   for (size_t i = 0; i < m; i++) {
-      compressedInput(i, 0) = 0;
-      for (size_t j = 0; j < a; j++) {
-         compressedInput(i, 0) =
-         compressedInput(i, 0) + (Weights(i, j) * input(j, 0));
-      }
-   }
+   Multiply(compressedInput, Weights, input);
 }
 //______________________________________________________________________________
 template <typename AFloat>
@@ -160,14 +159,8 @@ void TCpu<AFloat>::ReconstructInput(TCpuMatrix<AFloat> &compressedInput,
                                           TCpuMatrix<AFloat> &reconstructedInput,
                                           TCpuMatrix<AFloat> &fWeights) {
 
-   for (size_t i=0; i<(size_t)reconstructedInput.GetNrows(); i++)
-   {
-      reconstructedInput(i, 0) = 0;
-      for(size_t j=0; j<(size_t)compressedInput.GetNrows();j++)
-      {
-         reconstructedInput(i, 0) += fWeights(j, i) * compressedInput(j, 0);
-      }
-   }
+   Multiply(reconstructedInput, fWeights, compressedInput);
+
 }
 
 //______________________________________________________________________________
@@ -180,17 +173,7 @@ void TCpu<AFloat>::ForwardLogReg(TCpuMatrix<AFloat> &input,
                                        TCpuMatrix<AFloat> &p,
                                        TCpuMatrix<AFloat> &fWeights)
 {
-   size_t m,n;
-   m = p.GetNrows();
-   n = input.GetNrows();
-   for(size_t i= 0; i < m; i++)
-   {
-      p(i, 0) = 0;
-      for(size_t j=0; j < n; j++)
-      {
-         p(i, 0) += fWeights(i, j) * input(j, 0);
-      }
-   }
+   Multiply(p,fWeights,input);
 }
 
 //______________________________________________________________________________
@@ -214,6 +197,7 @@ void TCpu<AFloat>::UpdateParamsLogReg(TCpuMatrix<AFloat> &input,
       difference(i, 0) = output(i, 0) - p(i, 0);
       for(size_t j=0; j<n; j++)
       {
+         // vector to vector multiply
          fWeights(i, j) +=
          learningRate * difference(i, 0) * input(j, 0) / fBatchSize;
       }
