@@ -199,6 +199,7 @@ public:
    void WriteToXML(const TString filepath); 
 
    void ReadFromXML(const TString filepath); 
+   void WriteMatrixXML(void *parent, const char *name, const TMatrixT<Double_t> &X); 
 
 
    /*! Get the layer in the vector of layers at poistion i */
@@ -665,16 +666,15 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::Print() -> void
 
 template <typename Architecture_t, typename Layer_t>
 auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToXML(const TString filepath) -> void {
-  TString yo;
   TString xmlfname(filepath);
   xmlfname.ReplaceAll( ".txt", ".xml" );
-  if (fLogger) Log() << kINFO  << "Creating xml weight file for DAE : " << Endl;   // << gTools().Color("lightblue") << xmlfname << gTools().Color("reset")
-  std::cout << "Starting writing the file. " << std::endl; 
+  if (fLogger) Log() << kINFO  << "Creating xml weight file for DAE : " << gTools().Color("lightblue") << xmlfname << gTools().Color("reset") << Endl;
+  //std::cout << "Starting writing the file. " << std::endl; 
   void *doc      = gTools().xmlengine().NewDoc();
   void *rootnode = gTools().AddChild(0,"MethodSetup", "", true);
   gTools().xmlengine().DocSetRootElement(doc,rootnode);
   gTools().AddAttr(rootnode,"Method", "VariableDAETransform::TDeepAutoencoder");
-  void *nn = gTools().xmlengine().NewChild(rootnode, 0, "Weithts"); 
+  void *nn = gTools().xmlengine().NewChild(rootnode, 0, "Network"); 
 
   Int_t inputWidth = GetInputWidth();
   Int_t depth      = GetDepth();
@@ -691,10 +691,16 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToXML(const TString filepat
                                    TString::Itoa(activationFunction, 10));
       gTools().xmlengine().NewAttr(layerxml, 0, "VisibleUnits", gTools().StringFromInt(layer->GetVisibleUnits())); 
       gTools().xmlengine().NewAttr(layerxml, 0, "HiddenUnits", gTools().StringFromInt(layer->GetHiddenUnits())); 
-      //WriteMatrixXML(layerxml, "Weights", layer.GetWeights());
-      //WriteMatrixXML(layerxml, "Biases",  layer.GetBiases());
+      //void *weights = gTools().xmlengine().NewChild(layerxml, 0, "Weights"); 
+      for (unsigned int j=0; j<layer->GetWeights().size(); j++) {
+        void *weights = gTools().xmlengine().NewChild(layerxml, 0, "InternalLayer"); 
+        gTools().xmlengine().NewAttr(weights, 0, "Number", gTools().StringFromInt(j)); 
+        WriteMatrixXML(weights, "Weights", layer->GetWeightsAt(j));  //std::to_string(j)
+        WriteMatrixXML(weights, "Biases",  layer->GetBiasesAt(j));
+      }
+      
   }
-  std::cout << "Looped over layers. " << std::endl; 
+  //std::cout << "Looped over layers. " << std::endl; 
 
 
    /*Log() << kINFO //<<Form("Dataset[%s] : ",DataInfo().GetName())
@@ -707,6 +713,30 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToXML(const TString filepat
       
   gTools().xmlengine().SaveDoc(doc,xmlfname);
   gTools().xmlengine().FreeDoc(doc);
+}
+
+template <typename Architecture_t, typename Layer_t>
+auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteMatrixXML(void *parent,
+                                      const char *name,
+                                      const TMatrixT<Double_t> &X) -> void
+{
+   std::stringstream matrixStringStream("");
+   matrixStringStream.precision( 16 );
+
+   for (size_t i = 0; i < (size_t) X.GetNrows(); i++)
+   {
+      for (size_t j = 0; j < (size_t) X.GetNcols(); j++)
+      {
+         matrixStringStream << std::scientific << X(i,j) << " ";
+      }
+   }
+   std::string s = matrixStringStream.str();
+   void* matxml = gTools().xmlengine().NewChild(parent, 0, name);
+   gTools().xmlengine().NewAttr(matxml, 0, "rows",
+                                gTools().StringFromInt((int)X.GetNrows()));
+   gTools().xmlengine().NewAttr(matxml, 0, "cols",
+                                gTools().StringFromInt((int)X.GetNcols()));
+   gTools().xmlengine().AddRawLine (matxml, s.c_str());
 }
 
 template <typename Architecture_t, typename Layer_t>
