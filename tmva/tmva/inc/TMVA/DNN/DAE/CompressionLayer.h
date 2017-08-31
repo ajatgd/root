@@ -55,7 +55,7 @@ public:
 
    size_t fVisibleUnits; ///< total number of visible units
 
-   size_t fHiddenUnits; ///< tital number of hidden units.
+   size_t fHiddenUnits; ///< total number of hidden units.
 
    Scalar_t fDropoutProbability; ///< Probability that an input is active.
 

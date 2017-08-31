@@ -89,7 +89,6 @@
 #include "TMVA/ResultsMulticlass.h"
 #include "TMVA/RootFinder.h"
 #include "TMVA/Timer.h"
-#include "TMVA/Tools.h"
 #include "TMVA/TSpline1.h"
 #include "TMVA/Types.h"
 #include "TMVA/VariableDecorrTransform.h"

@@ -59,6 +59,8 @@ public:
 
    Scalar_t fLearningRate; ///< Learning Rate
 
+   size_t fType; 
+
 
    /* constructor */
    TLogisticRegressionLayer(size_t BatchSize, size_t InputUnits, size_t OutputUnits, size_t TestDataBatchSize,
@@ -83,6 +85,11 @@ public:
    size_t GetOutputUnits()        const {return fOutputUnits;}
    size_t GetTestDataBatchSize()  const {return fTestDataBatchSize;}
    Scalar_t GetLearningRate()     const {return fLearningRate;}
+   EActivationFunction GetActivationFunction() const { return EActivationFunction::kIdentity; }
+   size_t GetVisibleUnits() const { return 0; }
+   size_t GetHiddenUnits() const {return 0;}
+   size_t GetType() const {return fType;}
+
 
 
    /* Train the Logistic Regression Layer */
@@ -103,7 +110,7 @@ TLogisticRegressionLayer<Architecture_t>::TLogisticRegressionLayer(size_t batchS
    : VGeneralLayer<Architecture_t>(batchSize, 1, 1, 0, 0, 0, 0, 1, {outputUnits}, {inputUnits}, 1, {outputUnits},
    {1}, testDataBatchSize, outputUnits, 1, EInitialization::kUniform),
    fInputUnits(inputUnits), fOutputUnits(outputUnits),
-   fTestDataBatchSize(testDataBatchSize), fLearningRate(learningRate)
+   fTestDataBatchSize(testDataBatchSize), fLearningRate(learningRate), fType(0)
 
 {
   // Output Tensor will be created in General Layer

@@ -135,6 +135,12 @@ public:
    size_t GetWidth() const { return fWidth; }
    bool IsTraining() const { return fIsTraining; }
 
+   virtual size_t GetVisibleUnits() const = 0;
+   virtual size_t GetHiddenUnits() const = 0;  
+   virtual EActivationFunction GetActivationFunction() const = 0; 
+   virtual size_t GetType() const = 0; 
+
+
    const std::vector<Matrix_t> &GetWeights() const { return fWeights; }
    std::vector<Matrix_t> &GetWeights() { return fWeights; }
 

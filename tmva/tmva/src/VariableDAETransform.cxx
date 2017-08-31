@@ -435,6 +435,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
       fAutoEncoder.push_back( new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(input[i].size(), InputDepth, InputHeight, InputWidth, BatchDepth, BatchHeight, BatchWidth, fJ, fI, fR, fWeightDecay, isTraining) );
       std::cout << "Training autoencoder " << i << std::endl;
       fAutoEncoder.at(i)->PreTrain(input[i], numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout);
+      if (i==0) {fAutoEncoder.at(0)->WriteToXML("/home/mhuwiler/rootauto/testing/autoencoder1config.xml"); } 
    }
 
 
@@ -457,7 +458,6 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
    {
       fPut.push_back(std::pair<Char_t,UInt_t>(varType, i));
    }
-
 
 
    std::cout << std::endl << "Training successful! " << std::endl;

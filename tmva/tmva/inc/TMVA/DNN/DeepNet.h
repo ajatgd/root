@@ -40,6 +40,8 @@
 #include "TMVA/DNN/DAE/CorruptionLayer.h"
 #include "TMVA/DNN/DAE/ReconstructionLayer.h"
 #include "TMVA/DNN/DAE/LogisticRegressionLayer.h"
+#include "TMVA/Tools.h"
+#include "TXMLEngine.h"
 
 #include <vector>
 #include <cmath>
@@ -194,6 +196,11 @@ public:
    /*! Print the Deep Net Info */
    void Print();
 
+   void WriteToXML(const TString filepath); 
+
+   void ReadFromXML(const TString filepath); 
+
+
    /*! Get the layer in the vector of layers at poistion i */
    inline Layer_t *GetLayerAt(size_t i) { return fLayers[i]; }
    inline const Layer_t *GetLayerAt(size_t i) const { return fLayers[i]; }
@@ -270,7 +277,7 @@ TDeepAutoEncoder<Architecture_t, Layer_t>::TDeepAutoEncoder()
      fBatchWidth(0), fJ(ELossFunction::kMeanSquaredError), fI(EInitialization::kZero), fR(ERegularization::kNone),
      fWeightDecay(0.0), fIsTraining(true), fWasPreTrained(false)
 {
-   // Nothing to do here.
+   fLogger = new MsgLogger("TDeepAutoEncoder", kINFO); 
 }
 
 //______________________________________________________________________________
@@ -282,7 +289,7 @@ TDeepAutoEncoder<Architecture_t, Layer_t>::TDeepAutoEncoder(size_t batchSize, si
      fBatchHeight(batchHeight), fBatchWidth(batchWidth), fInputWidth(inputWidth), fJ(J), fI(I), fR(R),
      fWeightDecay(weightDecay), fIsTraining(isTraining), fWasPreTrained(false)
 {
-   // Nothing to do here.
+   fLogger = new MsgLogger("TDeepAutoEncoder", kINFO); 
 }
 
 //______________________________________________________________________________
@@ -293,14 +300,14 @@ TDeepAutoEncoder<Architecture_t, Layer_t>::TDeepAutoEncoder(const TDeepAutoEncod
      fBatchWidth(deepNet.fBatchWidth), fJ(deepNet.fJ), fI(deepNet.fI), fR(deepNet.fR),
      fWeightDecay(deepNet.fWeightDecay), fIsTraining(deepNet.fIsTraining), fWasPreTrained(false)
 {
-   // Nothing to do here.
+   fLogger = new MsgLogger("TDeepAutoEncoder", kINFO); 
 }
 
 //______________________________________________________________________________
 template <typename Architecture_t, typename Layer_t>
 TDeepAutoEncoder<Architecture_t, Layer_t>::~TDeepAutoEncoder()
 {
-   // Relese the layers memory
+   delete fLogger; 
 }
 
 //______________________________________________________________________________
@@ -636,6 +643,7 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToFile(size_t layer, size_t
    info.close();
 }
 
+
 //______________________________________________________________________________
 template <typename Architecture_t, typename Layer_t>
 auto TDeepAutoEncoder<Architecture_t, Layer_t>::Print() -> void
@@ -654,6 +662,58 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::Print() -> void
       fLayers[i]->Print();
    }
 }
+
+template <typename Architecture_t, typename Layer_t>
+auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToXML(const TString filepath) -> void {
+  TString yo;
+  TString xmlfname(filepath);
+  xmlfname.ReplaceAll( ".txt", ".xml" );
+  if (fLogger) Log() << kINFO  << "Creating xml weight file for DAE : " << Endl;   // << gTools().Color("lightblue") << xmlfname << gTools().Color("reset")
+  std::cout << "Starting writing the file. " << std::endl; 
+  void *doc      = gTools().xmlengine().NewDoc();
+  void *rootnode = gTools().AddChild(0,"MethodSetup", "", true);
+  gTools().xmlengine().DocSetRootElement(doc,rootnode);
+  gTools().AddAttr(rootnode,"Method", "VariableDAETransform::TDeepAutoencoder");
+  void *nn = gTools().xmlengine().NewChild(rootnode, 0, "Weithts"); 
+
+  Int_t inputWidth = GetInputWidth();
+  Int_t depth      = GetDepth();
+  char  lossFunction = static_cast<char>(GetLossFunction());
+  gTools().xmlengine().NewAttr(nn, 0, "InputWidth", gTools().StringFromInt(inputWidth));
+  gTools().xmlengine().NewAttr(nn, 0, "Depth", gTools().StringFromInt(depth));
+  gTools().xmlengine().NewAttr(nn, 0, "LossFunction", TString(lossFunction));
+  for (Int_t i = 0; i < depth; i++) {
+      const auto& layer = GetLayerAt(i);
+      auto layerxml = gTools().xmlengine().NewChild(nn, 0, "Layer");
+      gTools().xmlengine().NewAttr(layerxml, 0, "LayerType", gTools().StringFromInt(layer->GetType())); 
+      int activationFunction = static_cast<int>(layer->GetActivationFunction());
+      gTools().xmlengine().NewAttr(layerxml, 0, "ActivationFunction",
+                                   TString::Itoa(activationFunction, 10));
+      gTools().xmlengine().NewAttr(layerxml, 0, "VisibleUnits", gTools().StringFromInt(layer->GetVisibleUnits())); 
+      gTools().xmlengine().NewAttr(layerxml, 0, "HiddenUnits", gTools().StringFromInt(layer->GetHiddenUnits())); 
+      //WriteMatrixXML(layerxml, "Weights", layer.GetWeights());
+      //WriteMatrixXML(layerxml, "Biases",  layer.GetBiases());
+  }
+  std::cout << "Looped over layers. " << std::endl; 
+
+
+   /*Log() << kINFO //<<Form("Dataset[%s] : ",DataInfo().GetName())
+    << "Creating xml weight file: "
+         << gTools().Color("lightblue") << xmlfname << gTools().Color("reset") << Endl;
+   void* doc      = gTools().xmlengine().NewDoc();
+   void* rootnode = gTools().AddChild(0,"MethodSetup", "", true);
+   gTools().xmlengine().DocSetRootElement(doc,rootnode);
+   gTools().AddAttr(rootnode,"Method", "VariableDAETransform"); */
+      
+  gTools().xmlengine().SaveDoc(doc,xmlfname);
+  gTools().xmlengine().FreeDoc(doc);
+}
+
+template <typename Architecture_t, typename Layer_t>
+void TDeepAutoEncoder<Architecture_t, Layer_t>::ReadFromXML(const TString filepath) {
+  // Loop over the file and construct everything... 
+}
+
 } // namespace DNN
 } // namespace TMVA
 

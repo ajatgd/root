@@ -1140,7 +1140,7 @@ void TMVA::MethodBDT::Train()
    // (needs to be done here and cannot be done in "init" as the options need to be
    // known).
 
-   const std::vector<TMVA::Event*> eventCollectionTraining = GetEventCollection(Types::kTraining); //GetTransformationHandler().CalcTransformations(Data()->GetEventCollection(Types::kTraining), true);
+   /*const std::vector<TMVA::Event*> eventCollectionTraining = GetEventCollection(Types::kTraining); //GetTransformationHandler().CalcTransformations(Data()->GetEventCollection(Types::kTraining), true);
    const std::vector<TMVA::Event*> eventCollectionTesting  = GetEventCollection(Types::kTraining); //GetTransformationHandler().CalcTransformations(Data()->GetEventCollection(Types::kTesting), true); 
    for (unsigned int i=0; i<eventCollectionTraining.size(); i++) 
    {
@@ -1149,7 +1149,7 @@ void TMVA::MethodBDT::Train()
         std::cout << eventCollectionTraining.at(i)->GetValue(j) << " "; 
       }
       std::cout << std::endl; 
-   }
+   }*/
    
    InitEventSample();
 

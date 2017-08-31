@@ -92,6 +92,7 @@ public:
    size_t GetType() const {return fType;}
    Scalar_t GetDropoutProbability() const { return fDropoutProbability; }
    Scalar_t GetCorruptionLevel() const {return fCorruptionLevel;}
+   EActivationFunction GetActivationFunction() const { return EActivationFunction::kIdentity; }
 
 };
 
