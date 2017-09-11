@@ -104,6 +104,8 @@ public:
 
    /* Getters */
    //size_t GetBatchSize() const { return fBatchSize;}
+   size_t GetInputUnits() const { return GetVisibleUnits(); }
+   size_t GetOutputUnits() const {return GetHiddenUnits(); }
    size_t GetVisibleUnits() const { return fVisibleUnits; }
    size_t GetHiddenUnits() const { return fHiddenUnits; }
    size_t GetType() const {return fType;}

@@ -87,8 +87,6 @@ public:
    size_t GetTestDataBatchSize()  const {return fTestDataBatchSize;}
    Scalar_t GetLearningRate()     const {return fLearningRate;}
    EActivationFunction GetActivationFunction() const { return EActivationFunction::kIdentity; }
-   size_t GetVisibleUnits() const { return 0; }
-   size_t GetHiddenUnits() const {return 0;}
    size_t GetType() const {return fType;}
 
 

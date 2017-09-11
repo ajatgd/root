@@ -668,7 +668,7 @@ template <typename Architecture_t, typename Layer_t>
 auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToXML(const TString filepath) -> void {
   TString xmlfname(filepath);
   xmlfname.ReplaceAll( ".txt", ".xml" );
-  if (fLogger) Log() << kINFO  << "Creating xml weight file for DAE : " << gTools().Color("lightblue") << xmlfname << gTools().Color("reset") << Endl;
+  if (fLogger) {Log() << kINFO  << "Creating xml weight file for DAE : " << gTools().Color("lightblue") << xmlfname << gTools().Color("reset") << Endl; }
   //std::cout << "Starting writing the file. " << std::endl; 
   void *doc      = gTools().xmlengine().NewDoc();
   void *rootnode = gTools().AddChild(0,"MethodSetup", "", true);
@@ -679,9 +679,22 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToXML(const TString filepat
   Int_t inputWidth = GetInputWidth();
   Int_t depth      = GetDepth();
   char  lossFunction = static_cast<char>(GetLossFunction());
-  gTools().xmlengine().NewAttr(nn, 0, "InputWidth", gTools().StringFromInt(inputWidth));
   gTools().xmlengine().NewAttr(nn, 0, "Depth", gTools().StringFromInt(depth));
+  gTools().xmlengine().NewAttr(nn, 0, "InputWidth", gTools().StringFromInt(inputWidth));
+  gTools().xmlengine().NewAttr(nn, 0, "InputDepth", gTools().StringFromInt(GetInputDepth())); 
+  gTools().xmlengine().NewAttr(nn, 0, "InputHeight", gTools().StringFromInt(GetInputHeight())); 
+  gTools().xmlengine().NewAttr(nn, 0, "OutputWidth", gTools().StringFromInt(GetOutputWidth())); 
+  gTools().xmlengine().NewAttr(nn, 0, "BatchSize", gTools().StringFromInt(GetBatchSize())); 
+  gTools().xmlengine().NewAttr(nn, 0, "BatchWidth", gTools().StringFromInt(GetBatchWidth())); 
+  gTools().xmlengine().NewAttr(nn, 0, "BatchHeight", gTools().StringFromInt(GetBatchHeight())); 
+  gTools().xmlengine().NewAttr(nn, 0, "BatchDepth", gTools().StringFromInt(GetBatchDepth())); 
+  gTools().xmlengine().NewAttr(nn, 0, "Initialization", TString(static_cast<char>(GetInitialization()))); 
   gTools().xmlengine().NewAttr(nn, 0, "LossFunction", TString(lossFunction));
+  gTools().xmlengine().NewAttr(nn, 0, "Regularization", TString(static_cast<char>(GetRegularization()))); 
+  gTools().xmlengine().NewAttr(nn, 0, "WeightDecay", TString(static_cast<char>(GetWeightDecay()))); 
+  int wasPretrained = static_cast<int>(GetWasPreTrained()); 
+  gTools().xmlengine().NewAttr(nn, 0, "WasPretrained",  gTools().StringFromInt(wasPretrained)); 
+
   for (Int_t i = 0; i < depth; i++) {
       const auto& layer = GetLayerAt(i);
       auto layerxml = gTools().xmlengine().NewChild(nn, 0, "Layer");
@@ -689,8 +702,8 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToXML(const TString filepat
       int activationFunction = static_cast<int>(layer->GetActivationFunction());
       gTools().xmlengine().NewAttr(layerxml, 0, "ActivationFunction",
                                    TString::Itoa(activationFunction, 10));
-      gTools().xmlengine().NewAttr(layerxml, 0, "VisibleUnits", gTools().StringFromInt(layer->GetVisibleUnits())); 
-      gTools().xmlengine().NewAttr(layerxml, 0, "HiddenUnits", gTools().StringFromInt(layer->GetHiddenUnits())); 
+      gTools().xmlengine().NewAttr(layerxml, 0, "VisibleUnits", gTools().StringFromInt(layer->GetInputUnits())); 
+      gTools().xmlengine().NewAttr(layerxml, 0, "HiddenUnits", gTools().StringFromInt(layer->GetOutputUnits())); 
       //void *weights = gTools().xmlengine().NewChild(layerxml, 0, "Weights"); 
       for (unsigned int j=0; j<layer->GetWeights().size(); j++) {
         void *weights = gTools().xmlengine().NewChild(layerxml, 0, "InternalLayer"); 

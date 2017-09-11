@@ -129,7 +129,7 @@ Bool_t TMVA::VariableDAETransform::PrepareTransformation (const std::vector<Even
    SetCreated( kTRUE );
 
    std::ofstream file; 
-   file.open("/home/mhuwiler/rootauto/testing/outpufuncDAE.cxx"); 
+   file.open("/home/giuseppe/rootauto/testing/outpufuncDAE.cxx"); 
    MakeFunction(file, "function", 2, 2, 2); 
    file.close(); 
 
@@ -195,8 +195,8 @@ const TMVA::Event* TMVA::VariableDAETransform::Transform( const Event* const ev,
    const Event* decodedEvent = InverseTransform(fTransformedEvent, 2);
 
    std::ofstream myfile, differencefile;
-   myfile.open("/home/mhuwiler/rootauto/testing/autoencodertest.txt", std::ios::app);
-   differencefile.open("/home/mhuwiler/rootauto/testing/differences.txt", std::ios::app);
+   myfile.open("/home/giuseppe/rootauto/testing/autoencodertest.txt", std::ios::app);
+   differencefile.open("/home/giuseppe/rootauto/testing/differences.txt", std::ios::app);
    for (unsigned int i=0; i<fTransformedEvent->GetNVariables(); i++)
    {
       myfile << fTransformedEvent->GetValue(i) << " ";
@@ -435,7 +435,7 @@ void TMVA::VariableDAETransform::TrainOnExampleData( const std::vector< Event*>&
       fAutoEncoder.push_back( new TMVA::DNN::TDeepAutoEncoder<Architecture_t>(input[i].size(), InputDepth, InputHeight, InputWidth, BatchDepth, BatchHeight, BatchWidth, fJ, fI, fR, fWeightDecay, isTraining) );
       std::cout << "Training autoencoder " << i << std::endl;
       fAutoEncoder.at(i)->PreTrain(input[i], numHiddenUnitsPerLayer, learningRate, corruptionLevel, dropoutProbability, epochs, activation, applyDropout);
-      if (i==0) {fAutoEncoder.at(0)->WriteToXML("/home/mhuwiler/rootauto/testing/autoencoder1config.xml"); } 
+      if (i==0) {fAutoEncoder.at(0)->WriteToXML("/home/giuseppe/rootauto/testing/autoencoder1config.xml"); } 
    }
 
 
