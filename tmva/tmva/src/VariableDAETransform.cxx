@@ -807,7 +807,7 @@ void TMVA::VariableDAETransform::MakeFunction( std::ostream& fout, const TString
       fout << "fTransformedEvent = new Event();" << std::endl; 
       fout << "}" << std::endl; 
       fout << "for (unsigned int i=0; i<numDAE; i++) {" << std::endl; 
-      fout << "   fAutoEncoder.push_back(TDeepAutoEncoder('/filepath'+std::to_tring(i) ));" << std::endl; 
+      fout << "   fAutoEncoder.push_back(TDeepAutoEncoder(\"/filepath\"+std::to_tring(i) ));" << std::endl; 
       fout << "}" << std::endl; 
       fout << "Matrix_t transformedEvent, encodedEvent;" << std::endl; 
       fout << "std::vector<Float_t> localInput, localOutput;" << std::endl; 

@@ -93,6 +93,8 @@ private:
    ERegularization fR;    ///< The regularization used for the network.
    Scalar_t fWeightDecay; ///< The weight decay factor.
    bool fWasPreTrained;   ///< If PreTrain wa executed.
+   Scalar_t fDropoutProbability; 
+   Scalar_t fCorruptionLevel; 
 
    MsgLogger* fLogger;                     //! message logger
 
@@ -200,6 +202,7 @@ public:
 
    void ReadFromXML(const TString filepath); 
    void WriteMatrixXML(void *parent, const char *name, const TMatrixT<Double_t> &X); 
+   void ReadMatrixXML(void *xml, const char *name, TMatrixT<Double_t> &X);
 
 
    /*! Get the layer in the vector of layers at poistion i */
@@ -226,6 +229,9 @@ public:
    inline size_t GetBatchDepth() const { return fBatchDepth; }
    inline size_t GetBatchHeight() const { return fBatchHeight; }
    inline size_t GetBatchWidth() const { return fBatchWidth; }
+
+   inline double GetDropoutProbability() const { return fDropoutProbability; }
+   inline double GetCorruptionLevel() const { return fCorruptionLevel; }
 
    const std::vector<Matrix_t> &GetLocalWeights() const { return fLocalWeights; }
    std::vector<Matrix_t> &GetLocalWeights() { return fLocalWeights; }
@@ -266,6 +272,8 @@ public:
    inline void SetInitialization(EInitialization I) { fI = I; }
    inline void SetRegularization(ERegularization R) { fR = R; }
    inline void SetWeightDecay(Scalar_t weightDecay) { fWeightDecay = weightDecay; }
+   inline void SetDropoutProbability(Scalar_t dropout) {fDropoutProbability = dropout; }
+   inline void SetCorruptionLevel(Scalar_t corruptionLevel) {fCorruptionLevel = corruptionLevel; } 
 };
 
 //
@@ -413,6 +421,8 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::PreTrain(std::vector<Matrix_t> &
                                                          Scalar_t corruptionLevel, Scalar_t dropoutProbability, size_t epochs,
                                                          EActivationFunction f, bool applyDropout) -> void
 {
+   SetDropoutProbability(dropoutProbability); 
+   SetCorruptionLevel(corruptionLevel); 
    std::vector<Matrix_t> inp1;
    std::vector<Matrix_t> inp2;
    inp1.emplace_back(1,1);
@@ -692,6 +702,8 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteToXML(const TString filepat
   gTools().xmlengine().NewAttr(nn, 0, "LossFunction", TString(lossFunction));
   gTools().xmlengine().NewAttr(nn, 0, "Regularization", TString(static_cast<char>(GetRegularization()))); 
   gTools().xmlengine().NewAttr(nn, 0, "WeightDecay", TString(static_cast<char>(GetWeightDecay()))); 
+  gTools().xmlengine().NewAttr(nn, 0, "DropoutProbability", gTools().StringFromDouble(GetDropoutProbability())); 
+  gTools().xmlengine().NewAttr(nn, 0, "CorruptionLevel", gTools().StringFromDouble(GetCorruptionLevel())); 
   int wasPretrained = static_cast<int>(GetWasPreTrained()); 
   gTools().xmlengine().NewAttr(nn, 0, "WasPretrained",  gTools().StringFromInt(wasPretrained)); 
 
@@ -754,7 +766,119 @@ auto TDeepAutoEncoder<Architecture_t, Layer_t>::WriteMatrixXML(void *parent,
 
 template <typename Architecture_t, typename Layer_t>
 void TDeepAutoEncoder<Architecture_t, Layer_t>::ReadFromXML(const TString filepath) {
-  // Loop over the file and construct everything... 
+  TString tfname(filepath);
+
+  Log() << kDEBUG << "Reading weight file: " << gTools().Color("lightblue") << tfname << gTools().Color("reset") << Endl;
+
+  if (tfname.EndsWith(".xml") ) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,0)
+      void* doc = gTools().xmlengine().ParseFile(tfname,gTools().xmlenginebuffersize()); // the default buffer size in TXMLEngine::ParseFile is 100k. Starting with ROOT 5.29 one can set the buffer size, see: http://savannah.cern.ch/bugs/?78864. This might be necessary for large XML files
+#else
+      void* doc = gTools().xmlengine().ParseFile(tfname);
+#endif
+      void* rootnode = gTools().xmlengine().DocGetRootElement(doc); // node "MethodSetup"
+
+  auto netXML = gTools().GetChild(rootnode, "MethodSetup");
+  if (!netXML){
+     netXML = rootnode;    // Is this really what we want? 
+  }
+
+  auto nn = gTools().GetChild(netXML, "Network"); 
+
+  size_t depth, inputWidth, inputDepth, inputHeight, outputWidth, batchSize, batchWidth, batchHeight, batchDepth;
+  bool wasPretrained; 
+  char initialization, lossFunction;
+  int regularization, weightDecay; 
+  double dropoutProbability, corruptionLevel; 
+  gTools().ReadAttr(nn, "Depth", depth);
+  gTools().ReadAttr(nn, "InputWidth", inputWidth);
+  gTools().ReadAttr(nn, "InputDepth", inputDepth); 
+  gTools().ReadAttr(nn, "InputHeight", inputHeight); 
+  gTools().ReadAttr(nn, "OutputWidth", outputWidth); 
+  gTools().ReadAttr(nn, "BatchSize", batchSize); 
+  gTools().ReadAttr(nn, "BatchWidth", batchWidth); 
+  gTools().ReadAttr(nn, "BatchHeight", batchHeight); 
+  gTools().ReadAttr(nn, "BatchDepth", batchDepth); 
+  gTools().ReadAttr(nn, "Initialization", initialization);
+  gTools().ReadAttr(nn, "LossFunction", lossFunction);
+  gTools().ReadAttr(nn, "Regularization", regularization); 
+  gTools().ReadAttr(nn, "WeightDecay", weightDecay); 
+  gTools().ReadAttr(nn, "DropoutProbability", dropoutProbability); 
+  gTools().ReadAttr(nn, "CorruptionLevel", corruptionLevel); 
+  gTools().ReadAttr(nn, "WasPretrained", wasPretrained); 
+
+
+  if (wasPretrained==false) 
+  {
+    Log() << kFATAL << "The network which produced the weight file was not pretrained. " << Endl; 
+  }
+
+  SetInputWidth(inputWidth); 
+  SetInputDepth(inputDepth); 
+  SetInputHeight(inputHeight); 
+  //SetOutputWidth
+  SetBatchSize(batchSize); 
+  SetBatchWidth(batchWidth); 
+  SetBatchHeight(batchHeight); 
+  SetBatchDepth(batchDepth); 
+  SetInitialization(initialization); 
+  SetLossFunction(lossFunction); 
+  SetRegularization(regularization); 
+  SetWeightDecay(weightDecay); 
+  SetDropoutProbability(dropoutProbability); 
+  SetCorruptionLevel(corruptionLevel); 
+
+  int currentLayerType, currentActivationFunction, currentVisibleUnits, currentHiddenUnits; 
+  Matrix_t weights, biases; 
+  auto layer = gTools().xmlengine().GetChild(nn, "Layer"); 
+  
+  for (Int_t i = 0; i<depth; i++) 
+  {
+    gTools().ReadAttr(layer, "LayerType", currentLayerType); 
+    gTools().ReadAttr(layer, "ActivationFunction", currentActivationFunction);
+    gTools().ReadAttr(layer, "VisibleUnits", currentVisibleUnits); 
+    gTools().ReadAttr(layer, "HiddenUnits", currentHiddenUnits);
+    auto internalLayer = gTools().xmlengine().GetChild(layer, "InternalLayer"); 
+    ReadMatrixXML(internalLayer, "Weights", weights);
+    ReadMatrixXML(internalLayer, "Biases",  biases);
+    //for (Int_t j=0; j< /*something*/; j++)
+    switch(currentLayerType) 
+    {
+      case 0: 
+        // Whatever layer it is ... 
+      case 1: 
+        AddCorruptionLayer(currentVisibleUnits, currentHiddenUnits, dropoutProbability, corruptionLevel); 
+      case 2: 
+        AddCompressionLayer(currentVisibleUnits, currentHiddenUnits, dropoutProbability, currentActivationFunction, weights, biases); 
+      case 3: 
+        AddReconstructionLayer(currentVisibleUnits, currentHiddenUnits, 0.1, currentActivationFunction, weights, biases, dropoutProbability, corruptionLevel); 
+    }
+
+  }
+  gTools().xmlengine().FreeDoc(doc);
+  }
+}
+
+template <typename Architecture_t, typename Layer_t>
+auto TDeepAutoEncoder<Architecture_t, Layer_t>::ReadMatrixXML(void *xml,
+                                     const char *name,
+                                     TMatrixT<Double_t> &X) -> void
+{
+   void *matrixXML = gTools().GetChild(xml, name);
+   size_t rows, cols;
+   gTools().ReadAttr(matrixXML, "rows", rows);
+   gTools().ReadAttr(matrixXML, "cols", cols);
+
+   const char * matrixString = gTools().xmlengine().GetNodeContent(matrixXML);
+   std::stringstream matrixStringStream(matrixString);
+
+   for (size_t i = 0; i < rows; i++)
+   {
+      for (size_t j = 0; j < cols; j++)
+      {
+         matrixStringStream >> X(i,j);
+      }
+   }
 }
 
 } // namespace DNN
